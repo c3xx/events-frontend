@@ -45,6 +45,16 @@ export type OrganizationType = {
 	selectedRoleId: string;
 };
 
+export type VenueType = {
+	id: string;
+	name: string;
+	children: {
+		childTypeId: string;
+	}[];
+	selectedChildId: string;
+	selectedRoleId: string;
+};
+
 export type ChildType = {
 	id: string;
 	name: string;

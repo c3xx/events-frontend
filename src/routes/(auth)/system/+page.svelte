@@ -3,11 +3,14 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { ChevronLeftIcon } from '@lucide/svelte';
 	import OrganizationTypesSection from './organization-types-section.svelte';
+	import VenueTypesSection from './venue-types-section.svelte';
 </script>
 
 <div class="relative flex">
-	<div class="flex w-full lg:pl-30">
+	<div class="flex w-full flex-col lg:pl-30">
 		<OrganizationTypesSection />
+		<Separator />
+		<VenueTypesSection />
 	</div>
 	<div class="sticky top-0 right-0 flex w-50 max-sm:hidden">
 		<Separator class="my-r-pad" orientation="vertical" />
