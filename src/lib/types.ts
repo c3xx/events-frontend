@@ -14,6 +14,18 @@ export type User = {
 	organizationRoles: OrganizationRole[];
 };
 
+export type Venue = {
+	id: number;
+	name: string;
+	venueTypeId: number;
+	organizationId: number | null;
+	maxCapacity: number;
+	accessLevel: string;
+	isAvailable: boolean;
+	unavailabilityReason: string | null;
+	isActive: boolean;
+};
+
 // TODO: Match types
 export type Organization = {
 	id: string;
@@ -62,6 +74,11 @@ export type ChildType = {
 
 export type RoleType = {
 	id: string;
+	name: string;
+};
+
+export type VenueType = {
+	id: number;
 	name: string;
 };
 
@@ -136,3 +153,28 @@ type LoadingFailure = {
 	state: 'failed';
 	message: string;
 };
+
+export type VenueTypeRole = {
+	id: number;
+	name: string;
+};
+
+export type VenueMembers=
+	{
+		id: number;
+		isActive: boolean;
+		roleId: number;
+		user: {
+			id: number;
+			fullName: string;
+			email: string;
+		};
+	}[]
+
+export type VenueFacilities = {
+		id: number;
+		facilityId: number;
+		facilityName: string;
+	}[]
+
+export type VenueMember = { id: number }
