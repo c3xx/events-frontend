@@ -4,6 +4,7 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { Venue } from '$lib/types';
 	import { venueAssignState } from '$lib/global/venueAssign.svelte';
+	import { venueFacilitiesState } from '$lib/global/venueFacilities.svelte';
 
 	let { row }: { row: Venue } = $props();
 </script>
@@ -31,5 +32,12 @@
 				venueAssignState.selectedVenue = row;
 			}}>Assign Members</DropdownMenu.Item
 		>
+		<DropdownMenu.Item
+			onclick={() => {
+				venueFacilitiesState.selectedVenue = row;
+				venueFacilitiesState.sheetOpen = true;
+			}}>Manage Facilities</DropdownMenu.Item
+		>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
+

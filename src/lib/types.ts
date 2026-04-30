@@ -154,6 +154,11 @@ type LoadingFailure = {
 	message: string;
 };
 
+export type Facility = {
+	id: number;
+	name: string;
+};
+
 export type VenueTypeRole = {
 	id: number;
 	name: string;

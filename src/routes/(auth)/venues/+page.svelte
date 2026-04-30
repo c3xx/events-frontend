@@ -17,6 +17,7 @@
 	import AssignRole from './assign-role.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddVenue from './add-venue.svelte';
+	import VenueFacilitiesSheet from './venue-facilities-sheet.svelte';
 
 	let venues = $state<LoadedData<Venue[]>>({
 		state: 'pending',
@@ -69,3 +70,4 @@
 
 <AddVenue bind:open={sheetOpen} />
 <AssignRole />
+<VenueFacilitiesSheet />
