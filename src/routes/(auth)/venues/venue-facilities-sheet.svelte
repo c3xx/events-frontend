@@ -98,10 +98,10 @@
 			<Sheet.Title>{venueFacilitiesState.selectedVenue?.name ?? 'Venue'}</Sheet.Title>
 			<Sheet.Description>Manage facilities linked to this venue.</Sheet.Description>
 		</Sheet.Header>
-		<div class="mx-xs flex h-full flex-col overflow-auto py-4">
+		<div class="mx-xs flex h-full flex-col overflow-auto">
 			<div class="border border-muted-foreground bg-muted">
-				<h3 class="p-xs text-sm font-medium">Linked Facilities</h3>
-				<Separator />
+				<!-- <h3 class="p-xs text-sm font-medium">Linked Facilities</h3>
+				<Separator /> -->
 				{#if linkedFacilities.state === 'pending'}
 					<p class="p-xs text-sm">{linkedFacilities.message}</p>
 				{:else if linkedFacilities.state === 'success'}
