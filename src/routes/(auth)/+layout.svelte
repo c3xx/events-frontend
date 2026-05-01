@@ -5,9 +5,9 @@
 	let { children } = $props();
 </script>
 
-<Sidebar.Provider class="w-screen">
+<Sidebar.Provider class="flex w-screen">
 	<AppSidebar />
-	<main class="w-full">
+	<main class="min-w-0 flex-1">
 		<div
 			class="border-muted-background sticky top-0 z-50 flex h-12 w-full items-center border-b bg-background p-xxxs"
 		>
