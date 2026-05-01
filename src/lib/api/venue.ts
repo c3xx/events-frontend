@@ -1,5 +1,5 @@
 import { api } from '$lib/api';
-import type { ApiResponse, Venue, VenueMembers, VenueFacilities, VenueMember } from '$lib/types';
+import type { ApiResponse, Venue, VenueMembers, VenueFacilities, VenueMember, CreateVenueData } from '$lib/types';
 
 export async function loadVenues() {
 	const res = await api.get('venues').json<ApiResponse<Venue[]>>();
@@ -10,15 +10,7 @@ export async function loadVenues() {
 	}
 }
 
-export interface CreateVenueData {
-	name: string;
-	venueTypeId: number;
-	organizationId: number | null;
-	maxCapacity: number;
-	accessLevel: string;
-	isAvailable: boolean;
-	unavailabilityReason?: string | null;
-}
+
 
 export async function createVenue(data: CreateVenueData) {
 	const res = await api

@@ -183,3 +183,13 @@ export type VenueFacilities = {
 	}[]
 
 export type VenueMember = { id: number }
+
+export type CreateVenueData = {
+	name: string;
+	venueTypeId: number;
+	maxCapacity: number;
+	accessLevel: "public" | "private";
+	isAvailable: boolean;
+	organizationId?: number | null | undefined;
+	unavailabilityReason?: string | undefined;
+}

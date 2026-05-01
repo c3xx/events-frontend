@@ -52,7 +52,7 @@
 				maxCapacity,
 				accessLevel,
 				isAvailable,
-				unavailabilityReason: isAvailable ? null : unavailabilityReason
+				unavailabilityReason: isAvailable ? undefined : unavailabilityReason
 			});
 
 			console.log('Venue Added');

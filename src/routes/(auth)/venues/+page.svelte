@@ -1,16 +1,7 @@
 <script lang="ts">
-	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
-	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
-	import Input from '$lib/components/ui/input/input.svelte';
 	import { PlusIcon } from '@lucide/svelte';
 	import { columns } from './column';
 	import DataTable from '$lib/components/data-table/data-table.svelte';
-	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
-	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
-	import SelectButton from '$lib/components/app/select-button.svelte';
 	import type { LoadedData, Venue } from '$lib/types';
 	import { loadVenues } from '$lib/api/venue.js';
 	import { onMount } from 'svelte';
