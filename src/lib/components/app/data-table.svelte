@@ -1,5 +1,7 @@
 <script lang="ts" generics="T extends {id: string}">
 	import type { TableProps } from '$lib/types';
+	import { ChevronDown, ChevronUp } from '@lucide/svelte';
+	import Button from '../ui/button/button.svelte';
 	import DataTableActions from './data-table-actions.svelte';
 
 	let {
@@ -7,13 +9,15 @@
 		data,
 		selectable = false,
 		onSelectionChange,
-		optionsList
+		optionsList,
+		expandable = false,
+		expandedContent
 	}: TableProps<T> = $props();
 
-	type RowWithSelection<T> = T & { rowSelected: boolean };
+	type RowWithSelection<T> = T & { rowSelected: boolean; isExpanded: boolean };
 
 	let internalData = $state<RowWithSelection<T>[]>(
-		data.map((row) => ({ ...row, rowSelected: false }))
+		data.map((row) => ({ ...row, rowSelected: false, isExpanded: false }))
 	);
 
 	function toggleAll(checked: boolean) {
@@ -43,7 +47,7 @@
 <div class="overflow-x-auto border bg-background bg-clip-border">
 	<div class="relative w-full">
 		<table class="w-full text-sm">
-			<thead class="border-b bg-sidebar-accent">
+			<thead class="border-b bg-primary/5">
 				<tr class="">
 					{#if selectable}
 						<th class="px-xs py-xxs text-start">
@@ -60,14 +64,17 @@
 							{column.header ?? ''}
 						</th>
 					{/each}
+					{#if expandable}
+						<th class="w-0 px-xs py-xxs"></th>
+					{/if}
 					{#if optionsList && optionsList?.length > 0}
-						<th class="px-xs py-xxs"></th>
+						<th class="w-0 px-xs py-xxs"></th>
 					{/if}
 				</tr>
 			</thead>
 			<tbody>
 				{#each internalData as row, i (i)}
-					<tr class="border-b last:border-0">
+					<tr class={`border-b last:border-0 hover:bg-accent ${row.isExpanded ? 'bg-accent' : ''}`}>
 						{#if selectable}
 							<td class="px-xs py-xxs">
 								<input
@@ -80,20 +87,53 @@
 						{#each columns as col (col.key)}
 							{#if col.type === 'link'}
 								<td class="px-xs py-xxs">
-									<a href={col.href ? `${col.href}${row.id ?? ''}` : '#'}>{row[col.key] ?? '-'}</a>
+									<a href={col.href ? `${col.href}${row.id ?? ''}` : '#'}>{row[col.key!] ?? '-'}</a>
+								</td>
+							{:else if col.type === 'button'}
+								<td class="px-xs py-xxs">
+									<Button onclick={() => col.onclick && col.onclick(row)} variant="outline"
+										>{row[col.key!] ?? '-'}</Button
+									>
 								</td>
 							{:else}
 								<td class="px-xs py-xxs">
-									{row[col.key] ?? '-'}
+									{row[col.key!] ?? '-'}
 								</td>
 							{/if}
 						{/each}
+						{#if expandable}
+							<td class="w-0 px-xs py-xxs"
+								><Button
+									onclick={() => {
+										row.isExpanded = !row.isExpanded;
+									}}
+									variant="ghost"
+									size="icon-sm"
+								>
+									{#if row.isExpanded}
+										<ChevronUp />
+									{:else}
+										<ChevronDown />
+									{/if}
+								</Button></td
+							>
+						{/if}
 						{#if optionsList && optionsList.length > 0}
-							<td class="px-xs py-xxs text-end"
+							<td class="w-0 px-xs py-xxs text-end"
 								><DataTableActions selectedItem={row} actions={optionsList} /></td
 							>
 						{/if}
 					</tr>
+					{#if expandedContent && expandable && row.isExpanded}
+						<tr class="border-b">
+							{#if selectable}
+								<td></td>
+							{/if}
+							<td colspan={columns.length + (optionsList && optionsList?.length > 0 ? 1 : 0)}>
+								{@render expandedContent(row)}
+							</td>
+						</tr>
+					{/if}
 				{/each}
 				{#if data.length === 0}
 					<tr>
