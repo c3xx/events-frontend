@@ -52,7 +52,7 @@
 		{#if venues.state === 'pending'}
 			<p class="p-4 text-center">Loading venues...</p>
 		{:else if venues.state === 'success'}
-			<DataTable data={venues.data} {columns} />
+			<DataTable data={venues.data} {columns} filterColumn="name" filterPlaceholder="Filter names..." />
 		{:else}
 			<p class="p-4 text-center text-red-500">{venues.message}</p>
 		{/if}

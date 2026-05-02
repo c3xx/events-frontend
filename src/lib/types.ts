@@ -1,3 +1,14 @@
+export type OrganizationMember = {
+	id: number;
+	isActive: boolean;
+	roleId: number;
+	user: {
+		id: number;
+		fullName: string;
+		email: string;
+	};
+}
+
 type OrganizationRole = {
 	id: string;
 	isActive: boolean;
@@ -77,11 +88,6 @@ export type RoleType = {
 	name: string;
 };
 
-export type VenueType = {
-	id: number;
-	name: string;
-};
-
 type PermissionCode =
 	| 'user:create'
 	| 'user:modify'
@@ -116,6 +122,31 @@ export type AuthUser = {
 export type ApiSuccess<T> = {
 	success: true;
 	data: T;
+};
+
+export type ColumnDef<T> = {
+	key: keyof T;
+	header?: string;
+	type: 'text' | 'link';
+	href?: string;
+	visiblity?: boolean;
+	//pass the first half of the link here
+	// example: if link localhost:5173/organisations/:id
+	// pass localhost:5173/organisations
+};
+
+export type TableProps<T> = {
+	columns: ColumnDef<T>[];
+	data: T[];
+	selectable?: boolean;
+	onSelectionChange?: (rows: T[]) => void;
+	optionsList?: ActionMenuItem<T>[];
+};
+
+export type ActionMenuItem<T> = {
+	id: string;
+	name: string;
+	onclick: (selectedItem: T) => void;
 };
 
 export enum ERROR_CODES {
@@ -164,23 +195,22 @@ export type VenueTypeRole = {
 	name: string;
 };
 
-export type VenueMembers=
-	{
+export type VenueMembers = {
+	id: number;
+	isActive: boolean;
+	roleId: number;
+	user: {
 		id: number;
-		isActive: boolean;
-		roleId: number;
-		user: {
-			id: number;
-			fullName: string;
-			email: string;
-		};
-	}[]
+		fullName: string;
+		email: string;
+	};
+}[];
 
 export type VenueFacilities = {
-		id: number;
-		facilityId: number;
-		facilityName: string;
-	}[]
+	id: number;
+	facilityId: number;
+	facilityName: string;
+}[];
 
 export type VenueMember = { id: number }
 

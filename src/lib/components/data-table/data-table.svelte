@@ -22,9 +22,16 @@
 	type DataTableProps<TData, TValue> = {
 		data: TData[];
 		columns: ColumnDef<TData, TValue>[];
+		filterColumn?: string;
+		filterPlaceholder?: string;
 	};
 
-	let { columns, data }: DataTableProps<TData, TValue> = $props();
+	let { 
+		columns, 
+		data, 
+		filterColumn = 'email', 
+		filterPlaceholder = 'Filter emails...' 
+	}: DataTableProps<TData, TValue> = $props();
 
 	// let pagination = $state<PaginationState>({ pageIndex: 0, pageSize: 10 });
 	let sorting = $state<SortingState>([]);
@@ -98,13 +105,15 @@
 
 <div class="flex flex-col">
 	<div class="flex items-center py-4">
-		<Input
-			placeholder="Filter emails..."
-			value={table.getColumn('email')?.getFilterValue() as string}
-			onchange={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
-			oninput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
-			class="w-50"
-		/>
+		{#if table.getColumn(filterColumn)}
+			<Input
+				placeholder={filterPlaceholder}
+				value={table.getColumn(filterColumn)?.getFilterValue() as string}
+				onchange={(e) => table.getColumn(filterColumn)?.setFilterValue(e.currentTarget.value)}
+				oninput={(e) => table.getColumn(filterColumn)?.setFilterValue(e.currentTarget.value)}
+				class="w-50"
+			/>
+		{/if}
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}

@@ -9,22 +9,29 @@
 
 	let {
 		placeholder,
+		
 		emptyMsg,
-		listItems
-	}: { placeholder: string; emptyMsg: string; listItems: { value: string; label: string }[] } =
-		$props();
+		listItems,
+		value = $bindable(''),
+		onSelect
+	}: {
+		placeholder: string;
+		emptyMsg: string;
+		listItems: { value: string; label: string }[];
+		value?: string;
+		onSelect?: (value: string) => void;
+	} = $props();
 
 	let open = $state(false);
-	let value = $state('');
 	let triggerRef = $state<HTMLButtonElement>(null!);
 
-	const selectedValue = $derived(listItems.find((f) => f.value === value)?.label);
+	const selectedValue = $derived(
+		listItems.find((f) => f.value === value)?.label
+	);
 
 	function closeAndFocusTrigger() {
 		open = false;
-		tick().then(() => {
-			triggerRef.focus();
-		});
+		tick().then(() => triggerRef.focus());
 	}
 </script>
 
