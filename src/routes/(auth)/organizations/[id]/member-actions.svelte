@@ -21,12 +21,12 @@
 	<DropdownMenu.Content>
 		<DropdownMenu.Group>
 			<DropdownMenu.Label>Actions</DropdownMenu.Label>
-			<DropdownMenu.Item
+			<!-- <DropdownMenu.Item
 			onclick={() => {
 				organisationMemberRoleAssignState.assignSheetOpen = true;
 				organisationMemberRoleAssignState.selectedMember = row;
 			}}>Assign Members</DropdownMenu.Item
-		>
+		> -->
 				</DropdownMenu.Group>
 
 	</DropdownMenu.Content>

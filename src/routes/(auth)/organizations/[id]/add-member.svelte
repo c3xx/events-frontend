@@ -1,4 +1,4 @@
-<!-- //Under construction -->
+<!-- //Under construction
 <script lang="ts">
 	import { loadUsers } from '$lib/api/users.js';
 	import { loadVenueTypeRoles } from '$lib/api/venue-types.js';
@@ -92,4 +92,4 @@
 			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
 		</Sheet.Footer>
 	</Sheet.Content>
-</Sheet.Root>
+</Sheet.Root> -->
