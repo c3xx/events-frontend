@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { columns } from './column';
 	import type { LoadedData, OrganizationMember, User } from '$lib/types';
-	import { loadUsers } from '$lib/api/users';
+	import { loadUsers, loadMatchResults } from '$lib/api/users';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { CheckIcon, PlusIcon } from '@lucide/svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -16,6 +16,8 @@
 	let title = $state('');
 	let isAdding = $state(false);
 	let selectedUserId = $state('');
+	let searchQuery = $state('');
+	let searchTimeout: ReturnType<typeof setTimeout>;
 
 	let orgMembers = $state<LoadedData<OrganizationMember[]>>({
 		state: 'pending',
@@ -23,8 +25,8 @@
 	});
 
 	let allUsers = $state<LoadedData<User[]>>({
-		state: 'pending',
-		message: 'Loading users...'
+		state: 'success',
+		data: []
 	});
 
 	$effect(() => {
@@ -43,19 +45,31 @@
 					message: 'Failed to load members'
 				};
 			}
+		})();
+	});
 
+	$effect(() => {
+		clearTimeout(searchTimeout);
+
+		if (!searchQuery) {
+			allUsers = { state: 'success', data: [] };
+			return;
+		}
+
+		searchTimeout = setTimeout(async () => {
+			allUsers = { state: 'pending', message: 'Searching...' };
 			try {
 				allUsers = {
 					state: 'success',
-					data: await loadUsers()
+					data: await loadMatchResults(searchQuery)
 				};
 			} catch (err) {
 				allUsers = {
 					state: 'failed',
-					message: 'Failed to load users'
+					message: 'Failed to search users'
 				};
 			}
-		})();
+		}, 1000);
 	});
 	async function handleAddMember() {
 	if (!selectedUserId) return;
@@ -92,8 +106,10 @@
 				<div class="w-full">
 					<Combobox 
 						bind:value={selectedUserId}
+						bind:inputValue={searchQuery}
+						asyncSearch={true}
 						placeholder="Select an email..." 
-						emptyMsg="No emails found" 
+						emptyMsg={allUsers.state === 'pending' ? 'Searching...' : 'No emails found'} 
 						listItems={allUsers.state === 'success' ? allUsers.data.map(u => ({ value: u.id.toString(), label: u.email })) : []} 
 					/>
 				</div>

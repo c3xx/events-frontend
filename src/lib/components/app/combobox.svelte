@@ -13,12 +13,16 @@
 		emptyMsg,
 		listItems,
 		value = $bindable(''),
+		inputValue = $bindable(''),
+		asyncSearch = false,
 		onSelect
 	}: {
 		placeholder: string;
 		emptyMsg: string;
 		listItems: { value: string; label: string }[];
 		value?: string;
+		inputValue?: string;
+		asyncSearch?: boolean;
 		onSelect?: (value: string) => void;
 	} = $props();
 
@@ -51,8 +55,8 @@
 		{/snippet}
 	</Popover.Trigger>
 	<Popover.Content class="p-0">
-		<Command.Root>
-			<Command.Input {placeholder} />
+		<Command.Root shouldFilter={!asyncSearch}>
+			<Command.Input {placeholder} bind:value={inputValue} />
 			<Command.List>
 				<Command.Empty>{emptyMsg}</Command.Empty>
 				<Command.Group>
