@@ -1,6 +1,25 @@
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { api } from '$lib/api';
-import type { ApiResponse, Organization, OrganizationType, User } from '$lib/types';
+import type {
+	ApiResponse,
+	Organization,
+	OrganizationMember,
+	OrganizationType,
+	Role,
+	User
+} from '$lib/types';
+
+export async function getOrgById(id: string) {
+	if (!id) {
+		throw new Error('Organization ID required');
+	}
+	const res = await api.get(`organizations/${id}`).json<ApiResponse<Organization>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
 
 export async function loadOrgs() {
 	const res = await api.get('organizations').json<ApiResponse<Organization[]>>();
@@ -100,14 +119,7 @@ export async function loadRolesOrgType(id: string) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
-	const res = await api.get(`organization-types/${id}/roles`).json<
-		ApiResponse<
-			{
-				id: string;
-				name: string;
-			}[]
-		>
-	>();
+	const res = await api.get(`organization-types/${id}/roles`).json<ApiResponse<Role[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -135,20 +147,9 @@ export async function loadOrganizationMembers(id: string | number) {
 	if (!id) {
 		throw new Error('Organization ID is required');
 	}
-	const res = await api.get(`organizations/${id}/members`).json<
-		ApiResponse<
-			{
-				id: number;
-				isActive: boolean;
-				roleId: number;
-				user: {
-					id: number;
-					fullName: string;
-					email: string;
-				};
-			}[]
-		>
-	>();
+	const res = await api
+		.get(`organizations/${id}/members`)
+		.json<ApiResponse<OrganizationMember[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
