@@ -11,6 +11,15 @@ export async function loadUsers() {
 	}
 }
 
+export async function loadMatchResults(query: string) {
+	const res = await api.get('users', { searchParams: { q: query } }).json<ApiResponse<User[]>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
 export async function createUser(name: string, email: string, status: string) {
 	if (!name || !email) {
 		throw new Error('Name and Email are required fields');

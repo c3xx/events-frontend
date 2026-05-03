@@ -1,5 +1,16 @@
 import type { Snippet } from 'svelte';
 
+export type OrganizationMember = {
+	id: number;
+	isActive: boolean;
+	roleId: number;
+	user: {
+		id: number;
+		fullName: string;
+		email: string;
+	};
+}
+
 type OrganizationRole = {
 	id: string;
 	isActive: boolean;
@@ -206,4 +217,14 @@ export type VenueFacilities = {
 	facilityName: string;
 }[];
 
-export type VenueMember = { id: number };
+export type VenueMember = { id: number }
+
+export type CreateVenueData = {
+	name: string;
+	venueTypeId: number;
+	maxCapacity: number;
+	accessLevel: "public" | "private";
+	isAvailable: boolean;
+	organizationId?: number | null | undefined;
+	unavailabilityReason?: string | undefined;
+}

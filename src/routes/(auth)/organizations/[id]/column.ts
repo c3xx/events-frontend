@@ -1,9 +1,10 @@
 import { renderComponent } from '$lib/components/ui/data-table';
 import type { ColumnDef } from '@tanstack/table-core';
 import { Checkbox } from '$lib/components/ui/checkbox';
-import type { User } from '$lib/types';
+import type { OrganizationMember } from '$lib/types';
+import MemberActions from './member-actions.svelte';
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<OrganizationMember>[] = [
 	{
 		id: 'select',
 		header: ({ table }) =>
@@ -23,20 +24,28 @@ export const columns: ColumnDef<User>[] = [
 		enableHiding: false
 	},
 	{
-		accessorKey: 'fullName',
+		accessorKey: 'user.fullName',
 		header: 'Name'
 	},
 	{
-		id: 'role',
-		accessorKey: 'role',
+		id: 'id',
+		accessorKey: 'user.id',
 		header: 'Role(s)'
 	},
 	{
-		accessorKey: 'email',
+		id: 'email',
+		accessorKey: 'user.email',
 		header: 'Email'
 	},
 	{
 		accessorKey: 'isActive',
 		header: 'Status'
+	},
+	{
+		id: 'actions',
+		header: 'Actions',
+		cell: ({ row }) => {
+			return renderComponent(MemberActions, { row: row.original });
+		}
 	}
 ];

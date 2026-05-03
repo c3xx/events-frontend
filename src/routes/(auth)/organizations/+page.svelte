@@ -193,7 +193,7 @@
 			{#if fetchedOrgs.state === 'pending'}
 				<p>Loading organizations</p>
 			{:else if fetchedOrgs.state === 'success'}
-				<DataTable data={fetchedOrgs.data} {columns} />
+				<DataTable data={fetchedOrgs.data} {columns} filterColumn="name" filterPlaceholder="Filter organizations..." />
 			{:else}
 				<p>Failed to load organizations</p>
 			{/if}

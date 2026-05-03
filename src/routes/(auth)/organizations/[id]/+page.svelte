@@ -5,18 +5,28 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { onMount } from 'svelte';
 	import { columns } from './column';
-	import type { LoadedData, User } from '$lib/types';
-	import { loadUsers } from '$lib/api/users';
+	import type { LoadedData, OrganizationMember, User } from '$lib/types';
+	import { loadUsers, loadMatchResults } from '$lib/api/users';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { PlusIcon } from '@lucide/svelte';
+	import { CheckIcon, PlusIcon } from '@lucide/svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Combobox from '$lib/components/app/combobox.svelte';
+	import { addMemberToOrganization, loadOrganizationMembers } from '$lib/api/organizations';
 
 	let title = $state('');
+	let isAdding = $state(false);
+	let selectedUserId = $state('');
+	let searchQuery = $state('');
+	let searchTimeout: ReturnType<typeof setTimeout>;
 
-	let users = $state<LoadedData<User[]>>({
+	let orgMembers = $state<LoadedData<OrganizationMember[]>>({
 		state: 'pending',
-		message: 'Loading users...'
+		message: 'Loading members...'
+	});
+
+	let allUsers = $state<LoadedData<User[]>>({
+		state: 'success',
+		data: []
 	});
 
 	$effect(() => {
@@ -25,18 +35,63 @@
 
 		(async () => {
 			try {
-				users = {
+				orgMembers = {
 					state: 'success',
-					data: await loadUsers()
+					data: await loadOrganizationMembers(page.params.id!)
 				};
 			} catch (err) {
-				users = {
+				orgMembers = {
 					state: 'failed',
-					message: 'Failed to load users'
+					message: 'Failed to load members'
 				};
 			}
 		})();
 	});
+
+	$effect(() => {
+		clearTimeout(searchTimeout);
+
+		if (!searchQuery) {
+			allUsers = { state: 'success', data: [] };
+			return;
+		}
+
+		searchTimeout = setTimeout(async () => {
+			allUsers = { state: 'pending', message: 'Searching...' };
+			try {
+				allUsers = {
+					state: 'success',
+					data: await loadMatchResults(searchQuery)
+				};
+			} catch (err) {
+				allUsers = {
+					state: 'failed',
+					message: 'Failed to search users'
+				};
+			}
+		}, 1000);
+	});
+	async function handleAddMember() {
+	if (!selectedUserId) return;
+
+	try {
+		await addMemberToOrganization(page.params.id!, {
+			userId: Number(selectedUserId),
+			roleId: 2
+		});
+
+		isAdding = false;
+		selectedUserId = '';
+
+		orgMembers = {
+			state: 'success',
+			data: await loadOrganizationMembers(page.params.id!)
+		};
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 </script>
 
 <div class="relative flex">
@@ -47,20 +102,34 @@
 		</div>
 		<Separator />
 		<div class="flex w-full gap-x-xxs">
-			<div class="w-full">
-				<Combobox placeholder="Select a user..." emptyMsg="No members found" listItems={[]} />
-			</div>
-			<Button variant="default"><PlusIcon /> Add Member</Button>
+			{#if isAdding}
+				<div class="w-full">
+					<Combobox 
+						bind:value={selectedUserId}
+						bind:inputValue={searchQuery}
+						asyncSearch={true}
+						placeholder="Select an email..." 
+						emptyMsg={allUsers.state === 'pending' ? 'Searching...' : 'No emails found'} 
+						listItems={allUsers.state === 'success' ? allUsers.data.map(u => ({ value: u.id.toString(), label: u.email })) : []} 
+					/>
+				</div>
+				<Button variant="outline" onclick={handleAddMember}>
+					<CheckIcon />
+				</Button>
+				<Button variant="outline" onclick={() => isAdding = false}>Cancel</Button>
+			{:else}
+				<Button variant="default" onclick={() => isAdding = true}><PlusIcon /> Add Member</Button>
+			{/if}
 		</div>
 
 		<Separator />
 		<div class="overflow-auto p-r-pad">
-			{#if users.state === 'pending'}
-				<p>{users.message}</p>
-			{:else if users.state === 'success'}
-				<DataTable {columns} data={users.data} />
+			{#if orgMembers.state === 'pending'}
+				<p>{orgMembers.message}</p>
+			{:else if orgMembers.state === 'success'}
+				<DataTable {columns} data={orgMembers.data} />
 			{:else}
-				<p>{users.message}</p>
+				<p>{orgMembers.message}</p>
 			{/if}
 		</div>
 	</div>

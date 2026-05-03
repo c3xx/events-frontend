@@ -4,6 +4,7 @@ import { Checkbox } from '$lib/components/ui/checkbox';
 import type { Organization } from '$lib/types';
 import { Button } from '$lib/components/ui/button';
 import { createRawSnippet } from 'svelte';
+import OrganizationActions from './organization-actions.svelte';
 
 export const columns: ColumnDef<Organization>[] = [
 	{
@@ -40,5 +41,11 @@ export const columns: ColumnDef<Organization>[] = [
 	{
 		accessorKey: 'status',
 		header: 'Status'
+	},
+	{
+		id: 'actions',
+		cell: ({ row }) => {
+			return renderComponent(OrganizationActions, { row: row.original });
+		}
 	}
 ];

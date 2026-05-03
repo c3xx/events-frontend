@@ -130,3 +130,49 @@ export async function addRole(parentId: string, name: string) {
 		throw new Error(res.message);
 	}
 }
+
+export async function loadOrganizationMembers(id: string | number) {
+	if (!id) {
+		throw new Error('Organization ID is required');
+	}
+	const res = await api.get(`organizations/${id}/members`).json<
+		ApiResponse<
+			{
+				id: number;
+				isActive: boolean;
+				roleId: number;
+				user: {
+					id: number;
+					fullName: string;
+					email: string;
+				};
+			}[]
+		>
+	>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function addMemberToOrganization(
+	id: string | number,
+	data: { userId: number; roleId: number }
+) {
+	if (!id || !data.userId || !data.roleId) {
+		throw new Error('Organization ID, User ID, and Role ID are required');
+	}
+
+	const res = await api
+		.post(`organizations/${id}/members`, {
+			json: data
+		})
+		.json<ApiResponse<{ id: number }>>();
+
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
