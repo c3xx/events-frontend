@@ -1,3 +1,5 @@
+import type { Snippet } from 'svelte';
+
 export type OrganizationMember = {
 	id: number;
 	isActive: boolean;
@@ -13,7 +15,7 @@ type OrganizationRole = {
 	id: string;
 	isActive: boolean;
 	roleId: string;
-	organizationId: string;
+	managedEntityId: string;
 };
 
 export type User = {
@@ -22,7 +24,7 @@ export type User = {
 	email: string;
 	type: 'admin' | 'end_user';
 	isActive: boolean;
-	organizationRoles: OrganizationRole[];
+	roles: OrganizationRole[];
 };
 
 export type Venue = {
@@ -125,9 +127,10 @@ export type ApiSuccess<T> = {
 };
 
 export type ColumnDef<T> = {
-	key: keyof T;
+	key: keyof T | null;
 	header?: string;
-	type: 'text' | 'link';
+	type: 'text' | 'link' | 'button';
+	onclick?: (payload: T) => {};
 	href?: string;
 	visiblity?: boolean;
 	//pass the first half of the link here
@@ -141,6 +144,8 @@ export type TableProps<T> = {
 	selectable?: boolean;
 	onSelectionChange?: (rows: T[]) => void;
 	optionsList?: ActionMenuItem<T>[];
+	expandable?: boolean;
+	expandedContent?: Snippet<[T]>;
 };
 
 export type ActionMenuItem<T> = {
