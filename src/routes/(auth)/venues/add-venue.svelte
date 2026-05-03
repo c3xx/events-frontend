@@ -18,7 +18,7 @@
 
 	let venueTypeId = $state('');
 	let organizationId = $state('');
-	let accessLevel = $state('public');
+	let accessLevel: 'public' | 'private' = $state('public');
 	let isAvailable = $state(true);
 
 	const accessLevels = [
@@ -66,21 +66,29 @@
 <Sheet.Root bind:open>
 	<Sheet.Content class="w-full sm:min-w-100" side="right">
 		<form onsubmit={handleSubmit}>
-			<div class="overflow-auto h-full flex flex-col">
+			<div class="flex h-full flex-col overflow-auto">
 				<Sheet.Header class="mb-xs border-b border-muted-foreground pb-2">
 					<div class="flex flex-col">
 						<h2 class="text-lg font-bold">Add Venue</h2>
-						<h3 class="text-sm">Enter the details of the new venue. Click save when you're done.</h3>
+						<h3 class="text-sm">
+							Enter the details of the new venue. Click save when you're done.
+						</h3>
 					</div>
 				</Sheet.Header>
-				<div class="grid flex-1 auto-rows-min gap-6 px-4 py-6 overflow-y-auto">
+				<div class="grid flex-1 auto-rows-min gap-6 overflow-y-auto px-4 py-6">
 					{#if errorText}
 						<p class="text-sm text-red-500">{errorText}</p>
 					{/if}
-					
+
 					<div class="grid gap-3">
 						<Label for="name">Venue Name</Label>
-						<Input id="name" name="name" class="primary-input" placeholder="e.g. Auditorium" required />
+						<Input
+							id="name"
+							name="name"
+							class="primary-input"
+							placeholder="e.g. Auditorium"
+							required
+						/>
 					</div>
 
 					<div class="grid gap-3">
@@ -109,7 +117,14 @@
 
 					<div class="grid gap-3">
 						<Label for="maxCapacity">Max Capacity</Label>
-						<Input id="maxCapacity" name="maxCapacity" type="number" class="primary-input" placeholder="e.g. 500" required />
+						<Input
+							id="maxCapacity"
+							name="maxCapacity"
+							type="number"
+							class="primary-input"
+							placeholder="e.g. 500"
+							required
+						/>
 					</div>
 
 					<div class="grid gap-3">
@@ -126,7 +141,10 @@
 
 					<div class="flex items-center space-x-2 py-2">
 						<Checkbox id="isAvailable" bind:checked={isAvailable} />
-						<Label for="isAvailable" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+						<Label
+							for="isAvailable"
+							class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
 							Available for Booking
 						</Label>
 					</div>
@@ -134,7 +152,12 @@
 					{#if !isAvailable}
 						<div class="grid gap-3">
 							<Label for="unavailabilityReason">Unavailability Reason</Label>
-							<Textarea id="unavailabilityReason" name="unavailabilityReason" placeholder="Reason for being unavailable..." required />
+							<Textarea
+								id="unavailabilityReason"
+								name="unavailabilityReason"
+								placeholder="Reason for being unavailable..."
+								required
+							/>
 						</div>
 					{/if}
 				</div>
