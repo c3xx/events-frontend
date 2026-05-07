@@ -59,7 +59,7 @@
 							/>
 						</th>
 					{/if}
-					{#each columns as column (column.key)}
+					{#each columns as column, i (i)}
 						<th class="px-xs py-xxs text-start font-normal">
 							{column.header ?? ''}
 						</th>
@@ -84,16 +84,22 @@
 								/>
 							</td>
 						{/if}
-						{#each columns as col (col.key)}
+						{#each columns as col, i (i)}
 							{#if col.type === 'link'}
 								<td class="px-xs py-xxs">
 									<a href={col.href ? `${col.href}${row.id ?? ''}` : '#'}>{row[col.key!] ?? '-'}</a>
 								</td>
 							{:else if col.type === 'button'}
 								<td class="px-xs py-xxs">
-									<Button onclick={() => col.onclick && col.onclick(row)} variant="outline"
-										>{row[col.key!] ?? '-'}</Button
+									<Button
+										class="cursor-pointer border-none bg-transparent p-0 shadow-none"
+										onclick={() => col.onclick && col.onclick(row)}
+										variant="outline">{row[col.key!] ?? '-'}</Button
 									>
+								</td>
+							{:else if col.type === 'transformValue'}
+								<td class="px-xs py-xxs">
+									{col.transformValue!(row, '-')}
 								</td>
 							{:else}
 								<td class="px-xs py-xxs">

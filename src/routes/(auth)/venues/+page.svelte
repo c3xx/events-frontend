@@ -1,22 +1,20 @@
 <script lang="ts">
 	import { PlusIcon } from '@lucide/svelte';
-	import { columns } from './column';
-	import DataTable from '$lib/components/data-table/data-table.svelte';
-	import type { LoadedData, Venue } from '$lib/types';
+	import type { LoadedData, TableProps, Venue } from '$lib/types';
 	import { loadVenues } from '$lib/api/venue.js';
 	import { onMount } from 'svelte';
 	import AssignRole from './assign-role.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddVenue from './add-venue.svelte';
 	import VenueFacilitiesSheet from './venue-facilities-sheet.svelte';
+	import { goto } from '$app/navigation';
+	import { venueFacilitiesState } from '$lib/global/venueFacilities.svelte';
+	import DataTable from '$lib/components/app/data-table.svelte';
 
 	let venues = $state<LoadedData<Venue[]>>({
 		state: 'pending',
 		message: 'Loading venues...'
 	});
-
-	let sheetOpen = $state(false);
-	let errorText = $state('');
 
 	async function refreshVenues() {
 		try {
@@ -37,14 +35,53 @@
 	}
 
 	onMount(refreshVenues);
+
+	let columns: TableProps<Venue>['columns'] = [
+		{
+			key: 'name',
+			header: 'Name',
+			type: 'link',
+			href: 'venues/'
+		},
+		{
+			key: 'maxCapacity',
+			header: 'Max Capacity',
+			type: 'text'
+		},
+		{
+			key: 'venueTypeId',
+			header: 'Type',
+			type: 'text'
+		}
+	];
+
+	let optionsList: TableProps<Venue>['optionsList'] = [
+		{
+			id: '1',
+			name: 'View Details',
+			onclick: (venue) => {
+				goto(`/venues/${venue.id}`);
+			}
+		},
+		{
+			id: '2',
+			name: 'Manage Facilities',
+			onclick: (venue) => {
+				venueFacilitiesState.selectedVenue = venue;
+				venueFacilitiesState.sheetOpen = true;
+			}
+		}
+	];
 </script>
 
 <div class="flex w-full flex-col">
-	<div class="border-muted-background flex w-full justify-between items-center border-b p-xxs">
-		<h1 class="text-xl font-bold px-2">Venues</h1>
+	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
+		<h1 class="px-2 text-xl">Venues</h1>
+	</div>
+	<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
 		<Button
 			onclick={() => {
-				sheetOpen = true;
+				venueFacilitiesState.sheetOpen = true;
 			}}>Add Venue <PlusIcon /></Button
 		>
 	</div>
@@ -52,13 +89,13 @@
 		{#if venues.state === 'pending'}
 			<p class="p-4 text-center">Loading venues...</p>
 		{:else if venues.state === 'success'}
-			<DataTable data={venues.data} {columns} filterColumn="name" filterPlaceholder="Filter names..." />
+			<DataTable data={venues.data} {columns} {optionsList} />
 		{:else}
 			<p class="p-4 text-center text-red-500">{venues.message}</p>
 		{/if}
 	</div>
 </div>
 
-<AddVenue bind:open={sheetOpen} />
+<AddVenue bind:open={venueFacilitiesState.sheetOpen} />
 <AssignRole />
 <VenueFacilitiesSheet />

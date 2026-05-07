@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { loadOrgs } from '$lib/api/organizations';
-	import { loadRoles } from '$lib/api/roles';
+	// import { loadRoles } from '$lib/api/roles';
 	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
 	import SelectButton from '$lib/components/app/select-button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
@@ -62,7 +62,7 @@
 						<ArrowDownIcon size={15} class="m-xs text-secondary-foreground sm:hidden" />
 						<div class="grid w-full gap-3">
 							<!-- <Label for="role" class="text-end">Role</Label> -->
-							<DynamicSelectButton
+							<!-- <DynamicSelectButton
 								name="role"
 								initialText="Select a Role"
 								size="full"
@@ -70,7 +70,7 @@
 								loadFn={loadRoles}
 								mapOption={(item: Role) => ({ value: item.id, label: item.roleName })}
 								isBg={true}
-							/>
+							/> -->
 						</div>
 					</div>
 					<Button

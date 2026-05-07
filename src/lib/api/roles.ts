@@ -2,11 +2,11 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { api } from '$lib/api';
 import type { ApiResponse, Role } from '$lib/types';
 
-export async function loadRoles() {
-	const res = await api.get('roles').json<ApiResponse<Role[]>>();
-	if (res.success) {
-		return res.data;
-	} else {
-		throw new Error(res.message);
-	}
-}
+// export async function loadRoles() {
+// 	const res = await api.get('roles').json<ApiResponse<Role[]>>();
+// 	if (res.success) {
+// 		return res.data;
+// 	} else {
+// 		throw new Error(res.message);
+// 	}
+// }
