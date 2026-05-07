@@ -1,5 +1,12 @@
 import { api } from '$lib/api';
-import type { ApiResponse, Venue, VenueMembers, VenueFacilities, VenueMember, CreateVenueData } from '$lib/types';
+import type {
+	ApiResponse,
+	Venue,
+	VenueMembers,
+	VenueFacilities,
+	VenueMember,
+	CreateVenueData
+} from '$lib/types';
 
 export async function loadVenues() {
 	const res = await api.get('venues').json<ApiResponse<Venue[]>>();
@@ -9,8 +16,6 @@ export async function loadVenues() {
 		throw new Error(res.message);
 	}
 }
-
-
 
 export async function createVenue(data: CreateVenueData) {
 	const res = await api
@@ -25,7 +30,7 @@ export async function createVenue(data: CreateVenueData) {
 	}
 }
 
-export async function getVenueMembers(id: number) {
+export async function getVenueMembers(id: string) {
 	const res = await api.get(`venues/${id}/members`).json<ApiResponse<VenueMembers[]>>();
 	if (res.success) {
 		return res.data;
@@ -34,7 +39,7 @@ export async function getVenueMembers(id: number) {
 	}
 }
 
-export async function addMemberToVenue(id: number, memberData: { userId: number; roleId: number }) {
+export async function addMemberToVenue(id: string, memberData: { userId: number; roleId: number }) {
 	const res = await api
 		.post(`venues/${id}/members`, {
 			json: memberData
@@ -47,7 +52,7 @@ export async function addMemberToVenue(id: number, memberData: { userId: number;
 	}
 }
 
-export async function getVenueFacilities(id: number) {
+export async function getVenueFacilities(id: string) {
 	const res = await api.get(`venues/${id}/facilities`).json<ApiResponse<VenueFacilities[]>>();
 	if (res.success) {
 		return res.data;
@@ -56,7 +61,7 @@ export async function getVenueFacilities(id: number) {
 	}
 }
 
-export async function setVenueFacilities(id: number, facilityIds: number[]) {
+export async function setVenueFacilities(id: string, facilityIds: number[]) {
 	const res = await api
 		.put(`venues/${id}/facilities`, {
 			json: { facilityId: facilityIds }

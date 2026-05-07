@@ -16,7 +16,7 @@
 	});
 	let selectedFacilityId = $state('');
 
-	let prevVenueId: number | null = $state(null);
+	let prevVenueId: string | null = $state(null);
 
 	$effect(() => {
 		const venue = venueFacilitiesState.selectedVenue;
@@ -26,7 +26,7 @@
 		}
 	});
 
-	async function loadLinkedFacilities(venueId: number) {
+	async function loadLinkedFacilities(venueId: string) {
 		linkedFacilities = { state: 'pending', message: 'Loading facilities...' };
 		try {
 			const data = await getVenueFacilities(venueId);
@@ -93,7 +93,7 @@
 		if (!open) prevVenueId = null;
 	}}
 >
-	<Sheet.Content class="h-screen w-full sm:min-w-120" side="right">
+	<Sheet.Content class="h-screen w-full sm:max-w-100" side="right">
 		<Sheet.Header class="border-b border-muted-foreground pb-2">
 			<Sheet.Title>{venueFacilitiesState.selectedVenue?.name ?? 'Venue'}</Sheet.Title>
 			<Sheet.Description>Manage facilities linked to this venue.</Sheet.Description>

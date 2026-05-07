@@ -143,7 +143,7 @@ export async function addRole(parentId: string, name: string) {
 	}
 }
 
-export async function loadOrganizationMembers(id: string | number) {
+export async function loadOrganizationMembers(id: string) {
 	if (!id) {
 		throw new Error('Organization ID is required');
 	}
@@ -157,23 +157,80 @@ export async function loadOrganizationMembers(id: string | number) {
 	}
 }
 
-export async function addMemberToOrganization(
-	id: string | number,
-	data: { userId: number; roleId: number }
-) {
-	if (!id || !data.userId || !data.roleId) {
-		throw new Error('Organization ID, User ID, and Role ID are required');
+export async function getOrganizationMemberByEmail(id: string, email: string) {
+	if (!id) {
+		throw new Error('Organization ID required');
 	}
-
+	if (!email) {
+		throw new Error('Email ID required');
+	}
 	const res = await api
-		.post(`organizations/${id}/members`, {
-			json: data
-		})
-		.json<ApiResponse<{ id: number }>>();
-
+		.get(`organizations/${id}/members?email=${email}`)
+		.json<ApiResponse<OrganizationMember[]>>();
 	if (res.success) {
-		return res.data;
+		return res.data[0];
 	} else {
 		throw new Error(res.message);
 	}
 }
+
+export async function updateOrganizationMemberRoles(id: string, userId: string, roleIds: string[]) {
+	if (!id) {
+		throw new Error('Organization ID required');
+	}
+	if (!userId) {
+		throw new Error('User ID required');
+	}
+	const res = await api
+		.put(`organizations/${id}/members/${userId}`, {
+			json: {
+				roleIds: roleIds
+			}
+		})
+		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+	if (res.success) {
+		return res.data; //fix this later, remove index as this should be a single value
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function deleteOrganizationMember(id: string, userId: string) {
+	if (!id) {
+		throw new Error('Organization ID required');
+	}
+	if (!userId) {
+		throw new Error('User ID required');
+	}
+	const res = await api
+		.delete(`organizations/${id}/members/${userId}`)
+		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+	if (res.success) {
+		return res.data; //fix this later, remove index as this should be a single value
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+// export async function addMemberToOrganization(id: string, userId: string, roleIds: string[]) {
+// 	if (!id) {
+// 		throw new Error('Organization ID is required');
+// 	}
+// 	if (!userId) {
+// 		throw new Error('User ID is required');
+// 	}
+// 	const res = await api
+// 		.post(`organizations/${id}/members`, {
+// 			json: {
+// 				userId,
+// 				roleIds
+// 			}
+// 		})
+// 		.json<ApiResponse<{ id: number }>>();
+
+// 	if (res.success) {
+// 		return res.data;
+// 	} else {
+// 		throw new Error(res.message);
+// 	}
+// }

@@ -1,15 +1,15 @@
 import type { Snippet } from 'svelte';
 
 export type OrganizationMember = {
-	id: number;
-	isActive: boolean;
-	roleId: number;
-	user: {
-		id: number;
-		fullName: string;
-		email: string;
-	};
-}
+	id: string;
+	fullName: string;
+	email: string;
+	roles: {
+		id: string;
+		roleId: string;
+		isActive: boolean;
+	}[];
+};
 
 type OrganizationRole = {
 	id: string;
@@ -28,11 +28,11 @@ export type User = {
 };
 
 export type Venue = {
-	id: number;
+	id: string;
 	name: string;
-	venueTypeId: number;
-	organizationId: number | null;
-	maxCapacity: number;
+	venueTypeId: string;
+	organizationId: string;
+	maxCapacity: string;
 	accessLevel: string;
 	isAvailable: boolean;
 	unavailabilityReason: string | null;
@@ -50,8 +50,7 @@ export type Organization = {
 
 export type Role = {
 	id: string;
-	createdAt: string;
-	roleName: string;
+	name: string;
 };
 
 export type AssignRole = {
@@ -129,8 +128,9 @@ export type ApiSuccess<T> = {
 export type ColumnDef<T> = {
 	key: keyof T | null;
 	header?: string;
-	type: 'text' | 'link' | 'button';
-	onclick?: (payload: T) => {};
+	type: 'text' | 'link' | 'button' | 'transformValue';
+	onclick?: (row: T) => void;
+	transformValue?: (row: T, value: string) => string;
 	href?: string;
 	visiblity?: boolean;
 	//pass the first half of the link here
@@ -217,14 +217,14 @@ export type VenueFacilities = {
 	facilityName: string;
 }[];
 
-export type VenueMember = { id: number }
+export type VenueMember = { id: number };
 
 export type CreateVenueData = {
 	name: string;
 	venueTypeId: number;
 	maxCapacity: number;
-	accessLevel: "public" | "private";
+	accessLevel: 'public' | 'private';
 	isAvailable: boolean;
 	organizationId?: number | null | undefined;
 	unavailabilityReason?: string | undefined;
-}
+};

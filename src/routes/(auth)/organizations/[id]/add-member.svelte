@@ -1,95 +1,271 @@
-<!-- //Under construction
 <script lang="ts">
-	import { loadUsers } from '$lib/api/users.js';
-	import { loadVenueTypeRoles } from '$lib/api/venue-types.js';
-	import { addMemberToVenue } from '$lib/api/venue.js';
-	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
-	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import type { User, VenueType } from '$lib/types';
-	import { ArrowRightIcon, ArrowDownIcon } from '@lucide/svelte';
+	import type { ApiFailure, LoadedData, OrganizationMember, Role } from '$lib/types';
+	import { PlusIcon, TrashIcon, Loader, X } from '@lucide/svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import { organisationMemberRoleAssignState } from '$lib/global/organizationMemberRoleAssign.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import SelectButton from '$lib/components/app/select-button.svelte';
+	import {
+		deleteOrganizationMember,
+		getOrganizationMemberByEmail,
+		updateOrganizationMemberRoles
+	} from '$lib/api/organizations';
+	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
-	let userValue = $state('');
-	let roleValue = $state('');
+	let userId: string | null = $state(null);
+	let userRoles = $state<LoadedData<OrganizationMember['roles']>>({
+		state: 'pending',
+		message: 'Loading Roles'
+	});
+	let currentRoles: OrganizationMember['roles'] = $state([]);
+
+	let userName = $state('');
+	let emailValue = $state('');
 	let errorText = $state('');
-	let successText = $state('');
+	let isLoadBtnActive = $state(true);
+	let isRoleLoading = $state(false);
+	let isSaveBtnActive = $derived(
+		(!currentRoles.every((role) => currentRoles.find((_role) => _role.roleId === role.roleId)) &&
+			currentRoles.length >= 1) ||
+			(userRoles.state === 'success' &&
+				userRoles.data.length !== currentRoles.length &&
+				currentRoles.length >= 1)
+	);
+	let isSaving = $state(false);
+	let isDeleting = $state(false);
 
-	async function handleAddMember() {
+	let delOpen = $state(false);
+
+	let selectedRoleId = $state('');
+
+	let {
+		member = $bindable(),
+		id,
+		roles,
+		open = $bindable()
+	}: { member: OrganizationMember | null; id: string; roles: Role[]; open: boolean } = $props();
+
+	let possibleRoles = $derived.by(() => {
+		if (userRoles.state === 'success') {
+			return roles.filter((_role) => !currentRoles.find((__role) => __role.roleId === _role.id));
+		}
+		return [];
+	});
+
+	async function loadRoles() {
 		try {
-			if (!organisationMemberRoleAssignState.selectedMember || !userValue || !roleValue) {
-				errorText = 'Please select both a user and a role.';
-				return;
-			}
 			errorText = '';
-			successText = '';
-			await addMemberToVenue(organisationMemberRoleAssignState.selectedMember.id, {
-				userId: parseInt(userValue),
-				roleId: parseInt(roleValue)
-			});
-			successText = 'Member added successfully!';
-			userValue = '';
-			roleValue = '';
-		} catch (err: any) {
+			if (emailValue.trim().length === 0) return;
+			isRoleLoading = true;
+			isLoadBtnActive = false;
+			const member = await getOrganizationMemberByEmail(id, emailValue);
+			userRoles = {
+				state: 'success',
+				data: member.roles
+			};
+			userId = member.id;
+			userName = member.fullName;
+			currentRoles = member.roles;
+		} catch (error: any) {
+			const err = error as ApiFailure;
+			console.log(err.message);
 			errorText = err.message;
+			isLoadBtnActive = true;
+			userRoles = {
+				state: 'failed',
+				message: 'Failed to fetch user roles'
+			};
+		} finally {
+			isRoleLoading = false;
 		}
 	}
+
+	async function updateRoles() {
+		try {
+			errorText = '';
+			if (userRoles.state !== 'success') return;
+			isSaving = true;
+			await updateOrganizationMemberRoles(
+				id,
+				userId!,
+				currentRoles.map((role) => role.roleId)
+			);
+		} catch (error: any) {
+			const err = error as ApiFailure;
+			console.log(err.message);
+			errorText = err.message;
+		} finally {
+			isSaving = false;
+		}
+	}
+
+	async function deleteMember() {
+		try {
+			errorText = '';
+			if (userRoles.state !== 'success') return;
+			isDeleting = true;
+			await deleteOrganizationMember(id, userId!);
+			clearUser();
+			open = false;
+		} catch (error: any) {
+			const err = error as ApiFailure;
+			console.log(err.message);
+			errorText = err.message;
+		} finally {
+			isDeleting = false;
+		}
+	}
+
+	function clearUser() {
+		member = null;
+		userId = null;
+		errorText = '';
+		emailValue = '';
+		isLoadBtnActive = true;
+	}
+
+	$effect(() => {
+		if (member) {
+			emailValue = member.email;
+			loadRoles();
+		}
+	});
 </script>
 
-<Sheet.Root bind:open={organisationMemberRoleAssignState.assignSheetOpen}>
-	<Sheet.Content class="h-screen w-full sm:min-w-120" side="right">
-		<form onsubmit={(e) => { e.preventDefault(); handleAddMember(); }}>
-			<Sheet.Header>
-				<Sheet.Title>Assign Members to Venue</Sheet.Title>
-				<Sheet.Description>
-					Select a user and a role to add them to {organisationMemberRoleAssignState.selectedMember?.user.fullName ?? 'the venue'}.
-				</Sheet.Description>
-			</Sheet.Header>
-			<div class="mx-xs flex h-full flex-col overflow-auto py-4">
-				{#if errorText}
-					<p class="text-sm text-red-500 mb-4">{errorText}</p>
-				{/if}
-				{#if successText}
-					<p class="text-sm text-green-500 mb-4">{successText}</p>
-				{/if}
-
-				<div class="sticky bottom-0 z-10 flex flex-col pt-4">
-					<Separator class="my-xs" />
-					<div
-						class="flex items-center justify-center rounded-lg bg-secondary p-xs max-sm:flex-col gap-2"
-					>
-						<div class="grid w-full gap-3">
-							<DynamicSelectButton
-								name="user"
-								initialText="Select a User"
-								size="full"
-								bind:value={userValue}
-								loadFn={loadUsers}
-								mapOption={(item: User) => ({ value: item.id.toString(), label: item.fullName })}
-								isBg={true}
-							/>
-						</div>
-						<ArrowRightIcon size={30} class="m-xs text-secondary-foreground max-sm:hidden" />
-						<ArrowDownIcon size={15} class="m-xs text-secondary-foreground sm:hidden" />
-						<div class="grid w-full gap-3">
-							<DynamicSelectButton
-								name="role"
-								initialText="Select a Role"
-								size="full"
-								bind:value={roleValue}
-								loadFn={() => organisationMemberRoleAssignState.selectedMember ? loadVenueTypeRoles(organisationMemberRoleAssignState.selectedMember.venueTypeId) : Promise.resolve([])}
-								mapOption={(item: { id: number; name: string }) => ({ value: item.id.toString(), label: item.name })}
-								isBg={true}
-							/>
-						</div>
+<Sheet.Root bind:open>
+	<Sheet.Content class="flex h-screen w-full flex-col sm:min-w-100" side="right">
+		<Sheet.Header>
+			<Sheet.Title>Manage members</Sheet.Title>
+			<Sheet.Description>Enter the email address to add/edit member roles</Sheet.Description>
+		</Sheet.Header>
+		<Separator />
+		<div class="flex flex-1 flex-col gap-y-r-pad overflow-y-auto p-r-pad">
+			{#if errorText}
+				<p class="text-sm text-red-500">{errorText}</p>
+			{/if}
+			<div class="mx-0 flex flex-col gap-y-xxs">
+				<Label for="email" class="text-sm">Email</Label>
+				{#if isLoadBtnActive}
+					<Input name="email" type="email" bind:value={emailValue} />
+				{:else}
+					<div class="flex items-center justify-between border-2 px-3 py-1 text-primary">
+						<p>{emailValue}</p>
+						<Button
+							onclick={clearUser}
+							class="cursor-pointer text-foreground"
+							variant="link"
+							size="icon-sm"><X /></Button
+						>
 					</div>
-					<Button type="submit" class="mt-xs" variant="default">Add Member</Button>
+				{/if}
+				<div class="flex justify-end">
+					<Button
+						class="w-full cursor-pointer border"
+						onclick={loadRoles}
+						disabled={!isLoadBtnActive}
+						variant="link"
+						>Load/Add Roles {#if isRoleLoading}
+							<Loader class="animate-spin" />
+						{/if}</Button
+					>
 				</div>
 			</div>
-		</form>
+			{#if !isLoadBtnActive && !isRoleLoading}
+				<div class="flex flex-col gap-y-xxs">
+					<h3 class="text-sm font-medium">Name</h3>
+					<div class="flex items-center justify-between border px-3 py-1 text-foreground">
+						<p>{userName}</p>
+					</div>
+				</div>
+				<div class="flex flex-col gap-y-xxs">
+					<h3 class="text-sm font-medium">Role(s)</h3>
+					<div class="border border-muted-foreground bg-muted">
+						{#if userRoles.state === 'pending'}
+							<p class="p-xs text-sm">{userRoles.message}</p>
+						{:else if userRoles.state === 'success'}
+							{#each currentRoles as role}
+								<div
+									class="flex w-full items-center justify-start rounded-none border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
+								>
+									<p class="w-full py-xs">
+										{roles.find((_role) => _role.id === role.roleId)?.name}
+									</p>
+									<Button
+										onclick={() => {
+											errorText = '';
+											currentRoles = currentRoles.filter((_role) => _role.roleId !== role.roleId);
+										}}
+										class="text-red-400"
+										size="icon"
+										variant="ghost"><TrashIcon /></Button
+									>
+								</div>
+							{/each}
+							<!-- {#if userRoles.data.length === 0}
+								<p class="p-xs text-sm">No Roles.</p>
+							{/if} -->
+							<div class="flex">
+								<SelectButton
+									name="role"
+									label="roles"
+									bind:value={selectedRoleId}
+									trigContent={roles.find((role) => role.id === selectedRoleId)?.name ??
+										'Select a role'}
+									items={possibleRoles.map((role) => ({ value: role.id, label: role.name }))}
+									size="full"
+								/>
+								<Button
+									variant="link"
+									onclick={() => {
+										errorText = '';
+										if (!selectedRoleId) return;
+										currentRoles = [
+											...currentRoles,
+											{ id: '', isActive: true, roleId: selectedRoleId }
+										];
+										selectedRoleId = '';
+									}}
+									class="rounded-none"><PlusIcon />Add</Button
+								>
+							</div>
+						{:else}
+							<p class="p-xs text-sm">Failed to load facilities.</p>
+						{/if}
+					</div>
+				</div>
+
+				{#if userRoles.state === 'success' && userRoles.data.length !== 0}
+					{#if !delOpen}
+						<Button
+							onclick={() => (delOpen = true)}
+							class="cursor-pointer bg-muted text-red-500"
+							variant="secondary">Delete Member</Button
+						>
+					{:else}
+						<div class="flex flex-col gap-y-xs bg-muted p-xs">
+							<p class="text-justify text-sm text-muted-foreground">
+								This action will remove the user from this organization, but will not delete the
+								user. This action cannot be undone.
+							</p>
+							<Button onclick={deleteMember} variant="destructive"
+								>Delete Member {#if isDeleting}
+									<Loader class="animate-spin" />
+								{/if}</Button
+							>
+						</div>
+					{/if}
+				{/if}
+			{/if}
+		</div>
 		<Sheet.Footer>
-			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
+			<Button onclick={updateRoles} disabled={!isSaveBtnActive}
+				>Save {#if isSaving}
+					<Loader class="animate-spin" />
+				{/if}</Button
+			>
+			<Sheet.Close class={`${buttonVariants({ variant: 'outline' })} flex-1`}>Close</Sheet.Close>
 		</Sheet.Footer>
 	</Sheet.Content>
-</Sheet.Root> -->
+</Sheet.Root>
