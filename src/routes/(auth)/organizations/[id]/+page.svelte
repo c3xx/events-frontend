@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { LoadedData, Organization, EntityMember, Role, TableProps, User } from '$lib/types';
 	import Button from '$lib/components/ui/button/button.svelte';

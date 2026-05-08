@@ -73,6 +73,9 @@
 </script>
 
 <div class="flex w-full flex-col">
+	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
+		<h1 class="px-2 text-xl">Users</h1>
+	</div>
 	<div class="border-muted-background flex w-full justify-end border-b p-xxs">
 		<Button
 			onclick={() => {
