@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
-	import type { OrganizationMember } from '$lib/types';
+	import type { EntityMember } from '$lib/types';
 	import { EllipsisIcon } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 	import { organisationMemberRoleAssignState } from '$lib/global/organizationMemberRoleAssign.svelte';
 
-	let { row }: { row: OrganizationMember } = $props();
+	let { row }: { row: EntityMember } = $props();
 </script>
 
 <DropdownMenu.Root>
@@ -27,8 +27,6 @@
 				organisationMemberRoleAssignState.selectedMember = row;
 			}}>Assign Members</DropdownMenu.Item
 		> -->
-				</DropdownMenu.Group>
-
+		</DropdownMenu.Group>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
-

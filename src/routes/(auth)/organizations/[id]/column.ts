@@ -1,10 +1,10 @@
 import { renderComponent } from '$lib/components/ui/data-table';
 import type { ColumnDef } from '@tanstack/table-core';
 import { Checkbox } from '$lib/components/ui/checkbox';
-import type { OrganizationMember } from '$lib/types';
+import type { EntityMember } from '$lib/types';
 import MemberActions from './member-actions.svelte';
 
-export const columns: ColumnDef<OrganizationMember>[] = [
+export const columns: ColumnDef<EntityMember>[] = [
 	{
 		id: 'select',
 		header: ({ table }) =>

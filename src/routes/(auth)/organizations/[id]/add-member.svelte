@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import type { ApiFailure, LoadedData, OrganizationMember, Role } from '$lib/types';
+	import type { ApiFailure, LoadedData, EntityMember, Role } from '$lib/types';
 	import { PlusIcon, TrashIcon, Loader, X } from '@lucide/svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -15,11 +15,11 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 
 	let userId: string | null = $state(null);
-	let userRoles = $state<LoadedData<OrganizationMember['roles']>>({
+	let userRoles = $state<LoadedData<EntityMember['roles']>>({
 		state: 'pending',
 		message: 'Loading Roles'
 	});
-	let currentRoles: OrganizationMember['roles'] = $state([]);
+	let currentRoles: EntityMember['roles'] = $state([]);
 
 	let userName = $state('');
 	let emailValue = $state('');
@@ -27,12 +27,16 @@
 	let isLoadBtnActive = $state(true);
 	let isRoleLoading = $state(false);
 	let isSaveBtnActive = $derived(
-		(!currentRoles.every((role) => currentRoles.find((_role) => _role.roleId === role.roleId)) &&
+		(!(
+			userRoles.state === 'success' &&
+			userRoles.data.every((role) => currentRoles.find((_role) => _role.roleId === role.roleId))
+		) &&
 			currentRoles.length >= 1) ||
 			(userRoles.state === 'success' &&
 				userRoles.data.length !== currentRoles.length &&
 				currentRoles.length >= 1)
 	);
+	let saved = $state(false);
 	let isSaving = $state(false);
 	let isDeleting = $state(false);
 
@@ -45,7 +49,7 @@
 		id,
 		roles,
 		open = $bindable()
-	}: { member: OrganizationMember | null; id: string; roles: Role[]; open: boolean } = $props();
+	}: { member: EntityMember | null; id: string; roles: Role[]; open: boolean } = $props();
 
 	let possibleRoles = $derived.by(() => {
 		if (userRoles.state === 'success') {
@@ -92,6 +96,11 @@
 				userId!,
 				currentRoles.map((role) => role.roleId)
 			);
+			saved = true;
+			userRoles = {
+				state: 'success',
+				data: currentRoles
+			};
 		} catch (error: any) {
 			const err = error as ApiFailure;
 			console.log(err.message);
@@ -120,6 +129,7 @@
 
 	function clearUser() {
 		member = null;
+		saved = false;
 		userId = null;
 		errorText = '';
 		emailValue = '';
@@ -195,6 +205,7 @@
 									<Button
 										onclick={() => {
 											errorText = '';
+											saved = false;
 											currentRoles = currentRoles.filter((_role) => _role.roleId !== role.roleId);
 										}}
 										class="text-red-400"
@@ -226,6 +237,7 @@
 											{ id: '', isActive: true, roleId: selectedRoleId }
 										];
 										selectedRoleId = '';
+										saved = false;
 									}}
 									class="rounded-none"><PlusIcon />Add</Button
 								>
@@ -260,8 +272,12 @@
 			{/if}
 		</div>
 		<Sheet.Footer>
-			<Button onclick={updateRoles} disabled={!isSaveBtnActive}
-				>Save {#if isSaving}
+			<Button
+				class={`${saved ? 'bg-green-700 text-background' : ''}`}
+				onclick={updateRoles}
+				disabled={!isSaveBtnActive || saved}
+				>{saved ? 'Saved Successfully' : 'Save'}
+				{#if isSaving}
 					<Loader class="animate-spin" />
 				{/if}</Button
 			>

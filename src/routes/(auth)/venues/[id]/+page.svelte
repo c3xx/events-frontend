@@ -2,22 +2,23 @@
 	import { page } from '$app/state';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import type { LoadedData, Organization, EntityMember, Role, TableProps, User } from '$lib/types';
+	import type { LoadedData, EntityMember, Role, TableProps, Venue } from '$lib/types';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { getOrgById, loadOrganizationMembers, loadRolesOrgType } from '$lib/api/organizations';
 	import DataTable from '$lib/components/app/data-table.svelte';
-	import AddMember from './add-member.svelte';
+	import { getVenueById, loadVenueMembers } from '$lib/api/venue';
+	import { loadRolesVenueType } from '$lib/api/venues';
+	import AddMember from '../../organizations/[id]/add-member.svelte';
 
 	let addSheetOpen = $state(false);
 
 	let title = $state('Loading...');
 
-	let org = $state<LoadedData<Organization>>({
+	let venue = $state<LoadedData<Venue>>({
 		state: 'pending',
-		message: 'Loading organization details...'
+		message: 'Loading venue details...'
 	});
 
-	let orgMembers = $state<LoadedData<EntityMember[]>>({
+	let venueMembers = $state<LoadedData<EntityMember[]>>({
 		state: 'pending',
 		message: 'Loading members...'
 	});
@@ -79,35 +80,36 @@
 	$effect(() => {
 		(async () => {
 			try {
-				org = {
+				venue = {
 					state: 'success',
-					data: await getOrgById(page.params.id!)
+					data: await getVenueById(page.params.id!)
 				};
-				title = org.data.name;
-				console.log(org.data);
+				title = venue.data.name;
+				console.log(venue.data);
 			} catch (err) {
-				org = {
+				venue = {
 					state: 'failed',
 					message: 'Failed to organization details'
 				};
 			}
 			try {
-				orgMembers = {
+				venueMembers = {
 					state: 'success',
-					data: await loadOrganizationMembers(page.params.id!)
+					data: await loadVenueMembers(page.params.id!)
 				};
-				console.log(orgMembers.data);
+				console.log(venueMembers.data);
 			} catch (err) {
-				orgMembers = {
+				venueMembers = {
 					state: 'failed',
 					message: 'Failed to load members'
 				};
 			}
 			try {
-				if (org.state === 'success') {
+				if (venue.state === 'success') {
+				
 					roles = {
 						state: 'success',
-						data: await loadRolesOrgType(org.data.organizationTypeId)
+						data: await loadRolesVenueType(venue.data.venueTypeId)
 					};
 					console.log(roles.data);
 				}
@@ -133,20 +135,20 @@
 
 		<Separator />
 		<div class="overflow-auto">
-			{#if orgMembers.state === 'pending'}
+			{#if venueMembers.state === 'pending'}
 				{console.log('waiting...')}
-				<p>{orgMembers.message}</p>
-			{:else if orgMembers.state === 'success'}
-				{console.log('hi: ', orgMembers.data)}
-				<DataTable {columns} data={orgMembers.data} {optionsList} />
+				<p>{venueMembers.message}</p>
+			{:else if venueMembers.state === 'success'}
+				{console.log('hi: ', venueMembers.data)}
+				<DataTable {columns} data={venueMembers.data} {optionsList} />
 			{:else}
-				<p>{orgMembers.message}</p>
+				<p>{venueMembers.message}</p>
 			{/if}
 		</div>
 	</div>
 </div>
 
-{#if orgMembers.state === 'success' && roles.state === 'success'}
+{#if venueMembers.state === 'success' && roles.state === 'success'}
 	<AddMember
 		bind:member={selectedMember}
 		id={page.params.id!}

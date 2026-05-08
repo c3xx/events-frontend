@@ -1,6 +1,6 @@
 import type { Snippet } from 'svelte';
 
-export type OrganizationMember = {
+export type EntityMember = {
 	id: string;
 	fullName: string;
 	email: string;
@@ -11,7 +11,7 @@ export type OrganizationMember = {
 	}[];
 };
 
-type OrganizationRole = {
+type EntityRole = {
 	id: string;
 	isActive: boolean;
 	roleId: string;
@@ -24,7 +24,7 @@ export type User = {
 	email: string;
 	type: 'admin' | 'end_user';
 	isActive: boolean;
-	roles: OrganizationRole[];
+	roles: EntityRole[];
 };
 
 export type Venue = {
@@ -194,22 +194,6 @@ export type Facility = {
 	id: number;
 	name: string;
 };
-
-export type VenueTypeRole = {
-	id: number;
-	name: string;
-};
-
-export type VenueMembers = {
-	id: number;
-	isActive: boolean;
-	roleId: number;
-	user: {
-		id: number;
-		fullName: string;
-		email: string;
-	};
-}[];
 
 export type VenueFacilities = {
 	id: number;
