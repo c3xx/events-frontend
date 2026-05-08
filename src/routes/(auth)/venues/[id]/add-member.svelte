@@ -1,3 +1,4 @@
+<!-- TODO: Make this sheet reusable for both venues and organization -->
 <script lang="ts">
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { ApiFailure, LoadedData, EntityMember, Role } from '$lib/types';
@@ -6,13 +7,9 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import SelectButton from '$lib/components/app/select-button.svelte';
-	import {
-		deleteOrganizationMember,
-		getOrganizationMemberByEmail,
-		updateOrganizationMemberRoles
-	} from '$lib/api/organizations';
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { deleteVenueMember, getVenueMemberByEmail, updateVenueMemberRoles } from '$lib/api/venue';
 
 	let userId: string | null = $state(null);
 	let userRoles = $state<LoadedData<EntityMember['roles']>>({
@@ -64,7 +61,7 @@
 			if (emailValue.trim().length === 0) return;
 			isRoleLoading = true;
 			isLoadBtnActive = false;
-			const member = await getOrganizationMemberByEmail(id, emailValue);
+			const member = await getVenueMemberByEmail(id, emailValue);
 			userRoles = {
 				state: 'success',
 				data: member.roles
@@ -91,7 +88,7 @@
 			errorText = '';
 			if (userRoles.state !== 'success') return;
 			isSaving = true;
-			await updateOrganizationMemberRoles(
+			await updateVenueMemberRoles(
 				id,
 				userId!,
 				currentRoles.map((role) => role.roleId)
@@ -115,7 +112,7 @@
 			errorText = '';
 			if (userRoles.state !== 'success') return;
 			isDeleting = true;
-			await deleteOrganizationMember(id, userId!);
+			await deleteVenueMember(id, userId!);
 			clearUser();
 			open = false;
 		} catch (error: any) {
@@ -258,8 +255,8 @@
 					{:else}
 						<div class="flex flex-col gap-y-xs bg-muted p-xs">
 							<p class="text-justify text-sm text-muted-foreground">
-								This action will remove the user from this organization, but will not delete the
-								user. This action cannot be undone.
+								This action will remove the user from this venue, but will not delete the user. This
+								action cannot be undone.
 							</p>
 							<Button onclick={deleteMember} variant="destructive"
 								>Delete Member {#if isDeleting}

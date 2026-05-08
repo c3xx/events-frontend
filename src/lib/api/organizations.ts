@@ -3,7 +3,7 @@ import { api } from '$lib/api';
 import type {
 	ApiResponse,
 	Organization,
-	OrganizationMember,
+	EntityMember,
 	OrganizationType,
 	Role,
 	User
@@ -127,7 +127,7 @@ export async function loadRolesOrgType(id: string) {
 	}
 }
 
-export async function addRole(parentId: string, name: string) {
+export async function addOrganizationTypeRole(parentId: string, name: string) {
 	if (!parentId || !name) {
 		throw new Error('Parent ID and Name are required');
 	}
@@ -147,9 +147,7 @@ export async function loadOrganizationMembers(id: string) {
 	if (!id) {
 		throw new Error('Organization ID is required');
 	}
-	const res = await api
-		.get(`organizations/${id}/members`)
-		.json<ApiResponse<OrganizationMember[]>>();
+	const res = await api.get(`organizations/${id}/members`).json<ApiResponse<EntityMember[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -166,7 +164,7 @@ export async function getOrganizationMemberByEmail(id: string, email: string) {
 	}
 	const res = await api
 		.get(`organizations/${id}/members?email=${email}`)
-		.json<ApiResponse<OrganizationMember[]>>();
+		.json<ApiResponse<EntityMember[]>>();
 	if (res.success) {
 		return res.data[0];
 	} else {

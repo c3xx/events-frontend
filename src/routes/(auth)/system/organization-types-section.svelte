@@ -2,7 +2,7 @@
 	import {
 		addChildOrgType,
 		addOrgType,
-		addRole,
+		addOrganizationTypeRole,
 		loadChildrenOrgType,
 		loadOrgTypes,
 		loadRolesOrgType
@@ -94,7 +94,7 @@
 
 	async function onRoleSave() {
 		if (!newRoleValue || !activeOrgTpe) return;
-		const promise = addRole(activeOrgTpe?.id, newRoleValue);
+		const promise = addOrganizationTypeRole(activeOrgTpe?.id, newRoleValue);
 		toast.promise(promise, {
 			loading: 'Saving new role...',
 			success: (newType) => {
