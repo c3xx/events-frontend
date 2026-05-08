@@ -127,7 +127,7 @@ export async function loadRolesOrgType(id: string) {
 	}
 }
 
-export async function addRole(parentId: string, name: string) {
+export async function addOrganizationTypeRole(parentId: string, name: string) {
 	if (!parentId || !name) {
 		throw new Error('Parent ID and Name are required');
 	}

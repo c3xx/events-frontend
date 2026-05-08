@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { LoadedData, EntityMember, Role, TableProps, Venue } from '$lib/types';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { getVenueById, loadVenueMembers } from '$lib/api/venue';
 	import { loadRolesVenueType } from '$lib/api/venues';
-	import AddMember from '../../organizations/[id]/add-member.svelte';
+	import AddMember from './add-member.svelte';
 
 	let addSheetOpen = $state(false);
 
@@ -89,7 +88,7 @@
 			} catch (err) {
 				venue = {
 					state: 'failed',
-					message: 'Failed to organization details'
+					message: 'Failed to load venue details'
 				};
 			}
 			try {
@@ -106,7 +105,6 @@
 			}
 			try {
 				if (venue.state === 'success') {
-				
 					roles = {
 						state: 'success',
 						data: await loadRolesVenueType(venue.data.venueTypeId)

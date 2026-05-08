@@ -1,20 +1,19 @@
 <script lang="ts">
+	import { addVenueTypeRole } from '$lib/api/venue';
 	import {
-		addChildOrgType,
-		addOrgType,
-		addRole,
-		loadChildrenOrgType,
-		loadOrgTypes,
-		loadRolesOrgType
-	} from '$lib/api/organizations';
-	import { addChildVenueType, addVenueType, loadVenueTypes } from '$lib/api/venues';
+		addChildVenueType,
+		addVenueType,
+		loadChildrenVenueType,
+		loadRolesVenueType,
+		loadVenueTypes
+	} from '$lib/api/venues';
 	import RolePermissionSheet from '$lib/components/app/role-permission-sheet.svelte';
 	import SelectButton from '$lib/components/app/select-button.svelte';
 	import TabButton from '$lib/components/app/tab-button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import type { ChildType, LoadedData, OrganizationType, RoleType, VenueType } from '$lib/types';
-	import { Edit2Icon, PencilIcon, PlusIcon, TrashIcon } from '@lucide/svelte';
+	import { PencilIcon, PlusIcon, TrashIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
@@ -96,7 +95,7 @@
 
 	async function onRoleSave() {
 		if (!newRoleValue || !activeVenueType) return;
-		const promise = addRole(activeVenueType?.id, newRoleValue);
+		const promise = addVenueTypeRole(activeVenueType?.id, newRoleValue);
 		toast.promise(promise, {
 			loading: 'Saving new role...',
 			success: (newType) => {
@@ -124,7 +123,7 @@
 			};
 			venueTypeChildren = {
 				state: 'success',
-				data: await loadChildrenOrgType(activeVenueType.id)
+				data: await loadChildrenVenueType(activeVenueType.id)
 			};
 		} else {
 			venueTypeRoles = {
@@ -133,7 +132,7 @@
 			};
 			venueTypeRoles = {
 				state: 'success',
-				data: await loadRolesOrgType(activeVenueType.id)
+				data: await loadRolesVenueType(activeVenueType.id)
 			};
 		}
 		venueTypeActiveTab = tab;
