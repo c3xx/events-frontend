@@ -1,4 +1,4 @@
-import type { ApiResponse, Event } from "$lib/types";
+import type { ApiResponse, CreateEventData, Event, EventCategories, EventType } from "$lib/types";
 import { api } from "$lib/api";
 
 
@@ -10,6 +10,36 @@ import { api } from "$lib/api";
 //         throw new Error(res.message);
 //     }
 // }
+
+export async function loadEventTypes() {
+	const res = await api.get('event-types').json<ApiResponse<EventType[]>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function loadEventCategories() {
+	const res = await api.get('event-categories').json<ApiResponse<EventCategories[]>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function createEvent(eventData: CreateEventData): Promise<Event> {
+	const res = await api.post('events', {
+		body: JSON.stringify(eventData)
+	}).json<ApiResponse<Event>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
 
 export async function loadEvents(): Promise<Event[]> {
 	// Simulate API delay
