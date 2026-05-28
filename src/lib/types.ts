@@ -268,7 +268,24 @@ export type Event = {
 		role: EventOrganizerRole;
 	}[];
 };
-export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "overridden"
+export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "overridden";
 
-export type EventOrganizerRole = "host" | "co_host"
+export type EventOrganizerRole = "host" | "co_host";
+
+export type EventType={
+		id: number;
+		name: string;
+		isActive: boolean;
+		venuePolicy: EventTypeVenuePolicy;
+		collaborationPolicy: EventTypeCollaborationPolicy;
+	};
+
+export type EventTypeVenuePolicy = "required" | "optional" | "forbidden";
+
+export type EventTypeCollaborationPolicy = "required" | "optional" | "forbidden";
+
+export type EventCategories ={
+		id: number;
+		name: string;
+	};
 

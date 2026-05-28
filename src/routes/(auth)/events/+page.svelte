@@ -1,22 +1,17 @@
 <script lang="ts">
-	import { PlusIcon, SearchIcon } from '@lucide/svelte';
-	import type { LoadedData, TableProps, Event } from '$lib/types';
+	import { PlusIcon } from '@lucide/svelte';
+	import type { LoadedData, TableProps, Event as BackendEvent, CreateEventData } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import Input from '$lib/components/ui/input/input.svelte';
-	import DataTable from '$lib/components/app/data-table.svelte';
-	import { loadEvents } from '$lib/api/events';
+	import { loadEvents, createEvent } from '$lib/api/events';
 	import EventSheet from './event-sheet.svelte';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
 	import { SearchBar } from '$lib/components/ui/search-bar';
 	import Card from '$lib/components/ui/card/card.svelte';
 	import { CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 
-	// Define a mapped type for DataTable compatibility because DataTable requires string IDs
-	type TableEvent = Omit<Event, 'id'> & { id: string };
 
-	let events = $state<LoadedData<Event[]>>({
+	let events = $state<LoadedData<BackendEvent[]>>({
 		state: 'pending',
 		message: 'Loading events...'
 	});
@@ -54,41 +49,16 @@
 
 	onMount(refreshEvents);
 
-	function handleAddEvent(eventData: { title: string; category: string; startsAt: string }) {
-		toast.success(`Event "${eventData.title}" created successfully!`, {
-			description: `Category: ${eventData.category || 'N/A'}`
-		});
+async function handleAddEvent(eventData: CreateEventData) {
+	try {
+		const toastId = toast.loading('Creating event...');
+		await createEvent(eventData);
+		toast.success(`Event "${eventData.title}" created successfully!`, { id: toastId });
 		refreshEvents();
+	} catch (error) {
+		toast.error(error instanceof Error ? error.message : 'Failed to create event');
 	}
-
-	let columns: TableProps<TableEvent>['columns'] = [
-		{
-			key: 'title',
-			header: 'Title',
-			type: 'link',
-			href: 'events/'
-		},
-		{
-			key: 'status',
-			header: 'Status',
-			type: 'text'
-		},
-		{
-			key: 'startsAt',
-			header: 'Starts At',
-			type: 'text'
-		}
-	];
-
-	let optionsList: TableProps<TableEvent>['optionsList'] = [
-		{
-			id: '1',
-			name: 'View Details',
-			onclick: (event) => {
-				goto(`/events/${event.id}`);
-			}
-		}
-	];
+}
 </script>
 
 <div class="flex w-full flex-col">
