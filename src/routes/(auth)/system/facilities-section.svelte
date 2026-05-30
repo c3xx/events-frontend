@@ -53,9 +53,7 @@
 
 <div class="flex w-full max-w-200 flex-col gap-y-sm p-r-pad">
 	<h2 class="text-lg">Facilities</h2>
-	<p class="text-sm text-muted-foreground">
-		Manage facilities that can be linked to venues.
-	</p>
+	<p class="text-sm text-muted-foreground">Manage facilities that can be linked to venues.</p>
 	<div class=" border border-muted-foreground bg-muted">
 		{#if facilities.state === 'pending'}
 			<p class="p-xs">{facilities.message}</p>
@@ -63,7 +61,9 @@
 			{#each facilities.data as facility}
 				<div
 					class="w-full justify-start rounded-none border-b border-b-muted-foreground px-sm py-xs text-sm text-secondary-foreground"
-				>{facility.name}</div>
+				>
+					{facility.name}
+				</div>
 			{/each}
 			<div class="flex w-full items-center p-xxs max-sm:flex-col">
 				<Input
@@ -72,7 +72,7 @@
 						newFacilityValue = e.currentTarget.value;
 					}}
 					name="facilityName"
-					class="w-full max-w-100 rounded-none border-secondary-foreground"
+					class="w-full rounded-none border-secondary-foreground"
 					type="text"
 				/>
 				<Button onclick={onSave} variant="link"><PlusIcon /> Add</Button>
