@@ -4,7 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 
-	import type { CreateEventData, EventCategories, EventType, Organization } from '$lib/types';
+	import type { CreateEventData, EventCategory, EventType, Organization } from '$lib/types';
 
 	import { onMount } from 'svelte';
 	import { loadOrgs } from '$lib/api/organizations';
@@ -32,7 +32,7 @@
 
 	let orgs = $state<{ id: string; name: string }[]>([]);
 	let eventTypes = $state<EventType[]>([]);
-	let eventCategories = $state<EventCategories[]>([]);
+	let eventCategories = $state<EventCategory[]>([]);
 
 	onMount(async () => {
 		try {
@@ -140,7 +140,7 @@
 							size="full"
 							bind:value={categoryId}
 							loadFn={loadEventCategories}
-							mapOption={(cat:EventCategories) => ({
+							mapOption={(cat:EventCategory) => ({
 								value: cat.id.toString(),
 								label: cat.name
 							})}

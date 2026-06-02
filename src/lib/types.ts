@@ -195,6 +195,25 @@ export type Facility = {
 	name: string;
 };
 
+export type EventType = {
+	id: string;
+	name: string;
+	workflowId: string;
+	venuePolicy: EventTypeVenuePolicyType;
+	collaborationPolicy: EventTypeCollaborationPolicyType;
+};
+
+export type EventCategory = {
+	id: string;
+	name: string;
+};
+
+export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
+export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
+
+export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
+export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
+
 export type VenueFacilities = {
 	id: number;
 	facilityId: number;
@@ -271,21 +290,4 @@ export type Event = {
 export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "overridden";
 
 export type EventOrganizerRole = "host" | "co_host";
-
-export type EventType={
-		id: number;
-		name: string;
-		isActive: boolean;
-		venuePolicy: EventTypeVenuePolicy;
-		collaborationPolicy: EventTypeCollaborationPolicy;
-	};
-
-export type EventTypeVenuePolicy = "required" | "optional" | "forbidden";
-
-export type EventTypeCollaborationPolicy = "required" | "optional" | "forbidden";
-
-export type EventCategories ={
-		id: number;
-		name: string;
-	};
 

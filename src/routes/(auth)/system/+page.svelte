@@ -5,6 +5,8 @@
 	import OrganizationTypesSection from './organization-types-section.svelte';
 	import VenueTypesSection from './venue-types-section.svelte';
 	import FacilitiesSection from './facilities-section.svelte';
+	import EventCategorySection from './event-category-section.svelte';
+	import EventTypesSection from './event-types-section.svelte';
 </script>
 
 <div class="relative flex">
@@ -14,6 +16,10 @@
 		<VenueTypesSection />
 		<Separator />
 		<FacilitiesSection />
+		<Separator />
+		<EventTypesSection />
+		<Separator />
+		<EventCategorySection />
 	</div>
 	<div class="sticky top-0 right-0 flex w-50 max-sm:hidden">
 		<Separator class="my-r-pad" orientation="vertical" />
