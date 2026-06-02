@@ -1,40 +1,42 @@
 <script lang="ts">
 	import { PlusIcon } from '@lucide/svelte';
-	import type { LoadedData, TableProps, Event as BackendEvent, CreateEventData } from '$lib/types';
+	import type { LoadedData, Event, CreateEventData } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { loadEvents, createEvent } from '$lib/api/events';
 	import EventSheet from './event-sheet.svelte';
 	import { toast } from 'svelte-sonner';
 	import { SearchBar } from '$lib/components/ui/search-bar';
-	import Card from '$lib/components/ui/card/card.svelte';
-	import { CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import EventCard from './event-card.svelte';
+	import { HorizontalScroller } from '$lib/components/ui/horizontal-scroller';
 
-
-	let events = $state<LoadedData<BackendEvent[]>>({
+	let events = $state<LoadedData<Event[]>>({
 		state: 'pending',
 		message: 'Loading events...'
 	});
 
 	let search = $state('');
 	let sheetOpen = $state(false);
+	
+let groupedEvents = $derived(
+	events.state === 'success'
+		? (() => {
+				const filtered = events.data.filter((e) =>
+					e.title.toLowerCase().includes(search.toLowerCase())
+				);
 
-	let filteredEvents = $derived(
-		events.state === 'success'
-			? events.data.filter(
-					(e) =>
-						e.title.toLowerCase().includes(search.toLowerCase()) ||
-						e.status.toLowerCase().includes(search.toLowerCase())
-				)
-			: []
-	);
-
+				return {
+					drafts: filtered.filter((e) => e.status === 'draft'),
+					pending: filtered.filter((e) => e.status === 'pending'),
+					approved: filtered.filter((e) => e.status === 'approved')
+				};
+			})()
+		: { drafts: [], pending: [], approved: [] }
+);
 	async function refreshEvents() {
 		try {
-			events = {
-				state: 'pending',
-				message: 'Refreshing events...'
-			};
+			events = { state: 'pending', message: 'Refreshing events...' };
+
 			events = {
 				state: 'success',
 				data: await loadEvents()
@@ -49,64 +51,75 @@
 
 	onMount(refreshEvents);
 
-async function handleAddEvent(eventData: CreateEventData) {
-	try {
-		const toastId = toast.loading('Creating event...');
-		await createEvent(eventData);
-		toast.success(`Event "${eventData.title}" created successfully!`, { id: toastId });
-		refreshEvents();
-	} catch (error) {
-		toast.error(error instanceof Error ? error.message : 'Failed to create event');
+	async function handleAddEvent(eventData: CreateEventData) {
+		try {
+			const toastId = toast.loading('Creating event...');
+			await createEvent(eventData);
+			toast.success(`Event "${eventData.title}" created successfully!`, { id: toastId });
+			refreshEvents();
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : 'Failed to create event');
+		}
 	}
-}
 </script>
 
 <div class="flex w-full flex-col">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
+	<!-- Header -->
+	<div class="flex w-full items-center justify-between border-b border-muted-background py-xs">
 		<h1 class="px-2 text-xl">Events</h1>
 
-
-		<div class="flex items-center gap-3">
-			<Button
-				onclick={() => {
-					sheetOpen = true;
-				}}
-				class="shadow-md transition-all duration-200 hover:shadow-lg"
-			>
-				Create Event <PlusIcon class="ml-2 h-4 w-4" />
-			</Button>
-		</div>
 	</div>
+	<div class="flex w-full items-center justify-between border-b border-muted-background py-xs">
 
-	<SearchBar
-	bind:value={search}
-	placeholder="Search events..."
-/>
-	<div class="p-xxs">
+	<!-- Search --> 
+	<SearchBar bind:value={search} placeholder="Search events..." />
+		<Button
+			onclick={() => (sheetOpen = true)}
+			class="shadow-md transition-all duration-200 hover:shadow-lg"
+		>
+			Create Event <PlusIcon class="ml-2 h-4 w-4" />
+		</Button>
+</div>
+
+	<div class="space-y-6 p-xxs">
 		{#if events.state === 'pending'}
-	<p class="p-4 text-center">Loading events...</p>
+			<p class="p-4 text-center">Loading events...</p>
 
-{:else if events.state === 'success'}
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-		{#each filteredEvents as event}
-			<Card>
-				<CardHeader>
-					<CardTitle>{event.title}</CardTitle>
-				</CardHeader>
+		{:else if events.state === 'success'}
 
-				<CardContent>
-					<p>Status: {event.status}</p>
-					<p>Starts: {event.startsAt}</p>
-				</CardContent>
-			</Card>
-		{/each}
-	</div>
+			<!-- DRAFTS -->
+			<HorizontalScroller title="DRAFTS">
+				{#each groupedEvents.drafts as event}
+					<div class="min-w-[280px] flex-shrink-0">
+						<EventCard {event} />
+					</div>
+				{/each}
+				
+			</HorizontalScroller>
 
-{:else}
-	<p class="p-4 text-center text-red-500">
-		{events.message}
-	</p>
-{/if}
+			<!-- PENDING -->
+			<HorizontalScroller title="PENDING APPROVAL">
+	{#each groupedEvents.pending as event}
+		<div class="min-w-[280px] flex-shrink-0">
+			<EventCard {event} />
+		</div>
+	{/each}
+</HorizontalScroller>
+
+			<!-- APPROVED -->
+			<HorizontalScroller title="APPROVED">
+	{#each groupedEvents.approved as event}
+		<div class="min-w-[280px] flex-shrink-0">
+			<EventCard {event} />
+		</div>
+	{/each}
+</HorizontalScroller>
+
+		{:else}
+			<p class="p-4 text-center text-red-500">
+				{events.message}
+			</p>
+		{/if}
 	</div>
 </div>
 
