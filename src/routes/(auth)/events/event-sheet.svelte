@@ -8,9 +8,10 @@
 
 	import { onMount } from 'svelte';
 	import { loadOrgs } from '$lib/api/organizations';
-	import { loadEventTypes, loadEventCategories } from '$lib/api/events';
 
 	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
+	import { loadEventTypes } from '$lib/api/event-types';
+	import { loadEventCategories } from '$lib/api/event-categories';
 
 	let {
 		open = $bindable(false),

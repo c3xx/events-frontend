@@ -88,32 +88,69 @@ let groupedEvents = $derived(
 		{:else if events.state === 'success'}
 
 			<!-- DRAFTS -->
-			<HorizontalScroller title="DRAFTS">
-				{#each groupedEvents.drafts as event}
-					<div class="min-w-[280px] flex-shrink-0">
-						<EventCard {event} />
-					</div>
-				{/each}
-				
-			</HorizontalScroller>
-
-			<!-- PENDING -->
-			<HorizontalScroller title="PENDING APPROVAL">
-	{#each groupedEvents.pending as event}
-		<div class="min-w-[280px] flex-shrink-0">
-			<EventCard {event} />
+{#if groupedEvents.drafts.length > 0}
+	<HorizontalScroller title="DRAFTS">
+		{#each groupedEvents.drafts as event}
+			<div class="min-w-[280px] flex-shrink-0">
+				<EventCard {event} />
+			</div>
+		{/each}
+	</HorizontalScroller>
+{:else}
+	<div class="space-y-2">
+		<h2 class="px-1 text-sm font-semibold text-muted-foreground">
+			DRAFTS
+		</h2>
+		<div
+			class="flex h-24 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground"
+		>
+			No draft events
 		</div>
-	{/each}
-</HorizontalScroller>
+	</div>
+{/if}
+			<!-- PENDING -->
+{#if groupedEvents.pending.length > 0}
+	<HorizontalScroller title="PENDING APPROVAL">
+		{#each groupedEvents.pending as event}
+			<div class="min-w-[280px] flex-shrink-0">
+				<EventCard {event} />
+			</div>
+		{/each}
+	</HorizontalScroller>
+{:else}
+	<div class="space-y-2">
+		<h2 class="px-1 text-sm font-semibold text-muted-foreground">
+			PENDING APPROVAL
+		</h2>
+		<div
+			class="flex h-24 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground"
+		>
+			No pending events
+		</div>
+	</div>
+{/if}
 
 			<!-- APPROVED -->
-			<HorizontalScroller title="APPROVED">
-	{#each groupedEvents.approved as event}
-		<div class="min-w-[280px] flex-shrink-0">
-			<EventCard {event} />
+{#if groupedEvents.approved.length > 0}
+	<HorizontalScroller title="APPROVED">
+		{#each groupedEvents.approved as event}
+			<div class="min-w-[280px] flex-shrink-0">
+				<EventCard {event} />
+			</div>
+		{/each}
+	</HorizontalScroller>
+{:else}
+	<div class="space-y-2">
+		<h2 class="px-1 text-sm font-semibold text-muted-foreground">
+			APPROVED
+		</h2>
+		<div
+			class="flex h-24 items-center justify-center rounded-lg border border-dashed text-sm text-muted-foreground"
+		>
+			No approved events
 		</div>
-	{/each}
-</HorizontalScroller>
+	</div>
+{/if}
 
 		{:else}
 			<p class="p-4 text-center text-red-500">
