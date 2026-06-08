@@ -65,8 +65,8 @@
 			categoryId: Number(categoryId),
 			expectedParticipants,
 			requestDetails,
-			startsAt,
-			endsAt,
+			startsAt: new Date(startsAt).toISOString(),
+			endsAt: new Date(endsAt).toISOString(),
 			parentEventId
 		});
 
@@ -163,13 +163,13 @@
 					<!-- Start -->
 					<div class="grid gap-3">
 						<Label>Start Date</Label>
-						<Input type="date" bind:value={startsAt} />
+						<Input type="datetime-local" bind:value={startsAt} />
 					</div>
 
 					<!-- End -->
 					<div class="grid gap-3">
 						<Label>End Date</Label>
-						<Input type="date" bind:value={endsAt} />
+						<Input type="datetime-local" bind:value={endsAt} />
 					</div>
 
 					<!-- Parent Event -->
