@@ -178,7 +178,7 @@
 						newOrgTypeValue = e.currentTarget.value;
 					}}
 					name="orgName"
-					class="w-full max-w-100 rounded-none border-secondary-foreground"
+					class="w-full rounded-none border-secondary-foreground"
 					type="text"
 				/>
 				<Button onclick={onSave} variant="link"><PlusIcon /> Add</Button>
