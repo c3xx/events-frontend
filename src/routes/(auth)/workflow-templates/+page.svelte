@@ -116,6 +116,7 @@
 			</div>
 		{/if}
 	</div>
+	<Separator class="my-r-pad" />
 	<div class="flex flex-col gap-y-xs">
 		{#if workflows.state === 'pending'}
 			<p>{workflows.message}</p>
@@ -123,12 +124,16 @@
 			{#each workflows.data as workflow}
 				<div class="flex flex-col p-xs">
 					<div class="flex items-center gap-x-xs">
-						<a href={`/workflow-templates/${workflow.id}`} class="text-2xl italic"
-							>{workflow.name}</a
+						<a
+							class="text-2xl text-primary italic hover:underline"
+							href={`/workflow-templates/${workflow.id}`}>{workflow.name}</a
 						>
 					</div>
-					<div class="mt-xxs flex flex-col">
+					<div class="mt-xxs flex flex-col text-muted-foreground">
 						{#if workflow.steps !== undefined}
+							{#if workflow.steps.length === 0}
+								<p>No steps added</p>
+							{/if}
 							{#each workflow.steps as step, index}
 								<div class="flex flex-col">
 									{#if index !== 0}
