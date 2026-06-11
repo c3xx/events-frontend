@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { BuildingIcon,CirclePileIcon, MonitorCogIcon, UsersIcon } from '@lucide/svelte';
+	import {
+		BuildingIcon,
+		CirclePileIcon,
+		MonitorCogIcon,
+		NetworkIcon,
+		UsersIcon
+	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 
@@ -20,6 +26,11 @@
 			title: 'Organizations',
 			url: '/organizations',
 			icon: CirclePileIcon
+		},
+		{
+			title: 'Workflow Templates',
+			url: '/workflow-templates',
+			icon: NetworkIcon
 		},
 		{
 			title: 'System',

@@ -31,7 +31,7 @@ export async function authUser() {
 		} else {
 			// we are in some other page than login. we should try to authenticate
 			const res = await api
-				.get('auth/me', { headers: { Authorization: `Bearer ${accessToken}` } })
+				.get('me', { headers: { Authorization: `Bearer ${accessToken}` } })
 				.json<ApiResponse<AuthUser>>();
 			if (res.success) {
 				// authentication success, the page is accessible.
