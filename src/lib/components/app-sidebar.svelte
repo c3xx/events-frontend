@@ -28,8 +28,8 @@
 			icon: CirclePileIcon
 		},
 		{
-			title: 'Workflows',
-			url: '/workflows',
+			title: 'Workflow Templates',
+			url: '/workflow-templates',
 			icon: NetworkIcon
 		},
 		{
