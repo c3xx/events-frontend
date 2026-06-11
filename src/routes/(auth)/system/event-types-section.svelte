@@ -1,42 +1,35 @@
 <script lang="ts">
 	import { addEventType, loadEventTypes } from '$lib/api/event-types';
+	import { loadWorkflowTemplate, loadWorkflowTemplates } from '$lib/api/workflow-templates';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Select from '$lib/components/ui/select/index';
 	import * as Sheet from '$lib/components/ui/sheet/index';
-	import type { EventType, LoadedData } from '$lib/types';
+	import type { Workflow, EventType, LoadedData } from '$lib/types';
 	import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
-	import { PlusIcon, Workflow } from '@lucide/svelte';
+	import { PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let eventTypes = $state<LoadedData<EventType[]>>({
 		state: 'pending',
 		message: 'Loading Event Types...'
 	});
-
-	let addEventTypeSheetOpen = $state(false);
-
-	async function onAddClick() {
-		addEventTypeSheetOpen = true;
-	}
-
-	// Move this to types, once worflow is finalised by backend
-	type Workflow = {
-		id: string;
-		name: string;
-		description: string;
-		steps: {
-			id: string;
-			step: string;
-			order: number;
-			description: string;
-		}[];
-	};
 	let workflows = $state<LoadedData<Workflow[]>>({
 		state: 'pending',
 		message: 'Loading Workflows...'
 	});
+
+	let addEventTypeSheetOpen = $state(false);
+	const selectedWorkflow = $derived(
+		workflows.state === 'success'
+			? workflows.data.find((w) => String(w.id) === String(newTypeWorkflowId))
+			: undefined
+	);
+
+	async function onAddClick() {
+		addEventTypeSheetOpen = true;
+	}
 
 	let newTypeName = $state('');
 	let newTypeWorkflowId: null | string = $state(null);
@@ -51,6 +44,7 @@
 	let errorText = $state('');
 
 	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
 		if (newTypeName.trim() === '') {
 			errorText = 'Enter a valid name';
 			return;
@@ -59,90 +53,29 @@
 
 	onMount(async () => {
 		try {
-			// eventTypes = {
-			// 	state: 'success',
-			// 	data: await loadEventTypes()
-			// };
 			eventTypes = {
 				state: 'success',
-				data: [
-					{
-						id: '123',
-						name: 'Event',
-						workflowId: '123',
-						collaborationPolicy: 'required',
-						venuePolicy: 'forbidden'
-					},
-					{
-						id: '123',
-						name: 'Program',
-						workflowId: '123',
-						collaborationPolicy: 'required',
-						venuePolicy: 'forbidden'
-					}
-				]
+				data: await loadEventTypes()
 			};
+			const workflowList = await loadWorkflowTemplates();
+
 			workflows = {
 				state: 'success',
-				data: [
-					{
-						id: '123',
-						name: 'Normal Flow',
-						description: 'Hellp dfdfd fdfdf fdfdd fdfddfdfd',
-						steps: [
-							{
-								id: '1',
-								step: 'Senior Advisor',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							},
-							{
-								id: '2',
-								step: 'Head of Department',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							},
-							{
-								id: '3',
-								step: 'Dean',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							},
-							{
-								id: '4',
-								step: 'Principal',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							}
-						]
-					},
-					{
-						id: '124',
-						name: 'Higher priority',
-						description: 'Hellp dfdfd fdfdf fdfdd',
-						steps: [
-							{
-								id: '1',
-								step: 'Dean',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							},
-							{
-								id: '2',
-								step: 'Vice Principal',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							},
-							{
-								id: '3',
-								step: 'Principal',
-								order: 1,
-								description: 'dsdsd sdsd ddsds'
-							}
-						]
-					}
-				]
+				data: workflowList
 			};
+
+			workflowList.forEach(async (workflow, index) => {
+				try {
+					const fullWorkflow = await loadWorkflowTemplate(workflow.id);
+
+					if (workflows.state !== 'success') return;
+
+					workflows.data[index] = fullWorkflow;
+					workflows = { ...workflows };
+				} catch (err) {
+					console.error(`Failed: ${workflow.id}`);
+				}
+			});
 			if (workflows.data.length > 0) {
 				newTypeWorkflowId = workflows.data[0].id;
 			}
@@ -211,49 +144,47 @@
 						/>
 					</div>
 					<div class="grid gap-2">
-						<Label for="name" class="text-end">Workflow</Label>
-						<Select.Root type="single" bind:value={newTypeWorkflowId!}>
-							<Select.Trigger
-								class="flex h-fit! w-full min-w-0 items-start rounded-none border border-muted-foreground bg-background px-3 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
+						<Label for="name" class="text-end">Workflow Template</Label>
+						{#if workflows.state === 'pending'}
+							<p>Loading Workflows...</p>
+						{:else if workflows.state === 'success'}
+							<select
+								bind:value={newTypeWorkflowId}
+								class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
 							>
-								<div class="flex flex-col items-start">
-									{#if workflows.state === 'pending'}
-										<p>Loading workflows...</p>
-									{:else if workflows.state === 'success'}
-										<p class="font-bold">
-											{workflows.data.find((w) => w.id === newTypeWorkflowId)?.name}
-										</p>
-										<p class="text-muted-foreground">
-											{workflows.data.find((w) => w.id === newTypeWorkflowId)?.description}
-										</p>
-									{/if}
-								</div>
-							</Select.Trigger>
-							<Select.Content class="rounded-none">
-								{#if workflows.state === 'pending'}
-									<p>Loading Workflows...</p>
-								{:else if workflows.state === 'success'}
-									{#each workflows.data as workflow}
-										<Select.Item
-											class="flex flex-col items-start rounded-none border-b last:border-b-0"
-											value={workflow.id}
-										>
-											<p class="font-bold">{workflow.name}</p>
-											<p class="text-muted-foreground">{workflow.description}</p>
-										</Select.Item>
-									{/each}
-								{/if}
-							</Select.Content>
-						</Select.Root>
+								{#each workflows.data as workflow}
+									<option value={workflow.id}>{workflow.name}</option>
+								{/each}
+							</select>
+						{/if}
 
-						{#if newTypeWorkflowId && workflows.state === 'success'}
-							<div
-								class="flex flex-col gap-y-xs border-2 border-dashed border-muted-foreground p-xs"
-							>
-								{#each workflows.data.find((w) => w.id === newTypeWorkflowId)?.steps as step}
-									<div class="flex items-center gap-x-xs">
-										<div class="h-3 w-3 rounded-full bg-muted-foreground/50"></div>
-										{step.step}
+						{#if selectedWorkflow}
+							<div class="flex flex-col bg-muted p-xxs">
+								<p class="mb-xs text-xs text-muted-foreground">Template Preview</p>
+								{#if selectedWorkflow.steps.length === 0}
+									<p class="italic">No steps found</p>
+								{/if}
+								{#each selectedWorkflow.steps as step, index}
+									<div class="flex flex-col">
+										{#if index !== 0}
+											<div class="flex w-5 justify-center">
+												<div class="h-3 w-px bg-muted-foreground"></div>
+											</div>
+										{/if}
+										<div class="flex h-5 items-center">
+											<div class="flex h-5 w-5 flex-col items-center">
+												<div
+													class={`w-px flex-1 bg-muted-foreground
+													${index === 0 ? 'invisible' : ''}`}
+												></div>
+												<div class="h-3 w-3 rounded-full border border-muted-foreground"></div>
+												<div
+													class={`w-px flex-1 bg-muted-foreground
+													${workflows.state === 'success' && index === workflows.data.find((w) => w.id === newTypeWorkflowId!)!.steps.length - 1 ? 'invisible' : ''}`}
+												></div>
+											</div>
+											<p class="ml-xxs">{step.name}</p>
+										</div>
 									</div>
 								{/each}
 							</div>
