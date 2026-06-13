@@ -4,7 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 
-	import type { CreateEventData, EventCategory, EventType, Organization, Event } from '$lib/types';
+	import type { CreateEventData, EventCategory, EventType, Organization, ParentableEvent } from '$lib/types';
 
 	import { onMount } from 'svelte';
 	import { loadOrgs } from '$lib/api/organizations';
@@ -12,7 +12,7 @@
 	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
 	import { loadEventTypes } from '$lib/api/event-types';
 	import { loadEventCategories } from '$lib/api/event-categories';
-	import { loadEvents } from '$lib/api/events';
+	import { loadParentableEvents } from '$lib/api/events';
 
 	let {
 		open = $bindable(false),
@@ -181,8 +181,8 @@
 							initialText="Select Parent Event"
 							size="full"
 							bind:value={parentEventId}
-							loadFn={() => loadEvents({ parentableTypeId: typeId, parentableOrgId: organizationId })}
-							mapOption={(event: Event) => ({
+							loadFn={() => loadParentableEvents({ typeId: typeId, orgId: organizationId })}
+							mapOption={(event: ParentableEvent) => ({
 								value: event.id.toString(),
 								label: event.title
 							})}

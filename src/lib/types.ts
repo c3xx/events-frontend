@@ -291,3 +291,7 @@ export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "over
 
 export type EventOrganizerRole = "host" | "co_host";
 
+export type ParentableEvent = {
+	id: number;
+	title: string;
+};
