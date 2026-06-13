@@ -2,8 +2,12 @@ import type { ApiResponse, CreateEventData, Event, EventCategory, EventType } fr
 import { api } from "$lib/api";
 
 
-export async function loadEvents() {
-    const res = await api.get('events').json<ApiResponse<Event[]>>();
+export async function loadEvents(params?: { parentableTypeId?: string | number; parentableOrgId?: string | number }) {
+    const searchParams = new URLSearchParams();
+    if (params?.parentableTypeId) searchParams.set('parentableTypeId', params.parentableTypeId.toString());
+    if (params?.parentableOrgId) searchParams.set('parentableOrgId', params.parentableOrgId.toString());
+
+    const res = await api.get('events', { searchParams }).json<ApiResponse<Event[]>>();
     if (res.success) {
         return res.data;
     } else {

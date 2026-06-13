@@ -4,7 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 
-	import type { CreateEventData, EventCategory, EventType, Organization } from '$lib/types';
+	import type { CreateEventData, EventCategory, EventType, Organization, Event } from '$lib/types';
 
 	import { onMount } from 'svelte';
 	import { loadOrgs } from '$lib/api/organizations';
@@ -12,6 +12,7 @@
 	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
 	import { loadEventTypes } from '$lib/api/event-types';
 	import { loadEventCategories } from '$lib/api/event-categories';
+	import { loadEvents } from '$lib/api/events';
 
 	let {
 		open = $bindable(false),
@@ -29,7 +30,7 @@
 	let requestDetails = $state('');
 	let startsAt = $state('');
 	let endsAt = $state('');
-	let parentEventId = $state<number | null>(null);
+	let parentEventId = $state<string>('');
 
 	let orgs = $state<{ id: string; name: string }[]>([]);
 	let eventTypes = $state<EventType[]>([]);
@@ -67,7 +68,7 @@
 			requestDetails,
 			startsAt: new Date(startsAt).toISOString(),
 			endsAt: new Date(endsAt).toISOString(),
-			parentEventId
+			parentEventId: parentEventId ? Number(parentEventId) : null
 		});
 
 		open = false;
@@ -157,25 +158,35 @@
 					<!-- Description -->
 					<div class="grid gap-3">
 						<Label>Description</Label>
-						<Input bind:value={requestDetails} />
+						<Input bind:value={requestDetails} required />
 					</div>
 
 					<!-- Start -->
 					<div class="grid gap-3">
 						<Label>Start Date</Label>
-						<Input type="datetime-local" bind:value={startsAt} />
+						<Input type="datetime-local" bind:value={startsAt} required />
 					</div>
 
 					<!-- End -->
 					<div class="grid gap-3">
 						<Label>End Date</Label>
-						<Input type="datetime-local" bind:value={endsAt} />
+						<Input type="datetime-local" bind:value={endsAt} required />
 					</div>
 
 					<!-- Parent Event -->
 					<div class="grid gap-3">
 						<Label>Parent Event (Optional)</Label>
-						<Input type="number" bind:value={parentEventId} />
+						<DynamicSelectButton
+							name="parentEventId"
+							initialText="Select Parent Event"
+							size="full"
+							bind:value={parentEventId}
+							loadFn={() => loadEvents({ parentableTypeId: typeId, parentableOrgId: organizationId })}
+							mapOption={(event: Event) => ({
+								value: event.id.toString(),
+								label: event.title
+							})}
+						/>
 					</div>
 
 				</div>
