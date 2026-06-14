@@ -1,5 +1,26 @@
 import type { Snippet } from 'svelte';
 
+export type Workflow = {
+	id: string;
+	name: string;
+	steps: {
+		id: string;
+		name: string;
+		nextStepId: string | null;
+		roles: {
+			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+			role: {
+				id: string;
+				name: string;
+				scope: { type: EntityType; kindId: string; kindName: string };
+			};
+		}[];
+	}[];
+};
+
+export const ENTITIES = ['organization', 'venue'] as const;
+export type EntityType = (typeof ENTITIES)[number];
+
 export type EntityMember = {
 	id: string;
 	fullName: string;
@@ -296,6 +317,28 @@ export type CreateVenueAllotmentData = {
 	startsAt: string;
 	endsAt: string;
 };
+=======
+export type EventType = {
+	id: string;
+	name: string;
+	workflowId: string;
+	venuePolicy: EventTypeVenuePolicyType;
+	collaborationPolicy: EventTypeCollaborationPolicyType;
+};
+
+export type EventCategory = {
+	id: string;
+	name: string;
+};
+
+export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
+export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
+export const WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA = ['all', 'any'] as const;
+
+export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
+export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
+export type WorkflowTargetGroupApprovalCriteriaType =
+	(typeof WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA)[number];
 
 export type VenueFacilities = {
 	id: number;

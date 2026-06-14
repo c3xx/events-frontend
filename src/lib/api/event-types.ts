@@ -53,6 +53,15 @@ export async function deleteEventType(id: number) {
 export async function loadEventTypeChildren(parentId: number) {
 	const res = await api.get(`event-types/${parentId}/children`).json<
 		ApiResponse<{ id: number; name: string }[]>
+
+export async function addEventType(name: string) {
+	if (!name) {
+		throw new Error('Name is required');
+	}
+	const res = await api.post('event-types', { json: { name } }).json<
+		ApiResponse<{
+			id: string;
+		}>
 	>();
 	if (res.success) {
 		return res.data;
