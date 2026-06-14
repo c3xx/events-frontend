@@ -10,6 +10,50 @@ export async function loadEventTypes() {
 	}
 }
 
+export async function getEventType(id: number) {
+	const res = await api.get(`event-types/${id}`).json<
+		ApiResponse<
+			EventType & {
+				workflowTemplateId: number;
+			}
+		>
+	>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function createEventType(data: {
+	name: string;
+	venuePolicy: string;
+	collaborationPolicy: string;
+	workflowTemplateId: number;
+}) {
+	const res = await api
+		.post('event-types', { json: data })
+		.json<ApiResponse<{ id: number }>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function deleteEventType(id: number) {
+	const res = await api.delete(`event-types/${id}`).json<ApiResponse<true>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function loadEventTypeChildren(parentId: number) {
+	const res = await api.get(`event-types/${parentId}/children`).json<
+		ApiResponse<{ id: number; name: string }[]>
+
 export async function addEventType(name: string) {
 	if (!name) {
 		throw new Error('Name is required');
@@ -19,6 +63,28 @@ export async function addEventType(name: string) {
 			id: string;
 		}>
 	>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function addEventTypeChild(parentId: number, childId: number) {
+	const res = await api
+		.post(`event-types/${parentId}/children/${childId}`)
+		.json<ApiResponse<{ parentTypeId: number; childTypeId: number }>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function removeEventTypeChild(parentId: number, childId: number) {
+	const res = await api
+		.delete(`event-types/${parentId}/children/${childId}`)
+		.json<ApiResponse<true>>();
 	if (res.success) {
 		return res.data;
 	} else {

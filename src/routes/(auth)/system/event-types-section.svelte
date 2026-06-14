@@ -1,21 +1,47 @@
 <script lang="ts">
-	import { addEventType, loadEventTypes } from '$lib/api/event-types';
-	import { loadWorkflowTemplate, loadWorkflowTemplates } from '$lib/api/workflow-templates';
+	import {
+		createEventType,
+		loadEventTypes,
+		loadEventTypeChildren,
+		addEventTypeChild
+	} from '$lib/api/event-types';
+	import SelectButton from '$lib/components/app/select-button.svelte';
+	import TabButton from '$lib/components/app/tab-button.svelte';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import Label from '$lib/components/ui/label/label.svelte';
-	import * as Select from '$lib/components/ui/select/index';
-	import * as Sheet from '$lib/components/ui/sheet/index';
-	import type { Workflow, EventType, LoadedData } from '$lib/types';
-	import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
+  import type { Workflow, EventType, LoadedData } from '$lib/types';
 	import { PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+  import { addEventType, loadEventTypes } from '$lib/api/event-types';
+  import { loadWorkflowTemplate, loadWorkflowTemplates } from '$lib/api/workflow-templates';
+  import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
 
-	let eventTypes = $state<LoadedData<EventType[]>>({
+	let eventTypes = $state<LoadedData<(EventType & { selectedChildId: string })[]>>({
 		state: 'pending',
-		message: 'Loading Event Types...'
+		message: 'Loading event types...'
 	});
-	let workflows = $state<LoadedData<Workflow[]>>({
+	let eventTypeChildren = $state<LoadedData<{ id: number; name: string }[]>>({
+		state: 'pending',
+		message: 'Loading children...'
+	});
+
+	let newTypeName: string = $state('');
+	let newTypeVenuePolicy: string = $state('optional');
+	let newTypeCollabPolicy: string = $state('optional');
+  if (EVENT_TYPE_COLLABORATION_POLICY.length > 0) {
+		newTypeCollaborationPolicy = EVENT_TYPE_COLLABORATION_POLICY[0];
+	}
+	let newTypeVenuePolicy = $state('');
+	if (EVENT_TYPE_VENUE_POLICY.length > 0) {
+		newTypeVenuePolicy = EVENT_TYPE_VENUE_POLICY[0];
+	}
+	let errorText = $state('');
+
+	let activeTab: 'Children' = $state('Children');
+	let activeEventType: (EventType & { selectedChildId: string }) | null = $state(null);
+  
+  let workflows = $state<LoadedData<Workflow[]>>({
 		state: 'pending',
 		message: 'Loading Workflows...'
 	});
@@ -31,18 +57,78 @@
 		addEventTypeSheetOpen = true;
 	}
 
-	let newTypeName = $state('');
-	let newTypeWorkflowId: null | string = $state(null);
-	let newTypeCollaborationPolicy = $state('');
-	if (EVENT_TYPE_COLLABORATION_POLICY.length > 0) {
-		newTypeCollaborationPolicy = EVENT_TYPE_COLLABORATION_POLICY[0];
+	async function onSave() {
+		if (!newTypeName) return;
+		const saveToastId = toast.loading('Saving new event type...');
+		try {
+			const newType = await createEventType({
+				name: newTypeName,
+				venuePolicy: newTypeVenuePolicy,
+				collaborationPolicy: newTypeCollabPolicy,
+				workflowTemplateId: 1
+			});
+			if (eventTypes.state === 'success') {
+				eventTypes.data = [
+					...eventTypes.data,
+					{
+						id: newType.id,
+						name: newTypeName,
+						isActive: true,
+						venuePolicy: newTypeVenuePolicy as EventType['venuePolicy'],
+						collaborationPolicy: newTypeCollabPolicy as EventType['collaborationPolicy'],
+						selectedChildId: ''
+					}
+				];
+			}
+			toast.success('Event Type Saved', { id: saveToastId });
+		} catch (err) {
+			console.error(err);
+			toast.error('Failed to save event type', { id: saveToastId });
+		} finally {
+			newTypeName = '';
+		}
 	}
-	let newTypeVenuePolicy = $state('');
-	if (EVENT_TYPE_VENUE_POLICY.length > 0) {
-		newTypeVenuePolicy = EVENT_TYPE_VENUE_POLICY[0];
-	}
-	let errorText = $state('');
 
+	async function onChildAdd(parentId: number, childId: string) {
+		if (!parentId || !childId) return;
+		const promise = addEventTypeChild(parentId, parseInt(childId));
+		toast.promise(promise, {
+			loading: 'Adding child type...',
+			success: () => {
+				if (eventTypeChildren.state === 'success' && eventTypes.state === 'success') {
+					eventTypeChildren.data = [
+						...eventTypeChildren.data,
+						{
+							id: parseInt(childId),
+							name: eventTypes.data.find((item) => item.id.toString() === childId)?.name ?? ''
+						}
+					];
+				}
+				return 'Child type added';
+			},
+			error: (err) => {
+				console.error(err);
+				return 'Failed to add child type';
+			}
+		});
+	}
+
+	async function setActiveTab(tab: string) {
+		if (!activeEventType) return;
+		if (tab === 'Children') {
+			eventTypeChildren = { state: 'pending', message: 'Loading children...' };
+			try {
+				eventTypeChildren = {
+					state: 'success',
+					data: await loadEventTypeChildren(activeEventType.id)
+				};
+			} catch {
+				eventTypeChildren = { state: 'failed', message: 'Failed to load children' };
+			}
+		}
+		activeTab = tab as 'Children';
+  }
+  
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		if (newTypeName.trim() === '') {
@@ -53,11 +139,13 @@
 
 	onMount(async () => {
 		try {
+			const data = await loadEventTypes();
 			eventTypes = {
 				state: 'success',
-				data: await loadEventTypes()
+				data: data.map((t) => ({ ...t, selectedChildId: '' }))
 			};
-			const workflowList = await loadWorkflowTemplates();
+      
+      const workflowList = await loadWorkflowTemplates();
 
 			workflows = {
 				state: 'success',
@@ -90,32 +178,113 @@
 
 <div class="flex w-full max-w-200 flex-col gap-y-sm p-r-pad">
 	<h2 class="text-lg">Event Types</h2>
-	<p class="text-sm text-muted-foreground">Manage Event Types.</p>
-	<div class=" border border-muted-foreground bg-muted">
+	<p class="text-sm text-muted-foreground">
+		Manage event types and their allowed child types. Select an item to manage its children.
+	</p>
+	<div class="border border-muted-foreground bg-muted">
 		{#if eventTypes.state === 'pending'}
 			<p class="p-xs">{eventTypes.message}</p>
 		{:else if eventTypes.state === 'success'}
-			{#each eventTypes.data as type}
-				<div
-					class="flex w-full flex-col justify-start gap-y-xxxs rounded-none border-b border-b-muted-foreground px-sm py-xs text-sm text-secondary-foreground"
+			{#each eventTypes.data as et}
+				<Button
+					onclick={async () => {
+						activeEventType = et;
+						setActiveTab(activeTab);
+					}}
+					class="w-full justify-start rounded-none border-b border-b-muted-foreground text-sm text-secondary-foreground"
+					variant="link">{et.name}</Button
 				>
-					<p class="">{type.name}</p>
-					<!-- TODO:show workflow -->
-					<div class="grid w-fit grid-cols-2 gap-x-xs gap-y-xxxs text-xs">
-						<p class="text-muted-foreground">Collaboration Policy:</p>
-						<p class="uppercase">{type.collaborationPolicy}</p>
-						<p class="text-muted-foreground">Venue Policy:</p>
-						<p class="uppercase">{type.venuePolicy}</p>
-					</div>
-				</div>
 			{/each}
-			<div class="flex w-full items-center p-xxs max-sm:flex-col">
-				<Button onclick={onAddClick} variant="link"><PlusIcon /> Add</Button>
+			<div class="flex w-full flex-col gap-xxs p-xxs">
+				<Input
+					bind:value={newTypeName}
+					onchange={(e) => {
+						newTypeName = e.currentTarget.value;
+					}}
+					name="eventTypeName"
+					class="w-full max-w-100 rounded-none border-secondary-foreground"
+					type="text"
+					placeholder="Event type name"
+				/>
+				<div class="flex gap-x-xxs">
+					<select
+						bind:value={newTypeVenuePolicy}
+						class="rounded-xs border border-secondary-foreground bg-background px-sm py-xs text-sm"
+					>
+						<option value="required">Venue: Required</option>
+						<option value="optional">Venue: Optional</option>
+						<option value="forbidden">Venue: Forbidden</option>
+					</select>
+					<select
+						bind:value={newTypeCollabPolicy}
+						class="rounded-xs border border-secondary-foreground bg-background px-sm py-xs text-sm"
+					>
+						<option value="required">Collab: Required</option>
+						<option value="optional">Collab: Optional</option>
+						<option value="forbidden">Collab: Forbidden</option>
+					</select>
+					<Button onclick={onSave} variant="link"><PlusIcon /> Add</Button>
+				</div>
 			</div>
 		{:else}
 			<p class="p-xs">Failed to Load: {eventTypes.message}</p>
 		{/if}
 	</div>
+	{#if activeEventType !== null}
+		<div class="border border-muted-foreground bg-muted">
+			<h3 class="p-xs font-medium">{activeEventType?.name}</h3>
+			<div class="flex gap-x-xxs">
+				<TabButton onclick={setActiveTab} title="Children" isActive={activeTab === 'Children'} />
+			</div>
+			<div class="border-t border-muted-foreground">
+				{#if activeTab === 'Children'}
+					{#if eventTypeChildren.state === 'pending'}
+						<p class="p-xs">{eventTypeChildren.message}</p>
+					{:else if eventTypeChildren.state === 'success' && eventTypes.state === 'success'}
+						{@const selectTrigCont =
+							eventTypes.data.find(
+								(item) => item.id.toString() === activeEventType?.selectedChildId
+							)?.name ?? 'Select a child'}
+						{@const selectItems = eventTypes.data
+							.filter(
+								(item) =>
+									item.id !== activeEventType?.id &&
+									eventTypeChildren.state === 'success' &&
+									eventTypeChildren.data.findIndex(
+										(child) => child.id.toString() === item.id.toString()
+									) === -1
+							)
+							.map((item) => ({ value: item.id.toString(), label: item.name }))}
+						{#each eventTypeChildren.data as child}
+							<Button
+								class="w-full justify-start rounded-none border-b border-b-muted-foreground text-sm text-secondary-foreground"
+								variant="link">{child.name}</Button
+							>
+						{/each}
+						<div class="flex">
+							<SelectButton
+								name="EventType"
+								label="Event Type"
+								bind:value={activeEventType.selectedChildId}
+								trigContent={selectTrigCont}
+								items={selectItems}
+								size="full"
+							/>
+							<Button
+								variant="link"
+								onclick={() => {
+									onChildAdd(activeEventType!.id, activeEventType!.selectedChildId);
+								}}
+								class="rounded-none"><PlusIcon />Add</Button
+							>
+						</div>
+					{:else if eventTypeChildren.state === 'failed'}
+						<p class="p-xs">Failed to Load: {eventTypeChildren.message}</p>
+					{/if}
+				{/if}
+			</div>
+		</div>
+	{/if}
 </div>
 
 <Sheet.Root bind:open={addEventTypeSheetOpen}>

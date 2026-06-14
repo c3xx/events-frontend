@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {
 		BuildingIcon,
+    CalendarIcon,
 		CirclePileIcon,
 		MonitorCogIcon,
 		NetworkIcon,
@@ -16,6 +17,11 @@
 			title: 'Users',
 			url: '/users',
 			icon: UsersIcon
+		},
+		{
+			title: 'Events',
+			url: '/events',
+			icon: CalendarIcon
 		},
 		{
 			title: 'Venues',

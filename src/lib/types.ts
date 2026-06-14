@@ -216,6 +216,108 @@ export type Facility = {
 	name: string;
 };
 
+export type EventStatus = 'draft' | 'pending' | 'approved' | 'cancelled' | 'overridden';
+export type EventOrganizerRole = 'host' | 'co_host';
+export type EventTypeVenuePolicy = 'required' | 'optional' | 'forbidden';
+export type EventTypeCollaborationPolicy = 'required' | 'optional' | 'forbidden';
+
+export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
+export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
+
+export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
+export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
+
+export type EventType = {
+	id: number;
+	name: string;
+	isActive: boolean;
+	venuePolicy: EventTypeVenuePolicy;
+	collaborationPolicy: EventTypeCollaborationPolicy;
+};
+
+export type EventCategory = {
+	id: number;
+	name: string;
+};
+
+export type EventOrganizer = {
+	id: number;
+	organization: { id: number; name: string };
+	role: EventOrganizerRole;
+};
+
+export type EventVenueAllotment = {
+	id: number;
+	startsAt: string;
+	endsAt: string;
+	venue: { id: number; name: string };
+};
+
+export type Event = {
+	id: number;
+	title: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	status: EventStatus;
+	parentEvent: { id: number; title: string } | null;
+	parentEventId: number | null;
+	startsAt: string;
+	endsAt: string;
+	expectedParticipants: number;
+	requestDetails: string;
+	organizers: EventOrganizer[];
+};
+
+export type EventSummary = {
+	id: number;
+	title: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	status: EventStatus;
+	parentEvent: { id: number; title: string } | null;
+	startsAt: string;
+	organizers: EventOrganizer[];
+};
+
+export type EventDetail = {
+	id: number;
+	title: string;
+	expectedParticipants: number;
+	requestDetails: string;
+	status: EventStatus;
+	parentEventId: number | null;
+	startsAt: string;
+	endsAt: string;
+	createdAt: string;
+	updatedAt: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	parentEvent: { id: number; title: string } | null;
+	organizers: EventOrganizer[];
+	venueAllotments: EventVenueAllotment[];
+	report: { id: number; details: string; submittedAt: string } | null;
+};
+
+export type CreateEventData = {
+	organizationId: number;
+	title: string;
+	typeId: number;
+	categoryId: number;
+	expectedParticipants: number;
+	requestDetails: string;
+	parentEventId?: number | null;
+	startsAt: string;
+	endsAt: string;
+};
+
+export type UpdateEventData = Partial<Omit<CreateEventData, 'organizationId'>>;
+
+export type CreateVenueAllotmentData = {
+	venueId: number;
+	startsAt: string;
+	endsAt: string;
+};
+=======
 export type EventType = {
 	id: string;
 	name: string;
@@ -255,3 +357,4 @@ export type CreateVenueData = {
 	organizationId?: number | null | undefined;
 	unavailabilityReason?: string | undefined;
 };
+
