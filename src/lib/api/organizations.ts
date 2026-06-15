@@ -50,7 +50,7 @@ export async function createOrg(
 
 	const res = await api
 		.post('organizations', {
-			json: { name, organizationTypeId, parentOrganizationId }
+			json: { name, organizationTypeId: Number(organizationTypeId), parentOrganizationId }
 		})
 		.json<ApiResponse<{ id: string }>>();
 	if (res.success) {

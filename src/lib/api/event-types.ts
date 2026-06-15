@@ -31,9 +31,7 @@ export async function createEventType(data: {
 	collaborationPolicy: string;
 	workflowTemplateId: number;
 }) {
-	const res = await api
-		.post('event-types', { json: data })
-		.json<ApiResponse<{ id: number }>>();
+	const res = await api.post('event-types', { json: data }).json<ApiResponse<{ id: string }>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -50,9 +48,16 @@ export async function deleteEventType(id: number) {
 	}
 }
 
-export async function loadEventTypeChildren(parentId: number) {
-	const res = await api.get(`event-types/${parentId}/children`).json<
-		ApiResponse<{ id: number; name: string }[]>
+export async function loadEventTypeChildren(parentId: string) {
+	const res = await api
+		.get(`event-types/${parentId}/children`)
+		.json<ApiResponse<{ id: number; name: string }[]>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
 
 export async function addEventType(name: string) {
 	if (!name) {
@@ -70,7 +75,7 @@ export async function addEventType(name: string) {
 	}
 }
 
-export async function addEventTypeChild(parentId: number, childId: number) {
+export async function addEventTypeChild(parentId: string, childId: number) {
 	const res = await api
 		.post(`event-types/${parentId}/children/${childId}`)
 		.json<ApiResponse<{ parentTypeId: number; childTypeId: number }>>();

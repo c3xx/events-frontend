@@ -3,19 +3,21 @@
 		createEventType,
 		loadEventTypes,
 		loadEventTypeChildren,
-		addEventTypeChild
+		addEventTypeChild,
+		addEventType
 	} from '$lib/api/event-types';
 	import SelectButton from '$lib/components/app/select-button.svelte';
 	import TabButton from '$lib/components/app/tab-button.svelte';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-  import type { Workflow, EventType, LoadedData } from '$lib/types';
+	import type { Workflow, EventType, LoadedData } from '$lib/types';
 	import { PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
-  import { addEventType, loadEventTypes } from '$lib/api/event-types';
-  import { loadWorkflowTemplate, loadWorkflowTemplates } from '$lib/api/workflow-templates';
-  import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
+	import { loadWorkflowTemplate, loadWorkflowTemplates } from '$lib/api/workflow-templates';
+	import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import * as Sheet from '$lib/components/ui/sheet';
 
 	let eventTypes = $state<LoadedData<(EventType & { selectedChildId: string })[]>>({
 		state: 'pending',
@@ -26,13 +28,13 @@
 		message: 'Loading children...'
 	});
 
+	let newTypeWorkflowId = $state<string>('');
 	let newTypeName: string = $state('');
 	let newTypeVenuePolicy: string = $state('optional');
 	let newTypeCollabPolicy: string = $state('optional');
-  if (EVENT_TYPE_COLLABORATION_POLICY.length > 0) {
-		newTypeCollaborationPolicy = EVENT_TYPE_COLLABORATION_POLICY[0];
+	if (EVENT_TYPE_COLLABORATION_POLICY.length > 0) {
+		newTypeCollabPolicy = EVENT_TYPE_COLLABORATION_POLICY[0];
 	}
-	let newTypeVenuePolicy = $state('');
 	if (EVENT_TYPE_VENUE_POLICY.length > 0) {
 		newTypeVenuePolicy = EVENT_TYPE_VENUE_POLICY[0];
 	}
@@ -40,8 +42,8 @@
 
 	let activeTab: 'Children' = $state('Children');
 	let activeEventType: (EventType & { selectedChildId: string }) | null = $state(null);
-  
-  let workflows = $state<LoadedData<Workflow[]>>({
+
+	let workflows = $state<LoadedData<Workflow[]>>({
 		state: 'pending',
 		message: 'Loading Workflows...'
 	});
@@ -74,6 +76,7 @@
 						id: newType.id,
 						name: newTypeName,
 						isActive: true,
+						workflowId: newTypeWorkflowId,
 						venuePolicy: newTypeVenuePolicy as EventType['venuePolicy'],
 						collaborationPolicy: newTypeCollabPolicy as EventType['collaborationPolicy'],
 						selectedChildId: ''
@@ -89,7 +92,7 @@
 		}
 	}
 
-	async function onChildAdd(parentId: number, childId: string) {
+	async function onChildAdd(parentId: string, childId: string) {
 		if (!parentId || !childId) return;
 		const promise = addEventTypeChild(parentId, parseInt(childId));
 		toast.promise(promise, {
@@ -127,8 +130,8 @@
 			}
 		}
 		activeTab = tab as 'Children';
-  }
-  
+	}
+
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		if (newTypeName.trim() === '') {
@@ -144,8 +147,8 @@
 				state: 'success',
 				data: data.map((t) => ({ ...t, selectedChildId: '' }))
 			};
-      
-      const workflowList = await loadWorkflowTemplates();
+
+			const workflowList = await loadWorkflowTemplates();
 
 			workflows = {
 				state: 'success',
@@ -363,7 +366,7 @@
 						<Label for="name" class="text-end">Collaboration Policy</Label>
 						<!-- TODO: Make this select button reusable. Use this instead of shadcn -->
 						<select
-							bind:value={newTypeCollaborationPolicy}
+							bind:value={newTypeCollabPolicy}
 							class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
 						>
 							{#each EVENT_TYPE_COLLABORATION_POLICY as policy}

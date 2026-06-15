@@ -221,40 +221,45 @@ export type EventOrganizerRole = 'host' | 'co_host';
 export type EventTypeVenuePolicy = 'required' | 'optional' | 'forbidden';
 export type EventTypeCollaborationPolicy = 'required' | 'optional' | 'forbidden';
 
-export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
-export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
-
-export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
-export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
-
-export type EventType = {
-	id: number;
-	name: string;
-	isActive: boolean;
-	venuePolicy: EventTypeVenuePolicy;
-	collaborationPolicy: EventTypeCollaborationPolicy;
-};
-
-export type EventCategory = {
-	id: number;
-	name: string;
-};
-
 export type EventOrganizer = {
-	id: number;
-	organization: { id: number; name: string };
+	id: string;
+	organization: Organization;
 	role: EventOrganizerRole;
 };
 
+type EventOrganizerInvitationStatus = 'pending' | 'accepted' | 'rejected' | 'revoked' | 'expired';
+
+export type EventOrganizerInvitation = {
+	id: string;
+	status: EventOrganizerInvitationStatus;
+	invitedAt: string;
+	closedAt: string | null;
+	invitedByUser: {
+		id: string;
+		user: {
+			id: string;
+			fullName: string;
+		};
+	};
+	senderOrganization: {
+		id: string;
+		name: string;
+	};
+	recipientOrganization: {
+		id: string;
+		name: string;
+	};
+};
+
 export type EventVenueAllotment = {
-	id: number;
+	id: string;
 	startsAt: string;
 	endsAt: string;
 	venue: { id: number; name: string };
 };
 
 export type Event = {
-	id: number;
+	id: string;
 	title: string;
 	type: { id: number; name: string };
 	category: { id: number; name: string };
@@ -269,7 +274,7 @@ export type Event = {
 };
 
 export type EventSummary = {
-	id: number;
+	id: string;
 	title: string;
 	type: { id: number; name: string };
 	category: { id: number; name: string };
@@ -280,7 +285,7 @@ export type EventSummary = {
 };
 
 export type EventDetail = {
-	id: number;
+	id: string;
 	title: string;
 	expectedParticipants: number;
 	requestDetails: string;
@@ -299,7 +304,7 @@ export type EventDetail = {
 };
 
 export type CreateEventData = {
-	organizationId: number;
+	organizationId: string;
 	title: string;
 	typeId: number;
 	categoryId: number;
@@ -313,14 +318,15 @@ export type CreateEventData = {
 export type UpdateEventData = Partial<Omit<CreateEventData, 'organizationId'>>;
 
 export type CreateVenueAllotmentData = {
-	venueId: number;
+	venueId: string;
 	startsAt: string;
 	endsAt: string;
 };
-=======
+
 export type EventType = {
 	id: string;
 	name: string;
+	isActive: boolean;
 	workflowId: string;
 	venuePolicy: EventTypeVenuePolicyType;
 	collaborationPolicy: EventTypeCollaborationPolicyType;
@@ -357,4 +363,3 @@ export type CreateVenueData = {
 	organizationId?: number | null | undefined;
 	unavailabilityReason?: string | undefined;
 };
-
