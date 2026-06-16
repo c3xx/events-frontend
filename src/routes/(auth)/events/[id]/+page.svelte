@@ -18,6 +18,8 @@
 	} from '$lib/types';
 	import { PlusIcon, TrashIcon } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
+	import OrganizersSection from './organizers-section.svelte';
+	import VenuesSection from './venues-section.svelte';
 
 	let event = $state<LoadedData<EventDetail>>({
 		state: 'pending',
@@ -27,16 +29,9 @@
 	let venuePolicy = $state<EventTypeVenuePolicy>('forbidden');
 	let collaborationPolicy = $state<EventTypeCollaborationPolicy>('forbidden');
 
-	type ActiveTab = 'Overview' | 'Organizers' | 'Venues';
-	let activeTab: ActiveTab = $state('Overview');
-
 	let selectedVenueId = $state('');
 	let allotStartsAt = $state('');
 	let allotEndsAt = $state('');
-
-	function setActiveTab(tab: string) {
-		activeTab = tab as ActiveTab;
-	}
 
 	function formatDate(dateStr: string) {
 		return new Date(dateStr).toLocaleString('en-IN', {
@@ -46,19 +41,29 @@
 	}
 
 	const statusColors: Record<string, string> = {
-		draft: 'bg-yellow-600',
-		pending: 'bg-blue-600',
-		approved: 'bg-green-600',
-		cancelled: 'bg-red-600',
-		overridden: 'bg-purple-600'
+		draft: 'bg-yellow-400/50',
+		pending: 'bg-blue-400/50',
+		approved: 'bg-green-400/50',
+		cancelled: 'bg-red-400/50',
+		overridden: 'bg-purple-400/50'
 	};
+	const statusTextColors: Record<string, string> = {
+		draft: 'text-yellow-700',
+		pending: 'text-blue-700',
+		approved: 'text-green-700',
+		cancelled: 'text-red-700',
+		overridden: 'text-purple-700'
+	};
+
+	const tabs = ['Overview', 'Organizers', 'Venues', 'Workflow'] as const;
+	let activeTab: null | string = $state(tabs.length > 0 ? tabs[0] : null);
 
 	async function handleAllotVenue() {
 		if (!selectedVenueId || !allotStartsAt || !allotEndsAt) return;
 		if (event.state !== 'success') return;
 
 		const promise = createVenueAllotment(page.params.id!, {
-			venueId: parseInt(selectedVenueId),
+			venueId: selectedVenueId,
 			startsAt: new Date(allotStartsAt).toISOString(),
 			endsAt: new Date(allotEndsAt).toISOString()
 		});
@@ -105,18 +110,17 @@
 		<p class="text-red-500">{event.message}</p>
 	</div>
 {:else}
-	<div class="relative flex">
-		<div class="flex w-full flex-col gap-y-xs p-r-pad">
+	<div class="flex w-full flex-col">
+		<div class="flex w-full flex-col p-r-pad">
 			<div class="flex items-center gap-x-sm">
-				<h2 class="text-lg">{event.data.title}</h2>
+				<h2 class="text-2xl italic">{event.data.title}</h2>
 				<span
-					class={`rounded-xs px-sm py-xxs text-xs text-white ${statusColors[event.data.status]}`}
+					class={`px-sm py-xxs text-xs font-bold uppercase ${statusTextColors[event.data.status]} ${statusColors[event.data.status]}`}
 				>
 					{event.data.status}
 				</span>
 			</div>
-			<Separator />
-			<div class="flex gap-x-xxs">
+			<!-- <div class="flex gap-x-xxs">
 				<TabButton onclick={setActiveTab} title="Overview" isActive={activeTab === 'Overview'} />
 				{#if collaborationPolicy !== 'forbidden'}
 					<TabButton
@@ -128,10 +132,22 @@
 				{#if venuePolicy !== 'forbidden'}
 					<TabButton onclick={setActiveTab} title="Venues" isActive={activeTab === 'Venues'} />
 				{/if}
+			</div> -->
+			<div class="mt-6 flex min-h-10 w-full max-w-200 items-end overflow-x-auto">
+				{#each tabs as tab}
+					<button
+						onclick={() => {
+							activeTab = tab;
+						}}
+						class={`${activeTab === tab ? 'border-x border-t text-primary' : 'border-b text-muted-foreground'} flex items-center border-muted-foreground px-xs py-xs`}
+						>{tab}</button
+					>
+				{/each}
+				<div class="h-full w-full border-b border-muted-foreground"></div>
 			</div>
-			<div class="border-t border-muted-foreground">
+			<div class="h-full max-w-200 border-x border-b border-muted-foreground p-sm">
 				{#if activeTab === 'Overview'}
-					<div class="flex flex-col gap-y-sm py-sm">
+					<div class="flex flex-col gap-y-sm">
 						<div class="grid grid-cols-2 gap-sm max-sm:grid-cols-1">
 							<div>
 								<p class="text-xs text-muted-foreground">Type</p>
@@ -144,10 +160,6 @@
 							<div>
 								<p class="text-xs text-muted-foreground">Expected Participants</p>
 								<p class="text-sm">{event.data.expectedParticipants}</p>
-							</div>
-							<div>
-								<p class="text-xs text-muted-foreground">Status</p>
-								<p class="text-sm capitalize">{event.data.status}</p>
 							</div>
 							<div>
 								<p class="text-xs text-muted-foreground">Starts At</p>
@@ -173,10 +185,11 @@
 								<p class="text-sm">{formatDate(event.data.createdAt)}</p>
 							</div>
 						</div>
-						<Separator />
 						<div>
-							<p class="text-xs text-muted-foreground">Request Details</p>
-							<p class="mt-xxs text-sm whitespace-pre-wrap">{event.data.requestDetails}</p>
+							<p class="text-xs text-muted-foreground">Description</p>
+							<p class="mt-xxs w-full max-w-200 bg-muted p-xxs text-sm whitespace-pre-wrap">
+								{event.data.requestDetails}
+							</p>
 						</div>
 						{#if event.data.report}
 							<Separator />
@@ -190,23 +203,9 @@
 						{/if}
 					</div>
 				{:else if activeTab === 'Organizers'}
-					<div class="border border-muted-foreground bg-muted">
-						{#each event.data.organizers as organizer}
-							<div
-								class="flex w-full items-center justify-start border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
-							>
-								<p class="w-full py-xs">{organizer.organization.name}</p>
-								<span class="rounded-xs bg-secondary px-sm py-xxs text-xs capitalize">
-									{organizer.role.replace('_', ' ')}
-								</span>
-							</div>
-						{/each}
-						{#if event.data.organizers.length === 0}
-							<p class="p-xs text-sm italic">No organizers assigned.</p>
-						{/if}
-					</div>
+					<OrganizersSection eventId={event.data.id} organizers={event.data.organizers} />
 				{:else if activeTab === 'Venues'}
-					<div class="border border-muted-foreground bg-muted">
+					<!-- <div class="border border-muted-foreground bg-muted">
 						{#each event.data.venueAllotments as allotment}
 							<div
 								class="flex w-full items-center justify-start border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
@@ -249,7 +248,8 @@
 								<Button variant="link" onclick={handleAllotVenue}><PlusIcon /> Allot</Button>
 							</div>
 						</div>
-					</div>
+					</div> -->
+					<VenuesSection eventId={event.data.id} allotedVenues={event.data.venueAllotments} />
 				{/if}
 			</div>
 		</div>

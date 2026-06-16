@@ -16,6 +16,8 @@
 		message: 'Loading venues...'
 	});
 
+	let addVenueSheetOpen = $state(false);
+
 	async function refreshVenues() {
 		try {
 			venues = {
@@ -81,7 +83,7 @@
 	<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
 		<Button
 			onclick={() => {
-				venueFacilitiesState.sheetOpen = true;
+				addVenueSheetOpen = true;
 			}}>Add Venue <PlusIcon /></Button
 		>
 	</div>
@@ -96,6 +98,6 @@
 	</div>
 </div>
 
-<AddVenue bind:open={venueFacilitiesState.sheetOpen} />
+<AddVenue bind:open={addVenueSheetOpen} />
 <AssignRole />
 <VenueFacilitiesSheet />

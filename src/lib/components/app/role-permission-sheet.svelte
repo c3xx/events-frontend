@@ -142,16 +142,16 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Content class="w-full sm:min-w-100" side="right">
-		<form onsubmit={handleSubmit}>
-			<div class="overflow-auto">
+	<Sheet.Content class="flex w-full flex-col sm:min-w-100" side="right">
+		<form class="flex h-full flex-col" onsubmit={handleSubmit}>
+			<div class="flex h-full min-h-0 flex-col">
 				<Sheet.Header class="mb-xs border-b border-muted-foreground">
 					<div class="flex flex-col">
 						<h3 class="text-sm">{org.name}</h3>
 						<h2 class="text-lg font-bold">Edit Role</h2>
 					</div>
 				</Sheet.Header>
-				<div class="grid flex-1 auto-rows-min gap-6 px-4">
+				<div class="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4">
 					{#if errorText}
 						<p class="text-sm text-red-500">{errorText}</p>
 					{/if}
@@ -183,16 +183,18 @@
 										</div>
 										<div class="mt-2 ml-6">
 											{#each permissionWithScope[scope] as childPerm}
-												<div class="flex items-center gap-x-xxs">
-													<Checkbox
-														onCheckedChange={(value) => {
-															if (saveDisabled) saveDisabled = false;
-														}}
-														bind:checked={childPerm.status}
-														class="border-muted-foreground"
-													/>
-													<p>{childPerm.title}</p>
-													<p class="text-muted-foreground">{childPerm.description}</p>
+												<div class="flex flex-col">
+													<div class="flex items-center gap-x-xxs">
+														<Checkbox
+															onCheckedChange={(value) => {
+																if (saveDisabled) saveDisabled = false;
+															}}
+															bind:checked={childPerm.status}
+															class="border-muted-foreground"
+														/>
+														<p>{childPerm.title}</p>
+													</div>
+													<p class="ml-6 text-muted-foreground">{childPerm.description}</p>
 												</div>
 											{/each}
 										</div>
