@@ -19,6 +19,7 @@
 	import { PlusIcon, TrashIcon } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 	import OrganizersSection from './organizers-section.svelte';
+	import VenuesSection from './venues-section.svelte';
 
 	let event = $state<LoadedData<EventDetail>>({
 		state: 'pending',
@@ -62,7 +63,7 @@
 		if (event.state !== 'success') return;
 
 		const promise = createVenueAllotment(page.params.id!, {
-			venueId: parseInt(selectedVenueId),
+			venueId: selectedVenueId,
 			startsAt: new Date(allotStartsAt).toISOString(),
 			endsAt: new Date(allotEndsAt).toISOString()
 		});
@@ -109,7 +110,7 @@
 		<p class="text-red-500">{event.message}</p>
 	</div>
 {:else}
-	<div class="relative flex">
+	<div class="flex w-full flex-col">
 		<div class="flex w-full flex-col p-r-pad">
 			<div class="flex items-center gap-x-sm">
 				<h2 class="text-2xl italic">{event.data.title}</h2>
@@ -132,7 +133,7 @@
 					<TabButton onclick={setActiveTab} title="Venues" isActive={activeTab === 'Venues'} />
 				{/if}
 			</div> -->
-			<div class="mt-6 flex min-h-10 w-full overflow-x-auto">
+			<div class="mt-6 flex min-h-10 w-full max-w-200 items-end overflow-x-auto">
 				{#each tabs as tab}
 					<button
 						onclick={() => {
@@ -144,7 +145,7 @@
 				{/each}
 				<div class="h-full w-full border-b border-muted-foreground"></div>
 			</div>
-			<div class="h-full border-x border-b border-muted-foreground p-sm">
+			<div class="h-full max-w-200 border-x border-b border-muted-foreground p-sm">
 				{#if activeTab === 'Overview'}
 					<div class="flex flex-col gap-y-sm">
 						<div class="grid grid-cols-2 gap-sm max-sm:grid-cols-1">
@@ -202,24 +203,9 @@
 						{/if}
 					</div>
 				{:else if activeTab === 'Organizers'}
-					<!-- <div class="border border-muted-foreground bg-muted">
-						{#each event.data.organizers as organizer}
-							<div
-								class="flex w-full items-center justify-start border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
-							>
-								<p class="w-full py-xs">{organizer.organization.name}</p>
-								<span class="rounded-xs bg-secondary px-sm py-xxs text-xs capitalize">
-									{organizer.role.replace('_', ' ')}
-								</span>
-							</div>
-						{/each}
-						{#if event.data.organizers.length === 0}
-							<p class="p-xs text-sm italic">No organizers assigned.</p>
-						{/if}
-					</div> -->
 					<OrganizersSection eventId={event.data.id} organizers={event.data.organizers} />
 				{:else if activeTab === 'Venues'}
-					<div class="border border-muted-foreground bg-muted">
+					<!-- <div class="border border-muted-foreground bg-muted">
 						{#each event.data.venueAllotments as allotment}
 							<div
 								class="flex w-full items-center justify-start border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
@@ -262,7 +248,8 @@
 								<Button variant="link" onclick={handleAllotVenue}><PlusIcon /> Allot</Button>
 							</div>
 						</div>
-					</div>
+					</div> -->
+					<VenuesSection eventId={event.data.id} allotedVenues={event.data.venueAllotments} />
 				{/if}
 			</div>
 		</div>
