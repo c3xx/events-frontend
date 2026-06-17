@@ -8,11 +8,11 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import type { LoadedData, Workflow } from '$lib/types';
+	import type { LoadedData, WorkflowTemplate } from '$lib/types';
 	import { Loader, Network, PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
-	let workflows: LoadedData<Workflow[]> = $state({
+	let workflows: LoadedData<WorkflowTemplate[]> = $state({
 		state: 'pending',
 		message: 'Loading workflows...'
 	});

@@ -1,8 +1,12 @@
 import { api } from '$lib/api';
-import type { ApiResponse, Workflow, WorkflowTargetGroupApprovalCriteriaType } from '$lib/types';
+import type {
+	ApiResponse,
+	WorkflowTemplate,
+	WorkflowTargetGroupApprovalCriteriaType
+} from '$lib/types';
 
 export async function loadWorkflowTemplates() {
-	const res = await api.get('workflow-templates').json<ApiResponse<Workflow[]>>();
+	const res = await api.get('workflow-templates').json<ApiResponse<WorkflowTemplate[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -14,7 +18,9 @@ export async function loadWorkflowTemplate(templateId: string) {
 	if (!templateId) {
 		throw new Error('template ID required');
 	}
-	const res = await api.get(`workflow-templates/${templateId}`).json<ApiResponse<Workflow>>();
+	const res = await api
+		.get(`workflow-templates/${templateId}`)
+		.json<ApiResponse<WorkflowTemplate>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -28,7 +34,7 @@ export async function loadWorkflowTemplateSteps(templateId: string) {
 	}
 	const res = await api
 		.get(`workflow-templates/${templateId}/steps`)
-		.json<ApiResponse<Workflow['steps']>>();
+		.json<ApiResponse<WorkflowTemplate['steps']>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -42,7 +48,7 @@ export async function loadWorkflowTemplatesStepsRoles(templateId: string, stepId
 	}
 	const res = await api
 		.get(`workflow-templates/${templateId}/steps/${stepId}/roles`)
-		.json<ApiResponse<Workflow['steps'][0]['roles']>>();
+		.json<ApiResponse<WorkflowTemplate['steps'][0]['roles']>>();
 	if (res.success) {
 		return res.data;
 	} else {

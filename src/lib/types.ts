@@ -1,6 +1,6 @@
 import type { Snippet } from 'svelte';
 
-export type Workflow = {
+export type WorkflowTemplate = {
 	id: string;
 	name: string;
 	steps: {
@@ -14,6 +14,47 @@ export type Workflow = {
 				name: string;
 				scope: { type: EntityType; kindId: string; kindName: string };
 			};
+		}[];
+	}[];
+};
+
+export type WorkflowInstance = {
+	id: number;
+	createdAt: string;
+	initialStepId: number | null;
+	status:
+		| 'active' // is running
+		| 'completed' // completed successfully
+		| 'denied' // denied somewhere, so stopped
+		| 'aborted' // cancelled by the host
+		| 'overridden';
+	completedAt: string | null;
+	eventId: number;
+	submittedBy: number;
+	steps: {
+		id: number;
+		name: string;
+		nextStepId: number | null;
+		status: 'pending' | 'overridden' | 'active' | 'completed' | 'denied' | 'skipped' | 'blocked';
+		stepOpen: boolean; //for frontend | to track if the step is open
+		stepRoles: {
+			roleId: number;
+			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+			id: number;
+			targetGroups: {
+				id: number;
+				managedEntityId: number;
+				assignments: {
+					id: number;
+					status: 'pending' | 'approved' | 'denied' | 'skipped';
+					completedAt: string | null;
+					userRole: {
+						id: number;
+						userId: number;
+						roleId: number;
+					};
+				}[];
+			}[];
 		}[];
 	}[];
 };
@@ -327,7 +368,10 @@ export type EventType = {
 	id: string;
 	name: string;
 	isActive: boolean;
-	workflowId: string;
+	workflowTemplate: {
+		id: number;
+		name: string;
+	};
 	venuePolicy: EventTypeVenuePolicyType;
 	collaborationPolicy: EventTypeCollaborationPolicyType;
 };
