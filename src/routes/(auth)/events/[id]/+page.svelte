@@ -195,7 +195,7 @@
 {:else}
 	<div class="flex w-full flex-col">
 		<div class="flex w-full flex-col px-r-pad">
-			<div class="sticky top-12 z-40 bg-background max-sm:border-b">
+			<div class="sticky top-12 z-40 max-w-200 bg-background max-sm:border-b">
 				<div class="flex items-center justify-between pt-sm">
 					<div class="flex items-center gap-x-sm gap-y-xxs max-sm:flex-col max-sm:items-start">
 						<h2 class="text-2xl italic">{event.data.title}</h2>

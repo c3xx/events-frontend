@@ -98,7 +98,7 @@
 				<div class="flex flex-col">
 					<p class="text-2xl italic">WORKFLOW #{activeWorkflowId}</p>
 					<p class="text-xs text-muted-foreground">
-						Created at: {formatDate(activeWorkflow.data.createdAt)}
+						Created on: {formatDate(activeWorkflow.data.createdAt)}
 					</p>
 				</div>
 				<div
@@ -144,13 +144,16 @@
 										></div>
 									</div>
 									<div class="ml-sm flex w-full justify-between">
-										<p
-											class={`text-xl leading-none ${
+										<button
+											onclick={() => {
+												step.stepOpen = !step.stepOpen;
+											}}
+											class={`cursor-pointer text-xl leading-none ${
 												step.status === 'pending' ? 'text-muted-foreground' : ''
 											}`}
 										>
 											{step.name}
-										</p>
+										</button>
 										{#if step.stepRoles.some( (s) => s.targetGroups.some((g) => g.assignments.length > 0) )}
 											<button
 												onclick={() => {
