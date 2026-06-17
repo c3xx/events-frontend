@@ -130,12 +130,12 @@
 										></div>
 										<div
 											class={`flex h-5 w-5 items-center justify-center rounded-full
-											border border-muted-foreground p-0.5`}
+											border border-muted-foreground p-0.5 ${step.status === 'completed' || step.status === 'skipped' ? 'bg-primary text-background' : ''}`}
 										>
-											{#if activeWorkflow.data.status === 'completed'}
-												<Check size="15" />
+											{#if step.status === 'completed' || step.status === 'skipped'}
+												<Check size="12" />
 											{:else if activeWorkflow.data.status === 'denied' || activeWorkflow.data.status === 'aborted'}
-												<X size="15" />
+												<X size="12" />
 											{/if}
 										</div>
 										<div

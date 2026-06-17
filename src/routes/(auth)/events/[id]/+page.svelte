@@ -205,7 +205,7 @@
 							{event.data.status}
 						</span>
 					</div>
-					<Button class="hidden sm:block" disabled={submitLoading} onclick={onSubmitEvent}
+					<Button class="hidden gap-x-xxs sm:flex" disabled={submitLoading} onclick={onSubmitEvent}
 						>{#if submitLoading}<Loader class="animate-spin" />
 						{/if} Submit</Button
 					>
