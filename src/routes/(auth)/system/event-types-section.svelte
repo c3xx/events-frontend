@@ -10,7 +10,7 @@
 	import TabButton from '$lib/components/app/tab-button.svelte';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import type { Workflow, EventType, LoadedData } from '$lib/types';
+	import type { WorkflowTemplate, EventType, LoadedData } from '$lib/types';
 	import { PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -43,7 +43,7 @@
 	let activeTab: 'Children' = $state('Children');
 	let activeEventType: (EventType & { selectedChildId: string }) | null = $state(null);
 
-	let workflows = $state<LoadedData<Workflow[]>>({
+	let workflows = $state<LoadedData<WorkflowTemplate[]>>({
 		state: 'pending',
 		message: 'Loading Workflows...'
 	});

@@ -29,7 +29,7 @@
 		type Role,
 		type Venue,
 		type VenueType,
-		type Workflow,
+		type WorkflowTemplate,
 		type WorkflowTargetGroupApprovalCriteriaType
 	} from '$lib/types';
 	import { Loader, Network, Plus, X } from '@lucide/svelte';
@@ -46,7 +46,7 @@
 		message: 'Loading entity types...'
 	});
 
-	let workflowList: LoadedData<Workflow[]> = $state({
+	let workflowList: LoadedData<WorkflowTemplate[]> = $state({
 		state: 'pending',
 		message: 'Loading workflows...'
 	});
@@ -56,7 +56,7 @@
 		message: 'Loading roles...'
 	});
 
-	let steps: LoadedData<Workflow['steps']> = $state({
+	let steps: LoadedData<WorkflowTemplate['steps']> = $state({
 		state: 'pending',
 		message: 'Loading steps...'
 	});
@@ -74,7 +74,12 @@
 
 	function onAddNodeClick(index: number, prevId: string, nextId: string | null) {
 		if (steps.state !== 'success') return;
-		let tempStep: Workflow['steps'][0] = { id: 'new', name: '', nextStepId: nextId, roles: [] };
+		let tempStep: WorkflowTemplate['steps'][0] = {
+			id: 'new',
+			name: '',
+			nextStepId: nextId,
+			roles: []
+		};
 		steps.data.splice(index, 0, tempStep);
 		activeStepId = 'new';
 		steps = { ...steps };
@@ -169,7 +174,7 @@
 				};
 				isValidId = 'true';
 				if (steps.data.length === 0) {
-					let tempStep: Workflow['steps'][0] = {
+					let tempStep: WorkflowTemplate['steps'][0] = {
 						id: 'new',
 						name: '',
 						nextStepId: null,
