@@ -1,64 +1,12 @@
 <script lang="ts">
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { formatDate } from '$lib/helpers';
-	import type { EventDetail } from '$lib/types';
+	import type { EventDetail, LoadedData, WorkflowInstance } from '$lib/types';
 	import { MapPin, Network, Users } from '@lucide/svelte';
 
-	let { event }: { event: EventDetail } = $props();
+	let { event, workflows }: { event: EventDetail; workflows: LoadedData<WorkflowInstance[]> } =
+		$props();
 </script>
-
-<!-- <div class="flex flex-col gap-y-sm">
-	<div class="grid grid-cols-2 gap-sm max-sm:grid-cols-1">
-		<div>
-			<p class="text-xs text-muted-foreground">Type</p>
-			<p class="text-sm">{event.type.name}</p>
-		</div>
-		<div>
-			<p class="text-xs text-muted-foreground">Category</p>
-			<p class="text-sm">{event.category.name}</p>
-		</div>
-		<div>
-			<p class="text-xs text-muted-foreground">Expected Participants</p>
-			<p class="text-sm">{event.expectedParticipants}</p>
-		</div>
-		<div>
-			<p class="text-xs text-muted-foreground">Starts At</p>
-			<p class="text-sm">{formatDate(event.startsAt)}</p>
-		</div>
-		<div>
-			<p class="text-xs text-muted-foreground">Ends At</p>
-			<p class="text-sm">{formatDate(event.endsAt)}</p>
-		</div>
-		{#if event.parentEvent}
-			<div>
-				<p class="text-xs text-muted-foreground">Parent Event</p>
-				<a href="/events/{event.parentEvent.id}" class="text-sm text-primary underline">
-					{event.parentEvent.title}
-				</a>
-			</div>
-		{/if}
-		<div>
-			<p class="text-xs text-muted-foreground">Created</p>
-			<p class="text-sm">{formatDate(event.createdAt)}</p>
-		</div>
-	</div>
-	<div>
-		<p class="text-xs text-muted-foreground">Description</p>
-		<p class="mt-xxs w-full max-w-200 bg-muted p-xxs text-sm whitespace-pre-wrap">
-			{event.requestDetails}
-		</p>
-	</div>
-	{#if event.report}
-		<Separator />
-		<div>
-			<p class="text-xs text-muted-foreground">Report</p>
-			<p class="mt-xxs text-sm whitespace-pre-wrap">{event.report.details}</p>
-			<p class="mt-xxs text-xs text-muted-foreground">
-				Submitted: {formatDate(event.report.submittedAt)}
-			</p>
-		</div>
-	{/if}
-</div> -->
 
 <div class="flex flex-col gap-sm">
 	<div class="flex gap-sm max-sm:flex-col-reverse">
@@ -130,9 +78,11 @@
 					<div class="flex flex-col items-start">
 						<p>Workflows</p>
 						<p class="text-xs text-muted-foreground">
-							{event.venueAllotments.length} alloted venues {event.venueAllotments.length === 1
-								? ` (${event.venueAllotments[0].venue})`
-								: ''}
+							{#if workflows.state === 'pending'}
+								Loading...
+							{:else if workflows.state === 'success'}
+								{workflows.data.length} instance{workflows.data.length > 1 ? 's' : ''}
+							{/if}
 						</p>
 					</div>
 				</div>

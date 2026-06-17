@@ -248,7 +248,7 @@
 				class={`h-full max-w-200 max-sm:pt-sm sm:border-x sm:border-b sm:border-muted-foreground sm:p-sm`}
 			>
 				{#if activeTab === 'Overview'}
-					<OverviewSection event={event.data} />
+					<OverviewSection {workflows} event={event.data} />
 				{:else if activeTab === 'Organizers'}
 					<OrganizersSection
 						eventId={event.data.id}
