@@ -3,8 +3,7 @@
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-
-	import type { CreateEventData, EventCategory, EventType, Organization } from '$lib/types';
+	import type { CreateEventData, EventCategory, EventType, Organization, ParentableEvent } from '$lib/types';
 
 	import { onMount } from 'svelte';
 	import { loadOrgs } from '$lib/api/organizations';
@@ -12,6 +11,7 @@
 	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
 	import { loadEventTypes } from '$lib/api/event-types';
 	import { loadEventCategories } from '$lib/api/event-categories';
+	import { loadParentableEvents } from '$lib/api/events';
 
 	let {
 		open = $bindable(false),
@@ -175,7 +175,17 @@
 					<!-- Parent Event -->
 					<div class="grid gap-3">
 						<Label>Parent Event (Optional)</Label>
-						<Input type="number" bind:value={parentEventId} />
+						<DynamicSelectButton
+							name="parentEventId"
+							initialText="Select Parent Event"
+							size="full"
+							bind:value={parentEventId}
+							loadFn={() => loadParentableEvents({ typeId: typeId, orgId: organizationId })}
+							mapOption={(event: ParentableEvent) => ({
+								value: event.id.toString(),
+								label: event.title
+							})}
+						/>
 					</div>
 
 				</div>

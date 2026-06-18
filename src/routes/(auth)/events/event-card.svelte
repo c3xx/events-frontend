@@ -13,8 +13,8 @@
 			month: 'short',
 			year: 'numeric'
 		});
-
-	function statusClasses(status: string) {
+  
+  	function statusClasses(status: string) {
 		switch (status) {
 			case 'approved':
 				return 'bg-green-100 text-green-700';
@@ -31,70 +31,29 @@
 </script>
 
 <a href="/events/{event.id}" class="block no-underline">
-<Card
-	class="h-[260px] sm:h-[280px] flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
->
-	<CardHeader class="space-y-3 pb-3">
-		<div class="flex items-start justify-between gap-3">
-			<CardTitle class="min-h-[3.5rem] line-clamp-2 text-lg leading-tight">
+<Card class="h-[180px] w-full rounded-none flex flex-col">
+	<CardHeader class="pb-3 ">
+		<div class="flex items-start justify-between">
+			<CardTitle class="line-clamp-1 text-xl font-medium">
 				{event.title}
 			</CardTitle>
 
-			<span
-				class={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${statusClasses(event.status)}`}
-			>
-				{event.status}
-			</span>
-		</div>
-
-		<div class="flex flex-wrap gap-2">
-			<span class="rounded-md bg-muted px-2 py-1 text-xs">
-				{event.type.name}
-			</span>
-
-			<span class="rounded-md bg-muted px-2 py-1 text-xs">
-				{event.category.name}
-			</span>
+			<span class="text-muted-foreground">⋯</span>
 		</div>
 	</CardHeader>
 
-	<CardContent class="flex flex-1 flex-col">
-		<div class="space-y-2 text-sm text-muted-foreground">
-			<div class="flex items-center gap-2">
-				<Calendar class="h-4 w-4 shrink-0" />
-				<span>{formatDate(event.startsAt)}</span>
-			</div>
-
-			<div class="flex items-center gap-2">
-				<Users class="h-4 w-4 shrink-0" />
-				<span>{event.expectedParticipants} participants</span>
-			</div>
-
-			<div class="flex items-center gap-2">
-				<Building2 class="h-4 w-4 shrink-0" />
-				<span>
-					{event.organizers.length}
-					organizer{event.organizers.length !== 1 ? 's' : ''}
+	<CardContent class="flex flex-1 flex-col justify-between">
+		{#if event.organizers.length}
+			<div>
+				<span class="bg-muted px-2 py-1 text-xs">
+					{event.organizers[0].organization.name}
 				</span>
 			</div>
+		{/if}
 
-			<!-- reserve space -->
-			<div class="h-5">
-				{#if event.parentEvent}
-					<div class="flex items-center gap-2">
-						<GitBranch class="h-4 w-4 shrink-0" />
-						<span class="truncate">
-							Part of {event.parentEvent.title}
-						</span>
-					</div>
-				{/if}
-			</div>
-		</div>
-
-		<div class="mt-auto border-t pt-3">
-			<p class="min-h-[2.5rem] line-clamp-2 text-sm text-muted-foreground">
-				{event.requestDetails}
-			</p>
+		<div class="mt-auto text-sm">
+			<div class="text-muted-foreground">Start:</div>
+			<div>{formatDate(event.startsAt)}</div>
 		</div>
 	</CardContent>
 </Card>

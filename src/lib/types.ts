@@ -408,3 +408,67 @@ export type CreateVenueData = {
 	organizationId?: number | null | undefined;
 	unavailabilityReason?: string | undefined;
 };
+
+
+export type CreateEventData = {
+    organizationId: number;
+    title: string;
+    typeId: number;
+    categoryId: number;
+    expectedParticipants: number;
+    requestDetails: string;
+    startsAt: string;
+    endsAt: string;
+    parentEventId?: number | null | undefined;
+}
+
+export type Event = {
+	id: number;
+
+	title: string;
+
+	type: {
+		id: number;
+		name: string;
+	};
+
+	category: {
+		id: number;
+		name: string;
+	};
+
+	status: EventStatus;
+
+	parentEvent: {
+		id: number;
+		title: string;
+	} | null;
+
+	parentEventId: number | null;
+
+	startsAt: string;
+	endsAt: string;
+
+	expectedParticipants: number;
+
+	requestDetails: string;
+
+	organizers: {
+		id: number;
+
+		organization: {
+			id: number;
+			name: string;
+		};
+
+		role: EventOrganizerRole;
+	}[];
+};
+export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "overridden";
+
+export type EventOrganizerRole = "host" | "co_host";
+
+export type ParentableEvent = {
+	id: number;
+	title: string;
+};
