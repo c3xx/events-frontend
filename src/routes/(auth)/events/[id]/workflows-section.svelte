@@ -246,7 +246,7 @@
 					<tbody>
 						{#if workflows.data.length === 0}
 							<tr
-								><td class="py-6" colspan="3"
+								><td class="py-6" colspan="4"
 									><p class="w-full text-center text-muted-foreground italic">
 										No workflows initiated
 									</p></td

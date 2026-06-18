@@ -79,7 +79,7 @@
 	});
 </script>
 
-<div class="flex w-full flex-col px-r-pad sm:px-10 lg:px-20">
+<div class="flex w-full max-w-200 flex-col px-r-pad">
 	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
 		<h1 class="px-2 text-xl">Workflow Templates</h1>
 	</div>

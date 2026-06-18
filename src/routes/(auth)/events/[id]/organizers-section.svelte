@@ -144,7 +144,7 @@
 		</div>
 		<div class="block max-w-200 border border-muted-foreground text-sm sm:hidden">
 			{#if organizers.length === 0}
-				<p class="w-full text-center text-muted-foreground italic">No organizers found</p>
+				<p class="w-full py-6 text-center text-muted-foreground italic">No organizers found</p>
 			{/if}
 			{#each organizers as o}
 				<div
@@ -274,7 +274,9 @@
 
 			<div class="block max-w-200 border border-muted-foreground text-sm sm:hidden">
 				{#if organizerInvitations.data.length === 0}
-					<p class="w-full text-center text-muted-foreground italic">No organizers found</p>
+					<p class="w-full py-6 text-center text-muted-foreground italic">
+						No invitations made yet
+					</p>
 				{/if}
 				{#each organizerInvitations.data as o}
 					<div

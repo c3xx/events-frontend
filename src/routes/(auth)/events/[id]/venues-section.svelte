@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { allotEventVenue } from '$lib/api/events/venue-allotments';
-	import { loadVenues } from '$lib/api/venue';
-	import DateTimePicker from '$lib/components/app/date-time-picker.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { formatDate } from '$lib/helpers';
 	import type { EventVenueAllotment, LoadedData, Venue } from '$lib/types';
-	import type { CalendarDate } from '@internationalized/date';
 	import { Loader, X } from '@lucide/svelte';
 
 	let {
@@ -19,20 +16,16 @@
 		venues: LoadedData<Venue[]>;
 	} = $props();
 
-	function toISOString(date: CalendarDate, time: string): string {
-		const [hours, minutes, seconds] = time.split(':').map(Number);
-
-		const jsDate = new Date(date.year, date.month - 1, date.day, hours, minutes, seconds ?? 0);
-
-		return jsDate.toISOString();
+	function toISOString(date: string, time: string): string {
+		return new Date(`${date}T${time}`).toISOString();
 	}
 
 	let addVenueLoading = $state(false);
 	let errorText = $state('');
 	let newVenueId: string | null = $state(null);
-	let newStartDate: CalendarDate | undefined = $state(undefined);
+	let newStartDate: string | undefined = $state(undefined);
 	let newStartTime: string = $state('00:00:00');
-	let newEndDate: CalendarDate | undefined = $state(undefined);
+	let newEndDate: string | undefined = $state(undefined);
 	let newEndTime: string = $state('00:00:00');
 
 	async function onAllotVenue() {
@@ -60,6 +53,7 @@
 		try {
 			errorText = '';
 			addVenueLoading = true;
+			console.log(newStartDate);
 			const startsAt = toISOString(newStartDate, newStartTime);
 			const endsAt = toISOString(newEndDate, newEndTime);
 
@@ -113,7 +107,7 @@
 	</div>
 	<div class="block max-w-200 border border-muted-foreground text-sm sm:hidden">
 		{#if allotedVenues.length === 0}
-			<p class="w-full text-center text-muted-foreground italic">No workflows initiated</p>
+			<p class="w-full py-6 text-center text-muted-foreground italic">No venues alloted yet</p>
 		{/if}
 		{#each allotedVenues as venue}
 			<div
@@ -164,20 +158,26 @@
 				</select>
 			{/if}
 		</div>
-		<DateTimePicker
-			id="start"
-			dateLabel={'Start Date'}
-			timeLabel={'Start Time'}
-			bind:dateValue={newStartDate}
-			bind:timeValue={newStartTime}
-		/>
-		<DateTimePicker
-			id="end"
-			dateLabel={'End Date'}
-			timeLabel={'End Time'}
-			bind:dateValue={newEndDate}
-			bind:timeValue={newEndTime}
-		/>
+		<div class="flex w-full max-w-80 gap-x-sm">
+			<div class="flex w-full flex-col gap-y-xxs">
+				<p class="italic">Start Date</p>
+				<Input type="date" bind:value={newStartDate} />
+			</div>
+			<div class="flex w-full flex-col gap-y-xxs">
+				<p class="italic">Start Time</p>
+				<Input type="time" bind:value={newStartTime} />
+			</div>
+		</div>
+		<div class="flex w-full max-w-80 gap-x-sm">
+			<div class="flex w-full flex-col gap-y-xxs">
+				<p class="italic">End Date</p>
+				<Input type="date" bind:value={newEndDate} />
+			</div>
+			<div class="flex w-full flex-col gap-y-xxs">
+				<p class="italic">End Time</p>
+				<Input type="time" bind:value={newEndTime} />
+			</div>
+		</div>
 		<Button disabled={addVenueLoading} onclick={onAllotVenue} class="mt-sm w-min"
 			>{#if addVenueLoading}
 				<Loader class="animate-spin" />

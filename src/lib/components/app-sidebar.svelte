@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {
 		BuildingIcon,
-    CalendarIcon,
+		CalendarIcon,
 		CirclePileIcon,
 		MonitorCogIcon,
 		NetworkIcon,
@@ -9,41 +9,84 @@
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
+	import { authInfo } from '$lib/global/auth.svelte';
 
 	let activeTitle = $state('Users');
 	// Menu items.
-	const items = [
-		{
-			title: 'Users',
-			url: '/users',
-			icon: UsersIcon
-		},
-		{
-			title: 'Events',
-			url: '/events',
-			icon: CalendarIcon
-		},
-		{
-			title: 'Venues',
-			url: '/venues',
-			icon: BuildingIcon
-		},
-		{
-			title: 'Organizations',
-			url: '/organizations',
-			icon: CirclePileIcon
-		},
-		{
-			title: 'Workflow Templates',
-			url: '/workflow-templates',
-			icon: NetworkIcon
-		},
-		{
-			title: 'System',
-			url: '/system',
-			icon: MonitorCogIcon
-		}
-	];
+	let items = $derived.by(() =>
+		authInfo.get()?.type === 'admin'
+			? [
+					{
+						title: 'Users',
+						url: '/users',
+						icon: UsersIcon
+					},
+					{
+						title: 'Venues',
+						url: '/venues',
+						icon: BuildingIcon
+					},
+					{
+						title: 'Organizations',
+						url: '/organizations',
+						icon: CirclePileIcon
+					},
+					{
+						title: 'Workflow Templates',
+						url: '/workflow-templates',
+						icon: NetworkIcon
+					},
+					{
+						title: 'System',
+						url: '/system',
+						icon: MonitorCogIcon
+					}
+				]
+			: [
+					...(authInfo.get()?.type === 'admin'
+						? [
+								{
+									title: 'Users',
+									url: '/users',
+									icon: UsersIcon
+								}
+							]
+						: []),
+					...(authInfo.get()?.type === 'end_user'
+						? [
+								{
+									title: 'Events',
+									url: '/events',
+									icon: CalendarIcon
+								}
+							]
+						: []),
+					...(authInfo.get()?.type === 'admin'
+						? [
+								{
+									title: 'Venues',
+									url: '/venues',
+									icon: BuildingIcon
+								},
+								{
+									title: 'Organizations',
+									url: '/organizations',
+									icon: CirclePileIcon
+								},
+								{
+									title: 'Workflow Templates',
+									url: '/workflow-templates',
+									icon: NetworkIcon
+								},
+								{
+									title: 'System',
+									url: '/system',
+									icon: MonitorCogIcon
+								}
+							]
+						: [])
+				]
+	);
 
 	const sidebar = Sidebar.useSidebar();
 </script>

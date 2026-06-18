@@ -1,60 +1,83 @@
 <script lang="ts">
-	import Card from '$lib/components/ui/card/card.svelte';
-	import { CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import { Calendar, Users, Building2, GitBranch } from '@lucide/svelte';
-
+	import { formatDate } from '$lib/helpers';
 	import type { Event } from '$lib/types';
+	import { Calendar, SquareUser } from '@lucide/svelte';
 
-	export let event: Event;
+	const statusColors: Record<Event['status'], string> = {
+		draft: 'bg-yellow-400/50',
+		pending: 'bg-blue-400/50',
+		approved: 'bg-green-400/50',
+		cancelled: 'bg-red-400/50',
+		overridden: 'bg-purple-400/50'
+	};
 
-	const formatDate = (date: string) =>
-		new Date(date).toLocaleDateString('en-IN', {
-			day: 'numeric',
-			month: 'short',
-			year: 'numeric'
-		});
-  
-  	function statusClasses(status: string) {
-		switch (status) {
-			case 'approved':
-				return 'bg-green-100 text-green-700';
-			case 'pending':
-				return 'bg-yellow-100 text-yellow-700';
-			case 'draft':
-				return 'bg-slate-100 text-slate-700';
-			case 'cancelled':
-				return 'bg-red-100 text-red-700';
-			default:
-				return 'bg-blue-100 text-blue-700';
-		}
-	}
+	const statusTextColors: Record<Event['status'], string> = {
+		draft: 'text-yellow-700',
+		pending: 'text-blue-700',
+		approved: 'text-green-700',
+		cancelled: 'text-red-700',
+		overridden: 'text-purple-700'
+	};
+
+	let { event, cardType }: { event: Event; cardType: 'tile' | 'list-tile' } = $props();
 </script>
 
-<a href="/events/{event.id}" class="block no-underline">
-<Card class="h-[180px] w-full rounded-none flex flex-col">
-	<CardHeader class="pb-3 ">
-		<div class="flex items-start justify-between">
-			<CardTitle class="line-clamp-1 text-xl font-medium">
-				{event.title}
-			</CardTitle>
+{#if cardType === 'tile'}
+	<a href="/events/{event.id}" class="no-underline">
+		<div class={`flex min-w-56 flex-col border border-neutral-400 bg-background`}>
+			<div class={`h-1 w-full ${statusColors[event.status]}`}></div>
 
-			<span class="text-muted-foreground">⋯</span>
-		</div>
-	</CardHeader>
-
-	<CardContent class="flex flex-1 flex-col justify-between">
-		{#if event.organizers.length}
-			<div>
-				<span class="bg-muted px-2 py-1 text-xs">
-					{event.organizers[0].organization.name}
-				</span>
+			<div class="flex flex-col p-xs">
+				<div class="flex w-full justify-end">
+					<p
+						class={`w-fit border border-muted-foreground px-xxs py-px text-start text-xs font-semibold text-muted-foreground`}
+					>
+						{event.organizers.find((o) => o.role === 'host')?.organization.name}
+					</p>
+				</div>
+				<p class="text-xl">{event.title}</p>
+				<div class="flex items-center gap-x-xxs">
+					<p class="w-min text-xs text-foreground">{event.type.name}</p>
+					<p class="text-xs text-muted-foreground">|</p>
+					<p class="w-min text-xs text-muted-foreground">{event.category.name}</p>
+				</div>
+				<div class="mt-6 flex items-center gap-xxs text-muted-foreground">
+					<Calendar size="15" />
+					<p class="text-xs">{formatDate(event.startsAt)}</p>
+				</div>
 			</div>
-		{/if}
-
-		<div class="mt-auto text-sm">
-			<div class="text-muted-foreground">Start:</div>
-			<div>{formatDate(event.startsAt)}</div>
 		</div>
-	</CardContent>
-</Card>
-</a>
+	</a>
+{:else}
+	<a href="/events/{event.id}" class="border-b border-neutral-400 no-underline last:border-b-0">
+		<div class={`flex min-w-56 flex-col bg-background`}>
+			<div class="flex flex-col p-xs">
+				<div class="flex items-start justify-between">
+					<div class="flex flex-col">
+						<p class="text-xl">{event.title}</p>
+						<div class="flex items-center gap-x-xxs">
+							<p class="w-min text-xs text-foreground">{event.type.name}</p>
+							<p class="text-xs text-muted-foreground">|</p>
+							<p class="w-min text-xs text-muted-foreground">{event.category.name}</p>
+						</div>
+					</div>
+					<p
+						class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${statusTextColors[event.status]} ${statusColors[event.status]}`}
+					>
+						{event.status}
+					</p>
+				</div>
+				<div class="mt-6 flex items-center gap-xxs text-muted-foreground">
+					<SquareUser size="15" />
+					<p class={`w-fit text-start text-xs font-semibold text-muted-foreground`}>
+						{event.organizers.find((o) => o.role === 'host')?.organization.name}
+					</p>
+				</div>
+				<div class="mt-xxs flex items-center gap-xxs text-muted-foreground">
+					<Calendar size="15" />
+					<p class="text-xs">{formatDate(event.startsAt)}</p>
+				</div>
+			</div>
+		</div>
+	</a>
+{/if}

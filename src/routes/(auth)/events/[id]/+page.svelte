@@ -57,14 +57,14 @@
 		message: 'Loading latest workflow...'
 	});
 
-	const statusColors: Record<string, string> = {
+	const statusColors: Record<EventDetail['status'], string> = {
 		draft: 'bg-yellow-400/50',
 		pending: 'bg-blue-400/50',
 		approved: 'bg-green-400/50',
 		cancelled: 'bg-red-400/50',
 		overridden: 'bg-purple-400/50'
 	};
-	const statusTextColors: Record<string, string> = {
+	const statusTextColors: Record<EventDetail['status'], string> = {
 		draft: 'text-yellow-700',
 		pending: 'text-blue-700',
 		approved: 'text-green-700',
