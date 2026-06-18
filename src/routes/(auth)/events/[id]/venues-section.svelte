@@ -1,0 +1,187 @@
+<script lang="ts">
+	import { allotEventVenue } from '$lib/api/events/venue-allotments';
+	import { loadVenues } from '$lib/api/venue';
+	import DateTimePicker from '$lib/components/app/date-time-picker.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import { formatDate } from '$lib/helpers';
+	import type { EventVenueAllotment, LoadedData, Venue } from '$lib/types';
+	import type { CalendarDate } from '@internationalized/date';
+	import { Loader, X } from '@lucide/svelte';
+
+	let {
+		eventId,
+		allotedVenues = $bindable([]),
+		venues
+	}: {
+		eventId: string;
+		allotedVenues: EventVenueAllotment[];
+		venues: LoadedData<Venue[]>;
+	} = $props();
+
+	function toISOString(date: CalendarDate, time: string): string {
+		const [hours, minutes, seconds] = time.split(':').map(Number);
+
+		const jsDate = new Date(date.year, date.month - 1, date.day, hours, minutes, seconds ?? 0);
+
+		return jsDate.toISOString();
+	}
+
+	let addVenueLoading = $state(false);
+	let errorText = $state('');
+	let newVenueId: string | null = $state(null);
+	let newStartDate: CalendarDate | undefined = $state(undefined);
+	let newStartTime: string = $state('00:00:00');
+	let newEndDate: CalendarDate | undefined = $state(undefined);
+	let newEndTime: string = $state('00:00:00');
+
+	async function onAllotVenue() {
+		if (venues.state !== 'success') return;
+		if (newVenueId === null) {
+			errorText = 'Please select a valid venue';
+			return;
+		}
+		if (newStartDate === undefined) {
+			errorText = 'Please enter a valid start date';
+			return;
+		}
+		if (newStartTime === undefined) {
+			errorText = 'Please enter a valid start time';
+			return;
+		}
+		if (newEndDate === undefined) {
+			errorText = 'Please enter a valid end date';
+			return;
+		}
+		if (newEndTime === undefined) {
+			errorText = 'Please enter a valid end time';
+			return;
+		}
+		try {
+			errorText = '';
+			addVenueLoading = true;
+			const startsAt = toISOString(newStartDate, newStartTime);
+			const endsAt = toISOString(newEndDate, newEndTime);
+
+			const { id } = await allotEventVenue(eventId, newVenueId, startsAt, endsAt);
+			allotedVenues.push({
+				id: id.toString(),
+				venue: {
+					id: parseInt(newVenueId),
+					name: venues.data.find((v) => v.id === newVenueId)?.name!
+				},
+				startsAt,
+				endsAt
+			});
+		} catch (err: any) {
+			errorText = err.message ?? 'Something went wrong';
+		} finally {
+			addVenueLoading = false;
+		}
+	}
+</script>
+
+<div class="flex w-full flex-col gap-y-sm">
+	<div class="hidden sm:block">
+		<table class="w-full max-w-200 border border-muted-foreground text-sm">
+			<thead class="border-b border-muted-foreground text-muted-foreground">
+				<tr class="bg-muted">
+					<th class="p-xs text-left"> Venue </th>
+					<th class="w-48 p-xs text-left">Start</th>
+					<th class="w-48 p-xs text-left">End</th>
+				</tr>
+			</thead>
+			<tbody>
+				{#if allotedVenues.length === 0}
+					<tr
+						><td class="py-6" colspan="3"
+							><p class="w-full text-center text-muted-foreground italic">
+								No venues alloted yet
+							</p></td
+						></tr
+					>
+				{/if}
+				{#each allotedVenues as venue}
+					<tr>
+						<td class="px-xs py-xxs text-left">{venue.venue.name}</td>
+						<td class="px-xs py-xxs text-left">{formatDate(venue.startsAt)}</td>
+						<td class="px-xs py-xxs text-left">{formatDate(venue.endsAt)}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+	<div class="block max-w-200 border border-muted-foreground text-sm sm:hidden">
+		{#if allotedVenues.length === 0}
+			<p class="w-full text-center text-muted-foreground italic">No workflows initiated</p>
+		{/if}
+		{#each allotedVenues as venue}
+			<div
+				class="flex flex-col items-start gap-y-xxs border-b border-muted-foreground p-xs last:border-b-0"
+			>
+				<div class="flex w-full items-center justify-between gap-x-xs">
+					<p class="text-lg">{venue.venue.name}</p>
+					<button><X size="15" /></button>
+				</div>
+				<div class="flex w-full items-center justify-between">
+					<div class="flex flex-col text-xs">
+						<p class="text-xs text-muted-foreground">Start</p>
+						<p class="text-left">{formatDate(venue.startsAt)}</p>
+					</div>
+					<div class="flex flex-col text-xs">
+						<p class="text-xs text-muted-foreground">End</p>
+						<p class="text-left">
+							{formatDate(venue.endsAt)}
+						</p>
+					</div>
+				</div>
+			</div>
+		{/each}
+	</div>
+	<div
+		class="flex flex-col gap-y-xxs max-sm:mt-sm sm:border sm:border-muted-foreground sm:bg-muted sm:p-xs"
+	>
+		<p class="font-bold">Add Venue</p>
+		<p class="text-xs text-muted-foreground">
+			Add an organizer by choosing an organization and assigning an appropriate role. The selected
+			role determines the organizer's access level and responsibilities for managing the event.
+		</p>
+		{#if errorText}
+			<p class="text-sm text-red-500">{errorText}</p>
+		{/if}
+		<div class="flex flex-col gap-y-xxs">
+			<p class="italic">Venue</p>
+			{#if venues.state === 'pending'}
+				<p class="h-9 w-full border border-muted-foreground px-3 py-1">Loading Organizations...</p>
+			{:else if venues.state === 'success'}
+				<select
+					bind:value={newVenueId}
+					class="flex h-9 w-full max-w-80 min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
+				>
+					{#each venues.data as v}
+						<option value={v.id}>{v.name}</option>
+					{/each}
+				</select>
+			{/if}
+		</div>
+		<DateTimePicker
+			id="start"
+			dateLabel={'Start Date'}
+			timeLabel={'Start Time'}
+			bind:dateValue={newStartDate}
+			bind:timeValue={newStartTime}
+		/>
+		<DateTimePicker
+			id="end"
+			dateLabel={'End Date'}
+			timeLabel={'End Time'}
+			bind:dateValue={newEndDate}
+			bind:timeValue={newEndTime}
+		/>
+		<Button disabled={addVenueLoading} onclick={onAllotVenue} class="mt-sm w-min"
+			>{#if addVenueLoading}
+				<Loader class="animate-spin" />
+			{/if} Allot</Button
+		>
+	</div>
+</div>

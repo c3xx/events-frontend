@@ -1,15 +1,5 @@
-import type { ApiResponse, CreateEventData, Event, ParentableEvent, EventCategory, EventType } from "$lib/types";
+import type { ApiResponse, CreateEventData, Event, ParentableEvent, EventCategory, EventType, EventDetail, UpdateEventData, CreateVenueAllotmentData } from "$lib/types";
 import { api } from "$lib/api";
-
-
-export async function loadEvents() {
-    const res = await api.get('events').json<ApiResponse<Event[]>>();
-    if (res.success) {
-        return res.data;
-    } else {
-        throw new Error(res.message);
-    }
-}
 
 export async function loadParentableEvents(params?: { typeId?: string | number; orgId?: string | number }) {
     const searchParams = new URLSearchParams();
@@ -36,3 +26,42 @@ export async function createEvent(eventData: CreateEventData): Promise<Event> {
     }
 }
 
+export async function getEvent(id: string) {
+	if (!id) {
+		throw new Error('Event ID required');
+	}
+	const res = await api.get(`events/${id}`).json<ApiResponse<EventDetail>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function updateEvent(id: string, data: UpdateEventData) {
+	if (!id) {
+		throw new Error('Event ID required');
+	}
+	const res = await api
+		.patch(`events/${id}`, { json: data })
+		.json<ApiResponse<{ id: number }>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function createVenueAllotment(eventId: string, data: CreateVenueAllotmentData) {
+	if (!eventId) {
+		throw new Error('Event ID required');
+	}
+	const res = await api
+		.post(`events/${eventId}/venue-allotments`, { json: data })
+		.json<ApiResponse<{ id: number }>>();
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}

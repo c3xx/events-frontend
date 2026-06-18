@@ -3,7 +3,6 @@
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
-
 	import type { CreateEventData, EventCategory, EventType, Organization, ParentableEvent } from '$lib/types';
 
 	import { onMount } from 'svelte';
@@ -30,7 +29,7 @@
 	let requestDetails = $state('');
 	let startsAt = $state('');
 	let endsAt = $state('');
-	let parentEventId = $state<string>('');
+	let parentEventId = $state<number | null>(null);
 
 	let orgs = $state<{ id: string; name: string }[]>([]);
 	let eventTypes = $state<EventType[]>([]);
@@ -66,9 +65,9 @@
 			categoryId: Number(categoryId),
 			expectedParticipants,
 			requestDetails,
-			startsAt: new Date(startsAt).toISOString(),
-			endsAt: new Date(endsAt).toISOString(),
-			parentEventId: parentEventId ? Number(parentEventId) : null
+			startsAt,
+			endsAt,
+			parentEventId
 		});
 
 		open = false;
@@ -158,19 +157,19 @@
 					<!-- Description -->
 					<div class="grid gap-3">
 						<Label>Description</Label>
-						<Input bind:value={requestDetails} required />
+						<Input bind:value={requestDetails} />
 					</div>
 
 					<!-- Start -->
 					<div class="grid gap-3">
 						<Label>Start Date</Label>
-						<Input type="datetime-local" bind:value={startsAt} required />
+						<Input type="date" bind:value={startsAt} />
 					</div>
 
 					<!-- End -->
 					<div class="grid gap-3">
 						<Label>End Date</Label>
-						<Input type="datetime-local" bind:value={endsAt} required />
+						<Input type="date" bind:value={endsAt} />
 					</div>
 
 					<!-- Parent Event -->

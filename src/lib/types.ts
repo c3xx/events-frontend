@@ -1,5 +1,67 @@
 import type { Snippet } from 'svelte';
 
+export type WorkflowTemplate = {
+	id: string;
+	name: string;
+	steps: {
+		id: string;
+		name: string;
+		nextStepId: string | null;
+		roles: {
+			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+			role: {
+				id: string;
+				name: string;
+				scope: { type: EntityType; kindId: string; kindName: string };
+			};
+		}[];
+	}[];
+};
+
+export type WorkflowInstance = {
+	id: number;
+	createdAt: string;
+	initialStepId: number | null;
+	status:
+		| 'active' // is running
+		| 'completed' // completed successfully
+		| 'denied' // denied somewhere, so stopped
+		| 'aborted' // cancelled by the host
+		| 'overridden';
+	completedAt: string | null;
+	eventId: number;
+	submittedBy: number;
+	steps: {
+		id: number;
+		name: string;
+		nextStepId: number | null;
+		status: 'pending' | 'overridden' | 'active' | 'completed' | 'denied' | 'skipped' | 'blocked';
+		stepOpen: boolean; //for frontend | to track if the step is open
+		stepRoles: {
+			roleId: number;
+			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+			id: number;
+			targetGroups: {
+				id: number;
+				managedEntityId: number;
+				assignments: {
+					id: number;
+					status: 'pending' | 'approved' | 'denied' | 'skipped';
+					completedAt: string | null;
+					userRole: {
+						id: number;
+						userId: number;
+						roleId: number;
+					};
+				}[];
+			}[];
+		}[];
+	}[];
+};
+
+export const ENTITIES = ['organization', 'venue'] as const;
+export type EntityType = (typeof ENTITIES)[number];
+
 export type EntityMember = {
 	id: string;
 	fullName: string;
@@ -195,10 +257,121 @@ export type Facility = {
 	name: string;
 };
 
+export type EventStatus = 'draft' | 'pending' | 'approved' | 'cancelled' | 'overridden';
+export type EventOrganizerRole = (typeof EVENT_ORGANIZER_ROLE)[number];
+export type EventTypeVenuePolicy = 'required' | 'optional' | 'forbidden';
+export type EventTypeCollaborationPolicy = 'required' | 'optional' | 'forbidden';
+
+export type EventOrganizer = {
+	id: string;
+	organization: Organization;
+	role: EventOrganizerRole;
+};
+
+type EventOrganizerInvitationStatus = 'pending' | 'accepted' | 'rejected' | 'revoked' | 'expired';
+
+export type EventOrganizerInvitation = {
+	id: string;
+	status: EventOrganizerInvitationStatus;
+	invitedAt: string;
+	closedAt: string | null;
+	invitedByUser: {
+		id: string;
+		user: {
+			id: string;
+			fullName: string;
+		};
+	};
+	senderOrganization: {
+		id: string;
+		name: string;
+	};
+	recipientOrganization: {
+		id: string;
+		name: string;
+	};
+};
+
+export type EventVenueAllotment = {
+	id: string;
+	startsAt: string;
+	endsAt: string;
+	venue: { id: number; name: string };
+};
+
+export type Event = {
+	id: string;
+	title: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	status: EventStatus;
+	parentEvent: { id: number; title: string } | null;
+	parentEventId: number | null;
+	startsAt: string;
+	endsAt: string;
+	expectedParticipants: number;
+	requestDetails: string;
+	organizers: EventOrganizer[];
+};
+
+export type EventSummary = {
+	id: string;
+	title: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	status: EventStatus;
+	parentEvent: { id: number; title: string } | null;
+	startsAt: string;
+	organizers: EventOrganizer[];
+};
+
+export type EventDetail = {
+	id: string;
+	title: string;
+	expectedParticipants: number;
+	requestDetails: string;
+	status: EventStatus;
+	parentEventId: number | null;
+	startsAt: string;
+	endsAt: string;
+	createdAt: string;
+	updatedAt: string;
+	type: { id: number; name: string };
+	category: { id: number; name: string };
+	parentEvent: { id: number; title: string } | null;
+	organizers: EventOrganizer[];
+	venueAllotments: EventVenueAllotment[];
+	report: { id: number; details: string; submittedAt: string } | null;
+};
+
+export type CreateEventData = {
+	organizationId: string;
+	title: string;
+	typeId: number;
+	categoryId: number;
+	expectedParticipants: number;
+	requestDetails: string;
+	parentEventId?: number | null;
+	startsAt: string;
+	endsAt: string;
+};
+
+export type UpdateEventData = Partial<Omit<CreateEventData, 'organizationId'>>;
+
+export type CreateVenueAllotmentData = {
+	venueId: string;
+	startsAt: string;
+	endsAt: string;
+};
+
 export type EventType = {
 	id: string;
 	name: string;
-	workflowId: string;
+	isActive: boolean;
+	workflowTemplate: {
+		id: number;
+		name: string;
+	};
 	venuePolicy: EventTypeVenuePolicyType;
 	collaborationPolicy: EventTypeCollaborationPolicyType;
 };
@@ -210,9 +383,13 @@ export type EventCategory = {
 
 export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
 export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
+export const WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA = ['all', 'any'] as const;
+export const EVENT_ORGANIZER_ROLE = ['host', 'co_host', 'resource_provider '] as const;
 
 export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
 export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
+export type WorkflowTargetGroupApprovalCriteriaType =
+	(typeof WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA)[number];
 
 export type VenueFacilities = {
 	id: number;

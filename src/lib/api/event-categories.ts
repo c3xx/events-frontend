@@ -14,6 +14,7 @@ export async function addEventCategory(name: string) {
 	if (!name) {
 		throw new Error('Name is required');
 	}
+  
 	const res = await api.post('event-categories', { json: { name } }).json<
 		ApiResponse<{
 			id: string;
