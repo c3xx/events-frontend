@@ -298,7 +298,7 @@
 	}
 </script>
 
-<div class="flex w-full flex-col px-r-pad sm:px-10 lg:px-20">
+<div class="flex w-full max-w-200 flex-col px-r-pad">
 	{#if isValidId === 'true'}
 		<div class="border-muted-background flex w-full max-w-200 flex-col justify-center py-xs">
 			<h1 class="px-2 text-3xl italic">{workflowTitle}</h1>

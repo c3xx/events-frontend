@@ -18,15 +18,12 @@ export async function loadEvents() {
 	}
 }
 
-export async function loadParentableEvents(params?: {
-	typeId?: string | number;
-	orgId?: string | number;
-}) {
-	const searchParams = new URLSearchParams();
-	if (params?.typeId) searchParams.set('typeId', params.typeId.toString());
-	if (params?.orgId) searchParams.set('organizationId', params.orgId.toString());
+export async function loadParentableEvents(
+	typeId: string | number,
+	organizationId: string | number
+) {
 	const res = await api
-		.get('events/parentable', { searchParams })
+		.get(`events/parentable?typeId=${typeId}&organizationId=${organizationId}`)
 		.json<ApiResponse<ParentableEvent[]>>();
 	if (res.success) {
 		return res.data;

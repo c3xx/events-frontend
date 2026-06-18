@@ -1,7 +1,17 @@
 import type { AuthUser } from '$lib/types';
 
-// TODO: use get() and set()
-export const authInfo = $state<AuthUser>({
-	user: null,
-	permissions: []
-});
+let user = $state<AuthUser | null>(null);
+
+export const authInfo = {
+	get() {
+		return user;
+	},
+
+	set(value: AuthUser | null) {
+		user = value;
+	},
+
+	clear() {
+		user = null;
+	}
+};

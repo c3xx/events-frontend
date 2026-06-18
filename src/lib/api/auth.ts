@@ -1,6 +1,5 @@
 import { goto } from '$app/navigation';
 import { page } from '$app/state';
-import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { api } from '$lib/api';
 import { authInfo } from '$lib/global/auth.svelte';
 import { ERROR_CODES, type ApiResponse, type AuthUser } from '$lib/types';
@@ -30,44 +29,14 @@ export async function authUser() {
 			return;
 		} else {
 			// we are in some other page than login. we should try to authenticate
-			const res = await api
-				.get('me', { headers: { Authorization: `Bearer ${accessToken}` } })
-				.json<ApiResponse<AuthUser>>();
-			if (res.success) {
-				// authentication success, the page is accessible.
-				authInfo.user = res.data.user;
-				authInfo.permissions = res.data.permissions;
-				// await goto('/');
-				return;
-			} else {
-				// // that didn't work. why?
-				if (res.code === ERROR_CODES.unauthorized) {
-					// 	// access token seems to be expired; we should try the refresh token hoping that one exists
-					// 	const refreshRes = await api
-					// 		.post('auth/refresh', { credentials: 'include' })
-					// 		.json<ApiResponse<AuthUser & { accessToken: string }>>();
-					// 	if (refreshRes.success) {
-					// 		localStorage.setItem('accessToken', refreshRes.data.accessToken);
-					// 		authInfo.user = refreshRes.data.user;
-					// 		authInfo.permissions = refreshRes.data.permissions;
-					// 		return;
-					// 	} else {
-					// 		// refresh token doesnt work either. so clear everything, go back to login page.
-					await logout();
-					await goto('/login');
-					return;
-					// 	}
-				} else {
-					// it is some other error code we dont know how to handle yet. SO, global!
-					throw new Error(res.message);
-				}
-			}
+			await authMe();
 		}
 	}
 }
 
 export async function logout() {
 	await api.post('auth/logout', { credentials: 'include' });
+	authInfo.clear();
 	localStorage.clear(); // TODO: rethink - .clear() or removeItem()
 }
 
@@ -81,8 +50,41 @@ export async function loginUser(email: string, password: string) {
 
 	if (res.success) {
 		localStorage.setItem('accessToken', res.data.accessToken);
+		await authMe();
 	} else {
 		throw new Error(res.message);
 	}
 	return true;
+}
+
+export async function authMe() {
+	const accessToken = localStorage.getItem('accessToken');
+	const res = await api
+		.get('me', { headers: { Authorization: `Bearer ${accessToken}` } })
+		.json<ApiResponse<AuthUser>>();
+	if (res.success) {
+		// authentication success, the page is accessible.
+		authInfo.set(res.data);
+		// await goto('/');
+		return;
+	} else {
+		// // that didn't work. why?
+		if (res.code === ERROR_CODES.unauthorized) {
+			// 	// access token seems to be expired; we should try the refresh token hoping that one exists
+			// 	const refreshRes = await api
+			// 		.post('auth/refresh', { credentials: 'include' })
+			// 		.json<ApiResponse<AuthUser & { accessToken: string }>>();
+			// 	if (refreshRes.success) {
+			// 		localStorage.setItem('accessToken', refreshRes.data.accessToken);
+			// 		authInfo.user = refreshRes.data.user;
+			// 		authInfo.permissions = refreshRes.data.permissions;
+			// 		return;
+			// 	} else {
+			// 		// refresh token doesnt work either. so clear everything, go back to login page.
+			await logout();
+			await goto('/login');
+			return;
+			// 	}
+		}
+	}
 }

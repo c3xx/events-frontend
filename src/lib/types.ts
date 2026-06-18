@@ -152,13 +152,31 @@ export type RoleType = {
 };
 
 type PermissionCode =
-	| 'user:create'
-	| 'user:modify'
-	| 'user:delete'
 	| 'organization:create'
-	| 'organization:modify'
-	| 'organization:delete'
-	| 'organization:assign_users';
+	| 'organization:add_member'
+	| 'venue:create'
+	| 'venue:add_member'
+	| 'venue:modify_facilities'
+	| 'user:create'
+	| 'event:manage'
+	| 'event:view_own'
+	| 'event:view_all_confirmed'
+	| 'event:view_all'
+	| 'event:view_all_non_draft'
+	| 'event:allot_venue'
+	| 'event_organizer_invitation:respond'
+	| 'role:modify_permissions'
+	| 'event_type:create'
+	| 'event_type:delete'
+	| 'event_type:modify_hierarchy'
+	| 'event_category:create'
+	| 'facility:create'
+	| 'organization_type:create'
+	| 'organization_type:modify_hierarchy'
+	| 'organization_type:create_role'
+	| 'venue_type:create'
+	| 'venue_type:create_role'
+	| 'event_organizer:manage';
 
 export type PermissionType = {
 	id: string;
@@ -174,12 +192,24 @@ export type PermissionChildType = {
 };
 
 export type AuthUser = {
-	user: {
-		id: string;
-		fullName: string;
-		email: string;
-	} | null;
-	permissions: string[]; //TODO: change data type
+	id: number;
+	email: string;
+	type: 'admin' | 'end_user';
+	fullName: string;
+	memberships: {
+		id: number;
+		type: EntityType;
+		name: string;
+		kind: {
+			id: number;
+			name: string;
+		};
+		roles: {
+			id: number;
+			name: string;
+			permissions: PermissionCode[];
+		}[];
+	}[];
 };
 
 export type ApiSuccess<T> = {
@@ -345,15 +375,15 @@ export type EventDetail = {
 };
 
 export type CreateEventData = {
-	organizationId: string;
+	organizationId: number;
 	title: string;
 	typeId: number;
 	categoryId: number;
 	expectedParticipants: number;
 	requestDetails: string;
-	parentEventId?: number | null;
 	startsAt: string;
 	endsAt: string;
+	parentEventId?: number | null | undefined;
 };
 
 export type UpdateEventData = Partial<Omit<CreateEventData, 'organizationId'>>;
@@ -408,65 +438,6 @@ export type CreateVenueData = {
 	organizationId?: number | null | undefined;
 	unavailabilityReason?: string | undefined;
 };
-
-
-export type CreateEventData = {
-    organizationId: number;
-    title: string;
-    typeId: number;
-    categoryId: number;
-    expectedParticipants: number;
-    requestDetails: string;
-    startsAt: string;
-    endsAt: string;
-    parentEventId?: number | null | undefined;
-}
-
-export type Event = {
-	id: number;
-
-	title: string;
-
-	type: {
-		id: number;
-		name: string;
-	};
-
-	category: {
-		id: number;
-		name: string;
-	};
-
-	status: EventStatus;
-
-	parentEvent: {
-		id: number;
-		title: string;
-	} | null;
-
-	parentEventId: number | null;
-
-	startsAt: string;
-	endsAt: string;
-
-	expectedParticipants: number;
-
-	requestDetails: string;
-
-	organizers: {
-		id: number;
-
-		organization: {
-			id: number;
-			name: string;
-		};
-
-		role: EventOrganizerRole;
-	}[];
-};
-export type EventStatus = "draft" | "pending" | "approved" | "cancelled" | "overridden";
-
-export type EventOrganizerRole = "host" | "co_host";
 
 export type ParentableEvent = {
 	id: number;
