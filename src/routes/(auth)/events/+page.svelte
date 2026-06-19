@@ -8,6 +8,7 @@
 	import EventCard from './event-card.svelte';
 	import HorizontalScroller from './horizontal-scroller.svelte';
 	import { goto } from '$app/navigation';
+	import { permissionGrantedSomewhere } from '$lib/helpers';
 
 	let events = $state<LoadedData<Event[]>>({
 		state: 'pending',
@@ -73,6 +74,8 @@
 			month: 'short'
 		});
 	}
+
+	let canCreateEvent = $derived(permissionGrantedSomewhere('event:manage'));
 </script>
 
 <div class="flex w-full max-w-200 flex-col">
@@ -97,12 +100,14 @@
 						>
 					{/if}
 				</div>
-				<Button
-					onclick={async () => {
-						await goto('events/new');
-					}}
-					class="h-8 rounded-none"><span>Create </span><Plus size="15" /></Button
-				>
+				{#if canCreateEvent}
+					<Button
+						onclick={async () => {
+							await goto('events/new');
+						}}
+						class="h-8 rounded-none"><span>Create </span><Plus size="15" /></Button
+					>
+				{/if}
 			</div>
 		</div>
 		<div class="flex w-full items-center justify-between gap-xs sm:hidden">

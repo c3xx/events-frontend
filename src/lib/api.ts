@@ -2,7 +2,7 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import ky from 'ky';
 import type { ApiResponse } from './types';
 import { goto } from '$app/navigation';
-import { UNPROTECTED_ROUTES } from './constants';
+import { UNPROTECTED_API_ROUTES } from './constants';
 
 export const api = ky.create({
 	prefixUrl: PUBLIC_API_BASE_URL,
@@ -14,7 +14,7 @@ export const api = ky.create({
 		beforeRequest: [
 			(request) => {
 				const parsedUrl = new URL(request.url);
-				if (!UNPROTECTED_ROUTES.includes(parsedUrl.pathname)) {
+				if (!UNPROTECTED_API_ROUTES.includes(parsedUrl.pathname)) {
 					const accessToken = localStorage.getItem('accessToken');
 					if (typeof accessToken === 'string' && accessToken.trim().length > 0) {
 						request.headers.set('Authorization', `Bearer ${accessToken}`);
@@ -25,7 +25,7 @@ export const api = ky.create({
 		afterResponse: [
 			async (request, options, response) => {
 				const parsedUrl = new URL(request.url);
-				if (!UNPROTECTED_ROUTES.includes(parsedUrl.pathname) && response.status === 401) {
+				if (!UNPROTECTED_API_ROUTES.includes(parsedUrl.pathname) && response.status === 401) {
 					const response = await ky
 						.post(`${PUBLIC_API_BASE_URL}/auth/refresh`, {
 							credentials: 'include',

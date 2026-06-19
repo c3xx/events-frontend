@@ -6,18 +6,15 @@
 	import { LogOut } from '@lucide/svelte';
 
 	let { children } = $props();
-	let itemsLength = $state(0);
 </script>
 
 <Sidebar.Provider class="flex w-screen">
-	<AppSidebar bind:itemsLength />
+	<AppSidebar />
 	<main class="min-w-0 flex-1">
 		<div
 			class="border-muted-background sticky top-0 z-50 flex h-12 w-full items-center border-b bg-background p-xxxs"
 		>
-			{#if itemsLength > 1}
-				<Sidebar.Trigger class="absolute left-xs z-50" />
-			{/if}
+			<Sidebar.Trigger class="absolute left-xs z-50" />
 			<h2 class="absolute inset-0 flex w-full items-center justify-center text-center">CHW</h2>
 			<button
 				onclick={async () => {

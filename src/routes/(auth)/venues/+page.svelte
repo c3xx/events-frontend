@@ -10,6 +10,7 @@
 	import { goto } from '$app/navigation';
 	import { venueFacilitiesState } from '$lib/global/venueFacilities.svelte';
 	import DataTable from '$lib/components/app/data-table.svelte';
+	import { permissionGrantedSomewhere } from '$lib/helpers';
 
 	let venues = $state<LoadedData<Venue[]>>({
 		state: 'pending',
@@ -74,19 +75,23 @@
 			}
 		}
 	];
+
+	let canCreateVenue = $derived(permissionGrantedSomewhere('venue:create'));
 </script>
 
 <div class="flex w-full max-w-200 flex-col">
 	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
 		<h1 class="px-2 text-xl">Venues</h1>
 	</div>
-	<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
-		<Button
-			onclick={() => {
-				addVenueSheetOpen = true;
-			}}>Add Venue <PlusIcon /></Button
-		>
-	</div>
+	{#if canCreateVenue}
+		<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
+			<Button
+				onclick={() => {
+					addVenueSheetOpen = true;
+				}}>Add Venue <PlusIcon /></Button
+			>
+		</div>
+	{/if}
 	<div class="p-xxs">
 		{#if venues.state === 'pending'}
 			<p class="p-4 text-center">Loading venues...</p>

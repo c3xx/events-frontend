@@ -7,6 +7,7 @@
 	import { getVenueById, loadVenueMembers } from '$lib/api/venue';
 	import { loadRolesVenueType } from '$lib/api/venues';
 	import AddMember from './add-member.svelte';
+	import { permissionGrantedSomewhere } from '$lib/helpers';
 
 	let addSheetOpen = $state(false);
 
@@ -119,6 +120,8 @@
 			}
 		})();
 	});
+
+	let canAddMember = $derived(permissionGrantedSomewhere('venue:add_member'));
 </script>
 
 <div class="relative flex max-w-200">
@@ -127,9 +130,11 @@
 			<h2 class="text-lg">{title}</h2>
 		</div>
 		<Separator />
-		<div class="flex w-full justify-end gap-x-xxs">
-			<Button variant="default" onclick={() => (addSheetOpen = true)}>Manage Members</Button>
-		</div>
+		{#if canAddMember}
+			<div class="flex w-full justify-end gap-x-xxs">
+				<Button variant="default" onclick={() => (addSheetOpen = true)}>Manage Members</Button>
+			</div>
+		{/if}
 
 		<Separator />
 		<div class="overflow-auto">

@@ -4,18 +4,35 @@
 	import { Toaster } from 'svelte-sonner';
 	import { authUser } from '$lib/api/auth';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { canAccessRoute, permissionGrantedSomewhere } from '$lib/helpers';
 
 	let { children } = $props();
 
-	let authenticated = $state(false);
+	let status: 'authenticated' | 'pending' | 'forbidden' = $state('pending');
+	let authLoaded = $state(false);
 
 	onMount(async () => {
 		try {
 			await authUser();
-			authenticated = true;
-		} catch (err: any) {
-			console.error(err.message);
+			authLoaded = true;
+		} catch (err) {
+			console.error(err);
 		}
+	});
+
+	$effect(() => {
+		if (!authLoaded) return;
+		if (page.url.pathname === '/events/new' && !permissionGrantedSomewhere('event:manage')) {
+			status = 'forbidden';
+			return;
+		}
+		const route = '/' + page.url.pathname.split('/')[1];
+		if (!canAccessRoute(route)) {
+			status = 'forbidden';
+			return;
+		}
+		status = 'authenticated';
 	});
 </script>
 
@@ -23,8 +40,10 @@
 
 <Toaster />
 
-{#if authenticated}
+{#if status === 'pending'}
+	Authenticating...
+{:else if status === 'authenticated'}
 	{@render children()}
 {:else}
-	Authenticating...
+	Forbidden. Contact Admin
 {/if}

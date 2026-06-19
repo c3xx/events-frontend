@@ -87,60 +87,53 @@
 				];
 	});
 
-	$effect(() => {
-		itemsLength = items.length;
-	});
-
-	let { itemsLength = $bindable(items.length) }: { itemsLength: number } = $props();
 	const sidebar = Sidebar.useSidebar();
 </script>
 
-{#if items.length > 1}
-	<Sidebar.Root collapsible="icon">
-		<Sidebar.Content>
-			<Sidebar.Group>
-				<Sidebar.GroupContent>
-					<Sidebar.Menu>
-						{#each items as item (item.title)}
-							<Sidebar.MenuItem>
-								<Sidebar.MenuButton isActive={item.url.split('/')[1] == activeUrl}>
-									<a
-										href={item.url}
-										onclick={() => {
-											if (sidebar.isMobile) {
-												sidebar.toggle();
-											}
-										}}
-										class="flex w-full items-center gap-x-xxs"
-									>
-										<item.icon size="15" />
-										<p>{item.title}</p>
-									</a>
-								</Sidebar.MenuButton>
-							</Sidebar.MenuItem>
-						{/each}
-					</Sidebar.Menu>
-				</Sidebar.GroupContent>
-			</Sidebar.Group>
-		</Sidebar.Content>
-		<Sidebar.Footer>
-			<Sidebar.MenuItem class="bg-red-100">
-				<Sidebar.MenuButton>
-					<a
-						href={'/login'}
-						onclick={async () => {
-							if (sidebar.isMobile) {
-								sidebar.toggle();
-							}
-							await logout();
-						}}
-						class="flex w-full items-center gap-x-xxs text-red-600"
-					>
-						<LogOut size="15" />
-						<p>Logout</p>
-					</a>
-				</Sidebar.MenuButton>
-			</Sidebar.MenuItem>
-		</Sidebar.Footer>
-	</Sidebar.Root>
-{/if}
+<Sidebar.Root collapsible="icon">
+	<Sidebar.Content>
+		<Sidebar.Group>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					{#each items as item (item.title)}
+						<Sidebar.MenuItem>
+							<Sidebar.MenuButton isActive={item.url.split('/')[1] == activeUrl}>
+								<a
+									href={item.url}
+									onclick={() => {
+										if (sidebar.isMobile) {
+											sidebar.toggle();
+										}
+									}}
+									class="flex w-full items-center gap-x-xxs"
+								>
+									<item.icon size="15" />
+									<p>{item.title}</p>
+								</a>
+							</Sidebar.MenuButton>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
+	</Sidebar.Content>
+	<Sidebar.Footer>
+		<Sidebar.MenuItem class="bg-red-100">
+			<Sidebar.MenuButton>
+				<a
+					href={'/login'}
+					onclick={async () => {
+						if (sidebar.isMobile) {
+							sidebar.toggle();
+						}
+						await logout();
+					}}
+					class="flex w-full items-center gap-x-xxs text-red-600"
+				>
+					<LogOut size="15" />
+					<p>Logout</p>
+				</a>
+			</Sidebar.MenuButton>
+		</Sidebar.MenuItem>
+	</Sidebar.Footer>
+</Sidebar.Root>

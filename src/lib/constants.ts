@@ -1,6 +1,7 @@
 import type { PermissionCode } from './types';
 
-export const UNPROTECTED_ROUTES = ['/auth/login', '/auth/refresh', '/auth/logout'];
+export const UNPROTECTED_API_ROUTES = ['/auth/login', '/auth/refresh', '/auth/logout'];
+export const UNPROTECTED_ROUTES = ['/login'];
 
 export const ROUTE_PERMISSIONS: Record<string, PermissionCode[]> = {
 	'/users': ['user:create'],
