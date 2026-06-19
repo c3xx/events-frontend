@@ -2,8 +2,7 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import ky from 'ky';
 import type { ApiResponse } from './types';
 import { goto } from '$app/navigation';
-
-const UNPROTECTED_ROUTES = ['/auth/login', '/auth/refresh', '/auth/logout'];
+import { UNPROTECTED_ROUTES } from './constants';
 
 export const api = ky.create({
 	prefixUrl: PUBLIC_API_BASE_URL,

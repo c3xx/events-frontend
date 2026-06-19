@@ -25,13 +25,22 @@ export async function getEventType(id: number) {
 	}
 }
 
-export async function createEventType(data: {
-	name: string;
-	venuePolicy: string;
-	collaborationPolicy: string;
-	workflowTemplateId: number;
-}) {
-	const res = await api.post('event-types', { json: data }).json<ApiResponse<{ id: string }>>();
+export async function createEventType(
+	name: string,
+	venuePolicy: string,
+	collaborationPolicy: string,
+	workflowTemplateId: number
+) {
+	const res = await api
+		.post('event-types', {
+			json: {
+				name,
+				venuePolicy,
+				collaborationPolicy,
+				workflowTemplateId
+			}
+		})
+		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -48,7 +57,7 @@ export async function deleteEventType(id: number) {
 	}
 }
 
-export async function loadEventTypeChildren(parentId: string) {
+export async function loadEventTypeChildren(parentId: number) {
 	const res = await api
 		.get(`event-types/${parentId}/children`)
 		.json<ApiResponse<{ id: number; name: string }[]>>();
@@ -75,7 +84,7 @@ export async function addEventType(name: string) {
 	}
 }
 
-export async function addEventTypeChild(parentId: string, childId: number) {
+export async function addEventTypeChild(parentId: number, childId: number) {
 	const res = await api
 		.post(`event-types/${parentId}/children/${childId}`)
 		.json<ApiResponse<{ parentTypeId: number; childTypeId: number }>>();

@@ -3,18 +3,23 @@
 		BuildingIcon,
 		CalendarIcon,
 		CirclePileIcon,
+		LogOut,
 		MonitorCogIcon,
 		NetworkIcon,
 		UsersIcon
 	} from '@lucide/svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 	import { authInfo } from '$lib/global/auth.svelte';
+	import { page } from '$app/state';
+	import { logout } from '$lib/api/auth';
+	import { canAccessRoute } from '$lib/helpers';
 
-	let activeTitle = $state('Users');
+	let activeUrl = $derived(page.url.pathname.split('/')[1]);
 	// Menu items.
-	let items = $derived.by(() =>
-		authInfo.get()?.type === 'admin'
+	let items = $derived.by(() => {
+		const user = authInfo.get();
+		if (user === null) return [];
+		return user.type === 'admin'
 			? [
 					{
 						title: 'Users',
@@ -43,7 +48,7 @@
 					}
 				]
 			: [
-					...(authInfo.get()?.type === 'admin'
+					...(canAccessRoute('/users')
 						? [
 								{
 									title: 'Users',
@@ -52,7 +57,7 @@
 								}
 							]
 						: []),
-					...(authInfo.get()?.type === 'end_user'
+					...(canAccessRoute('/events')
 						? [
 								{
 									title: 'Events',
@@ -61,63 +66,81 @@
 								}
 							]
 						: []),
-					...(authInfo.get()?.type === 'admin'
+					...(canAccessRoute('/venues')
 						? [
 								{
 									title: 'Venues',
 									url: '/venues',
 									icon: BuildingIcon
-								},
+								}
+							]
+						: []),
+					...(canAccessRoute('/organizations')
+						? [
 								{
 									title: 'Organizations',
 									url: '/organizations',
 									icon: CirclePileIcon
-								},
-								{
-									title: 'Workflow Templates',
-									url: '/workflow-templates',
-									icon: NetworkIcon
-								},
-								{
-									title: 'System',
-									url: '/system',
-									icon: MonitorCogIcon
 								}
 							]
 						: [])
-				]
-	);
+				];
+	});
 
+	$effect(() => {
+		itemsLength = items.length;
+	});
+
+	let { itemsLength = $bindable(items.length) }: { itemsLength: number } = $props();
 	const sidebar = Sidebar.useSidebar();
 </script>
 
-<Sidebar.Root collapsible="icon">
-	<Sidebar.Content>
-		<Sidebar.Group>
-			<Sidebar.GroupContent>
-				<Sidebar.Menu>
-					{#each items as item (item.title)}
-						<Sidebar.MenuItem>
-							<Sidebar.MenuButton
-								onclick={() => {
-									activeTitle = item.title;
-									if (sidebar.isMobile) {
-										sidebar.toggle();
-									}
-								}}
-								isActive={activeTitle === item.title}
-							>
-								{#snippet child({ props })}
-									<a href={item.url} {...props}>
-										<item.icon />
-										<span>{item.title}</span>
+{#if items.length > 1}
+	<Sidebar.Root collapsible="icon">
+		<Sidebar.Content>
+			<Sidebar.Group>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each items as item (item.title)}
+							<Sidebar.MenuItem>
+								<Sidebar.MenuButton isActive={item.url.split('/')[1] == activeUrl}>
+									<a
+										href={item.url}
+										onclick={() => {
+											if (sidebar.isMobile) {
+												sidebar.toggle();
+											}
+										}}
+										class="flex w-full items-center gap-x-xxs"
+									>
+										<item.icon size="15" />
+										<p>{item.title}</p>
 									</a>
-								{/snippet}
-							</Sidebar.MenuButton>
-						</Sidebar.MenuItem>
-					{/each}
-				</Sidebar.Menu>
-			</Sidebar.GroupContent>
-		</Sidebar.Group>
-	</Sidebar.Content>
-</Sidebar.Root>
+								</Sidebar.MenuButton>
+							</Sidebar.MenuItem>
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+		</Sidebar.Content>
+		<Sidebar.Footer>
+			<Sidebar.MenuItem class="bg-red-100">
+				<Sidebar.MenuButton>
+					<a
+						href={'/login'}
+						onclick={async () => {
+							if (sidebar.isMobile) {
+								sidebar.toggle();
+							}
+							await logout();
+						}}
+						class="flex w-full items-center gap-x-xxs text-red-600"
+					>
+						<LogOut size="15" />
+						<p>Logout</p>
+					</a>
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+		</Sidebar.Footer>
+	</Sidebar.Root>
+{/if}
