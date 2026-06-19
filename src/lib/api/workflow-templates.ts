@@ -14,7 +14,7 @@ export async function loadWorkflowTemplates() {
 	}
 }
 
-export async function loadWorkflowTemplate(templateId: string) {
+export async function loadWorkflowTemplate(templateId: number) {
 	if (!templateId) {
 		throw new Error('template ID required');
 	}
@@ -62,7 +62,7 @@ export async function addWorkflowTemplate(name: string) {
 	}
 	const res = await api.post(`workflow-templates/`, { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 		}>
 	>();
 	if (res.success) {

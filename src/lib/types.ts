@@ -1,7 +1,7 @@
 import type { Snippet } from 'svelte';
 
 export type WorkflowTemplate = {
-	id: string;
+	id: number;
 	name: string;
 	steps: {
 		id: string;
@@ -151,7 +151,7 @@ export type RoleType = {
 	name: string;
 };
 
-type PermissionCode =
+export type PermissionCode =
 	| 'organization:create'
 	| 'organization:add_member'
 	| 'venue:create'
@@ -395,7 +395,7 @@ export type CreateVenueAllotmentData = {
 };
 
 export type EventType = {
-	id: string;
+	id: number;
 	name: string;
 	isActive: boolean;
 	workflowTemplate: {
@@ -442,4 +442,38 @@ export type CreateVenueData = {
 export type ParentableEvent = {
 	id: number;
 	title: string;
+};
+
+export type PendingApprovalEvent = {
+	id: number;
+	title: string;
+	status: EventStatus;
+	startsAt: string;
+	endsAt: string;
+};
+
+export type EventAssignment = {
+	id: number;
+	status: 'pending' | 'approved' | 'denied' | 'skipped';
+	remarks: string | null;
+	completedAt: string | null;
+	step: {
+		id: number;
+		name: string;
+		status: 'pending' | 'overridden' | 'active' | 'completed' | 'denied' | 'skipped' | 'blocked';
+	};
+	role: {
+		id: number;
+		name: string;
+		scope: {
+			type: 'organization' | 'venue';
+			kindId: number;
+			kindName: string;
+		};
+	};
+	scope: {
+		type: 'organization' | 'venue';
+		id: number;
+		name: string;
+	};
 };

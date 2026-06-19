@@ -8,6 +8,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddOrganization from './add-organization.svelte';
 	import { addOrganizationState } from '$lib/global/organization.svelte';
+	import { permissionGrantedSomewhere } from '$lib/helpers';
 
 	let orgTypes = $state<LoadedData<OrganizationType[]>>({
 		state: 'pending',
@@ -90,20 +91,24 @@
 			};
 		}
 	});
+
+	let canCreateOrg = $derived(permissionGrantedSomewhere('organization:create'));
 </script>
 
 <div class="flex w-full max-w-200 flex-col">
 	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
 		<h1 class="px-2 text-xl">Organizations</h1>
 	</div>
-	<div class="border-muted-background flex w-full justify-end border-b p-xxs">
-		<Button
-			onclick={() => {
-				addOrganizationState.sheetOpen = true;
-			}}
-			variant="default">Add Organization <PlusIcon /></Button
-		>
-	</div>
+	{#if canCreateOrg}
+		<div class="border-muted-background flex w-full justify-end border-b p-xxs">
+			<Button
+				onclick={() => {
+					addOrganizationState.sheetOpen = true;
+				}}
+				variant="default">Add Organization <PlusIcon /></Button
+			>
+		</div>
+	{/if}
 	<div class="p-xxs">
 		{#if fetchedOrgs.state === 'pending'}
 			<p>Loading organizations</p>
