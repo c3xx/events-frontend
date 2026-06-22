@@ -74,7 +74,7 @@ export async function addEventType(name: string) {
 	}
 	const res = await api.post('event-types', { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 		}>
 	>();
 	if (res.success) {

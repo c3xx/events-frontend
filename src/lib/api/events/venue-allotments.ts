@@ -2,7 +2,7 @@ import { api } from '$lib/api';
 import type { ApiResponse } from '$lib/types';
 
 export async function allotEventVenue(
-	eventId: string,
+	eventId: number,
 	venueId: string,
 	startsAt: string,
 	endsAt: string

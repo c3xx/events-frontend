@@ -4,23 +4,35 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import { Loader } from '@lucide/svelte';
 
 	let errorText = $state('');
+	let email = $state('');
+	let password = $state('');
+
+	let loginLoading = $state(false);
 
 	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		email = email.trim();
+		if (email === null || email.length === 0) {
+			errorText = 'Enter a valid email address';
+			return;
+		}
+		if (password === null || password.length === 0) {
+			errorText = 'Password field cannot be empty';
+			return;
+		}
 		try {
+			loginLoading = true;
 			errorText = '';
-			e.preventDefault();
-			const formData = new FormData(e.currentTarget as HTMLFormElement);
-
-			const email = formData.get('email') as string;
-			const password = formData.get('password') as string;
-
 			if (await loginUser(email, password)) {
-				goto('/users');
+				goto('/');
 			}
 		} catch (err: any) {
-			errorText = err.message;
+			errorText = err.message ?? 'Something went wrong';
+		} finally {
+			loginLoading = false;
 		}
 	}
 </script>
@@ -35,13 +47,33 @@
 			{/if}
 			<div class="flex flex-col gap-y-xxxs">
 				<Label for="email">Email</Label>
-				<Input type="email" name="email" placeholder="example@domain.com" />
+				<Input
+					type="email"
+					name="email"
+					bind:value={email}
+					onchange={(e) => {
+						email = e.currentTarget.value;
+					}}
+					placeholder="example@domain.com"
+				/>
 			</div>
 			<div class="flex flex-col gap-y-xxxs">
 				<Label for="password">Password</Label>
-				<Input type="password" name="password" placeholder="******" />
+				<Input
+					type="password"
+					name="password"
+					bind:value={password}
+					onchange={(e) => {
+						password = e.currentTarget.value;
+					}}
+					placeholder="******"
+				/>
 			</div>
-			<Button type="submit" class="mt-heavy">Log In</Button>
+			<Button disabled={loginLoading} type="submit" class="mt-heavy text-sm"
+				>Log In {#if loginLoading}
+					<Loader size="15" class="animate-spin" />
+				{/if}</Button
+			>
 		</form>
 	</div>
 </div>

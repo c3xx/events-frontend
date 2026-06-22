@@ -22,6 +22,7 @@
 	import { loadEventWorkflows, loadEventWorkflowsLatest } from '$lib/api/events/workflow-instances';
 	import { submitEvent } from '$lib/api/events/events';
 	import { Loader, Send } from '@lucide/svelte';
+	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 
 	let event = $state<LoadedData<EventDetail>>({
 		state: 'pending',
@@ -57,32 +58,24 @@
 		message: 'Loading latest workflow...'
 	});
 
-	const statusColors: Record<EventDetail['status'], string> = {
-		draft: 'bg-yellow-400/50',
-		pending: 'bg-blue-400/50',
-		approved: 'bg-green-400/50',
-		cancelled: 'bg-red-400/50',
-		overridden: 'bg-purple-400/50'
-	};
-	const statusTextColors: Record<EventDetail['status'], string> = {
-		draft: 'text-yellow-700',
-		pending: 'text-blue-700',
-		approved: 'text-green-700',
-		cancelled: 'text-red-700',
-		overridden: 'text-purple-700'
-	};
-
 	let tabs = $state(['Overview', 'Workflows']);
 	let activeTab: null | string = $state(tabs.length > 0 ? tabs[0] : null);
 	let errorText = $state('');
+	let successText = $state('');
 	let submitLoading = $state(false);
 
 	async function onSubmitEvent() {
+		successText = '';
 		if (event.state !== 'success') return;
 		try {
 			errorText = '';
 			submitLoading = true;
 			await submitEvent(event.data.id);
+			successText = 'Event Submitted';
+			loadEventData();
+			setTimeout(() => {
+				successText = '';
+			}, 4000);
 		} catch (err: any) {
 			errorText = err.message ?? 'Something went wrong';
 			setTimeout(() => {
@@ -94,6 +87,8 @@
 	}
 
 	async function loadEventData() {
+		tabs = ['Overview', 'Workflows'];
+		errorText = '';
 		try {
 			event = {
 				state: 'success',
@@ -148,21 +143,23 @@
 						state: 'success',
 						data: await loadEventWorkflows(event.data.id)
 					};
+					if (workflows.data.length > 0) {
+						try {
+							latestWorkflow = {
+								state: 'success',
+								data: await loadEventWorkflowsLatest(event.data.id)
+							};
+						} catch (err: any) {
+							latestWorkflow = {
+								state: 'failed',
+								message: 'Failed to load latest workflow'
+							};
+						}
+					}
 				} catch (err: any) {
 					workflows = {
 						state: 'failed',
 						message: 'Failed to load workflows'
-					};
-				}
-				try {
-					latestWorkflow = {
-						state: 'success',
-						data: await loadEventWorkflowsLatest(event.data.id)
-					};
-				} catch (err: any) {
-					latestWorkflow = {
-						state: 'failed',
-						message: 'Failed to load latest workflow'
 					};
 				}
 			} catch (err: any) {
@@ -200,7 +197,7 @@
 					<div class="flex items-center gap-x-sm gap-y-xxs max-sm:flex-col max-sm:items-start">
 						<h2 class="text-2xl italic">{event.data.title}</h2>
 						<span
-							class={`px-sm py-xxs text-xs font-bold uppercase ${statusTextColors[event.data.status]} ${statusColors[event.data.status]}`}
+							class={`px-sm py-xxs text-xs font-bold uppercase ${eventStatusTextColors[event.data.status]} ${eventStatusColors[event.data.status]}`}
 						>
 							{event.data.status}
 						</span>
@@ -217,8 +214,12 @@
 						{/if}</button
 					>
 				</div>
-				{#if errorText}
-					<p class="mt-xs w-full bg-red-100 p-xxs text-red-400">{errorText}</p>
+				{#if errorText || successText}
+					<p
+						class={`mt-xs w-full p-xxs ${errorText ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}
+					>
+						{errorText ? errorText : successText}
+					</p>
 				{/if}
 				<div class="mt-6 flex min-h-10 w-full max-w-200 items-end overflow-x-auto max-sm:hidden">
 					{#each tabs as tab}
@@ -252,6 +253,7 @@
 				{:else if activeTab === 'Organizers'}
 					<OrganizersSection
 						eventId={event.data.id}
+						eventName={event.data.title}
 						bind:organizerInvitations
 						bind:organizers={event.data.organizers}
 						{organizations}

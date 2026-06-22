@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { loadApprovalEvents, loadEventAssignments } from '$lib/api/me/approval-assignments';
-	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
+	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import { formatDate } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
-	import { Inbox } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
@@ -24,35 +22,23 @@
 			};
 		}
 	});
-
-	let allEmpty = $derived.by(() => {
-		if (approvalEvents.state !== 'success') return false;
-		return approvalEvents.data.length === 0;
-	});
 </script>
 
-<div class="flex h-full w-full max-w-200 flex-col">
+<div class="flex w-full max-w-200 flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
-			<h1 class="text-2xl leading-none">Inbox</h1>
+			<h1 class="text-2xl leading-none">Pending Approvals</h1>
 		</div>
 	</div>
 
-	<div class="flex h-full flex-col gap-y-8 p-r-pad">
-		{#if allEmpty}
-			<div class="flex h-full w-full flex-col items-center justify-center">
-				<div class="flex flex-col items-center bg-muted px-10 py-20">
-					<Inbox />
-					<p>You have no messages</p>
-					<p class="text-xs text-muted-foreground">Find your important messages here</p>
-				</div>
-			</div>
-		{/if}
+	<div class="flex flex-col gap-y-8 p-r-pad">
 		{#if approvalEvents.state === 'pending' || approvalEvents.state === 'failed'}
 			<p>{approvalEvents.message}</p>
 		{:else if approvalEvents.data.length > 0}
 			<div class="flex flex-col gap-y-xs">
-				<p class="text-xs text-muted-foreground uppercase">Pending Approvals</p>
+				{#if approvalEvents.data.length === 0}
+					<p class="flex w-full items-center justify-center border py-6">No pending approvals</p>
+				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
 						<div class="flex min-w-56 flex-col border border-neutral-400 bg-background p-xs">

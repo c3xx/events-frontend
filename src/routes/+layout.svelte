@@ -6,6 +6,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { canAccessRoute, permissionGrantedSomewhere } from '$lib/helpers';
+	import { Loader } from '@lucide/svelte';
+	import CenterLoader from '$lib/components/app/center-loader.svelte';
 
 	let { children } = $props();
 
@@ -18,12 +20,15 @@
 			authLoaded = true;
 		} catch (err) {
 			console.error(err);
+			status = 'forbidden';
 		}
 	});
 
 	$effect(() => {
+		status = 'pending';
 		if (!authLoaded) return;
-		if (page.url.pathname === '/events/new' && !permissionGrantedSomewhere('event:manage')) {
+		const pathname = page.url.pathname;
+		if (pathname === '/events/new' && !permissionGrantedSomewhere('event:manage')) {
 			status = 'forbidden';
 			return;
 		}
@@ -41,9 +46,11 @@
 <Toaster />
 
 {#if status === 'pending'}
-	Authenticating...
+	<CenterLoader state={status} message="Authenticating..." />
 {:else if status === 'authenticated'}
 	{@render children()}
 {:else}
-	Forbidden. Contact Admin
+	<div class="flex h-screen w-screen items-center justify-center">
+		<p>Forbidden. Contact Admin</p>
+	</div>
 {/if}

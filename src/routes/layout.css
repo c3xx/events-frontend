@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-	--font-sans: 'Poppins', serif;
+	--font-sans: 'Inter', serif;
 }
 
 :root {

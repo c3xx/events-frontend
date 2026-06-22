@@ -2,12 +2,16 @@ import { api } from '$lib/api';
 import type { ApiResponse, EventOrganizerRole } from '$lib/types';
 
 export async function addOrganizer(
-	eventId: string,
-	organizationId: string,
+	eventId: number,
+	roleId: number,
+	organizationId: number,
 	role: EventOrganizerRole
 ) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
+	}
+	if (!roleId) {
+		throw new Error('Role ID is required');
 	}
 	if (!organizationId) {
 		throw new Error('Organization ID is required');
@@ -17,7 +21,7 @@ export async function addOrganizer(
 	}
 	const res = await api
 		.post(`events/${eventId}/organizers/`, {
-			json: { userRoleId: 3, organizationId, intendedRole: role }
+			json: { roleId, organizationId, intendedRole: role }
 		})
 		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
@@ -27,7 +31,7 @@ export async function addOrganizer(
 	}
 }
 
-export async function removeOrganizer(eventId: string, organizerId: string) {
+export async function removeOrganizer(eventId: number, organizerId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}

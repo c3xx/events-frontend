@@ -1,7 +1,7 @@
 import { api } from '$lib/api';
 import type { ApiResponse, WorkflowInstance } from '$lib/types';
 
-export async function loadEventWorkflowsLatest(eventId: string) {
+export async function loadEventWorkflowsLatest(eventId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}
@@ -15,7 +15,7 @@ export async function loadEventWorkflowsLatest(eventId: string) {
 	}
 }
 
-export async function loadEventWorkflow(eventId: string, workflowId: number) {
+export async function loadEventWorkflow(eventId: number, workflowId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}
@@ -32,7 +32,7 @@ export async function loadEventWorkflow(eventId: string, workflowId: number) {
 	}
 }
 
-export async function loadEventWorkflows(eventId: string) {
+export async function loadEventWorkflows(eventId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}
