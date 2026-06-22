@@ -9,6 +9,7 @@
 	import HorizontalScroller from './horizontal-scroller.svelte';
 	import { goto } from '$app/navigation';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 
 	let events = $state<LoadedData<Event[]>>({
 		state: 'pending',
@@ -51,22 +52,6 @@
 			}
 		})();
 	});
-
-	const statusColors: Record<Event['status'], string> = {
-		draft: 'bg-yellow-400/50',
-		pending: 'bg-blue-400/50',
-		approved: 'bg-green-400/50',
-		cancelled: 'bg-red-400/50',
-		overridden: 'bg-purple-400/50'
-	};
-
-	const statusTextColors: Record<Event['status'], string> = {
-		draft: 'text-yellow-700',
-		pending: 'text-blue-700',
-		approved: 'text-green-700',
-		cancelled: 'text-red-700',
-		overridden: 'text-purple-700'
-	};
 
 	export function formatDate(dateStr: string) {
 		return new Date(dateStr).toLocaleString('en-IN', {
@@ -189,7 +174,7 @@
 									</td>
 									<td class="px-xs py-xxs text-left whitespace-nowrap"
 										><p
-											class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${statusTextColors[event.status]} ${statusColors[event.status]}`}
+											class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
 										>
 											{event.status}
 										</p></td

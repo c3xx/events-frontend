@@ -1,7 +1,7 @@
 import { api } from '$lib/api';
 import type { ApiResponse, EventOrganizerInvitation, EventOrganizerRole } from '$lib/types';
 
-export async function loadOrganizerInvitations(eventId: string) {
+export async function loadOrganizerInvitations(eventId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}
@@ -15,7 +15,7 @@ export async function loadOrganizerInvitations(eventId: string) {
 	}
 }
 
-export async function removeOrganizerInvitation(eventId: string, invitationId: string) {
+export async function removeOrganizerInvitation(eventId: number, invitationId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}

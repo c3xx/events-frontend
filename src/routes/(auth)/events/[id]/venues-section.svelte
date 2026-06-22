@@ -11,7 +11,7 @@
 		allotedVenues = $bindable([]),
 		venues
 	}: {
-		eventId: string;
+		eventId: number;
 		allotedVenues: EventVenueAllotment[];
 		venues: LoadedData<Venue[]>;
 	} = $props();
@@ -59,7 +59,7 @@
 
 			const { id } = await allotEventVenue(eventId, newVenueId, startsAt, endsAt);
 			allotedVenues.push({
-				id: id.toString(),
+				id: id,
 				venue: {
 					id: parseInt(newVenueId),
 					name: venues.data.find((v) => v.id === newVenueId)?.name!

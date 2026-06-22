@@ -1,7 +1,7 @@
 import { api } from '$lib/api';
 import type { ApiResponse } from '$lib/types';
 
-export async function submitEvent(eventId: string) {
+export async function submitEvent(eventId: number) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}

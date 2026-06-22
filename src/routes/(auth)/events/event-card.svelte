@@ -1,23 +1,8 @@
 <script lang="ts">
+	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 	import { formatDate } from '$lib/helpers';
 	import type { Event } from '$lib/types';
 	import { Calendar, SquareUser } from '@lucide/svelte';
-
-	const statusColors: Record<Event['status'], string> = {
-		draft: 'bg-yellow-400/50',
-		pending: 'bg-blue-400/50',
-		approved: 'bg-green-400/50',
-		cancelled: 'bg-red-400/50',
-		overridden: 'bg-purple-400/50'
-	};
-
-	const statusTextColors: Record<Event['status'], string> = {
-		draft: 'text-yellow-700',
-		pending: 'text-blue-700',
-		approved: 'text-green-700',
-		cancelled: 'text-red-700',
-		overridden: 'text-purple-700'
-	};
 
 	let { event, cardType }: { event: Event; cardType: 'tile' | 'list-tile' } = $props();
 </script>
@@ -25,7 +10,7 @@
 {#if cardType === 'tile'}
 	<a href="/events/{event.id}" class="no-underline">
 		<div class={`flex min-w-56 flex-col border border-neutral-400 bg-background`}>
-			<div class={`h-1 w-full ${statusColors[event.status]}`}></div>
+			<div class={`h-1 w-full ${eventStatusColors[event.status]}`}></div>
 
 			<div class="flex flex-col p-xs">
 				<div class="flex w-full justify-end">
@@ -62,7 +47,7 @@
 						</div>
 					</div>
 					<p
-						class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${statusTextColors[event.status]} ${statusColors[event.status]}`}
+						class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
 					>
 						{event.status}
 					</p>

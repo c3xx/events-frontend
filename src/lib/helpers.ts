@@ -1,3 +1,4 @@
+import { goto } from '$app/navigation';
 import { ROUTE_PERMISSIONS, UNPROTECTED_ROUTES } from './constants';
 import { authInfo } from './global/auth.svelte';
 import type { PermissionCode } from './types';

@@ -2,7 +2,9 @@
 	import {
 		BuildingIcon,
 		CalendarIcon,
+		CircleCheck,
 		CirclePileIcon,
+		Home,
 		LogOut,
 		MonitorCogIcon,
 		NetworkIcon,
@@ -48,6 +50,16 @@
 					}
 				]
 			: [
+					{
+						title: 'Home',
+						url: '/',
+						icon: Home
+					},
+					{
+						title: 'Approvals',
+						url: '/approvals',
+						icon: CircleCheck
+					},
 					...(canAccessRoute('/users')
 						? [
 								{
@@ -118,7 +130,7 @@
 		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<Sidebar.MenuItem class="bg-red-100">
+		<Sidebar.MenuItem class="bg-red-100 max-sm:hidden">
 			<Sidebar.MenuButton>
 				<a
 					href={'/login'}

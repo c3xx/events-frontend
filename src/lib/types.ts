@@ -22,12 +22,7 @@ export type WorkflowInstance = {
 	id: number;
 	createdAt: string;
 	initialStepId: number | null;
-	status:
-		| 'active' // is running
-		| 'completed' // completed successfully
-		| 'denied' // denied somewhere, so stopped
-		| 'aborted' // cancelled by the host
-		| 'overridden';
+	status: 'overridden' | 'active' | 'completed' | 'denied' | 'aborted';
 	completedAt: string | null;
 	eventId: number;
 	submittedBy: number;
@@ -36,22 +31,38 @@ export type WorkflowInstance = {
 		name: string;
 		nextStepId: number | null;
 		status: 'pending' | 'overridden' | 'active' | 'completed' | 'denied' | 'skipped' | 'blocked';
-		stepOpen: boolean; //for frontend | to track if the step is open
-		stepRoles: {
-			roleId: number;
-			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+		completedAt: string | null;
+		stepOpen: boolean;
+		roles: {
 			id: number;
+			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
+			role: {
+				id: number;
+				name: string;
+				scope: {
+					type: EntityType;
+					kindId: number;
+					kindName: string;
+				};
+			};
 			targetGroups: {
 				id: number;
-				managedEntityId: number;
+				scope: {
+					type: EntityType;
+					id: number;
+					name: string;
+				};
 				assignments: {
 					id: number;
 					status: 'pending' | 'approved' | 'denied' | 'skipped';
 					completedAt: string | null;
+					remarks: string | null;
 					userRole: {
 						id: number;
-						userId: number;
-						roleId: number;
+						user: {
+							id: number;
+							fullName: string;
+						};
 					};
 				}[];
 			}[];
@@ -103,7 +114,7 @@ export type Venue = {
 
 // TODO: Match types
 export type Organization = {
-	id: string;
+	id: number;
 	name: string;
 	organizationTypeId: string;
 	parentOrganizationId: string | null;
@@ -293,7 +304,7 @@ export type EventTypeVenuePolicy = 'required' | 'optional' | 'forbidden';
 export type EventTypeCollaborationPolicy = 'required' | 'optional' | 'forbidden';
 
 export type EventOrganizer = {
-	id: string;
+	id: number;
 	organization: Organization;
 	role: EventOrganizerRole;
 };
@@ -301,29 +312,29 @@ export type EventOrganizer = {
 type EventOrganizerInvitationStatus = 'pending' | 'accepted' | 'rejected' | 'revoked' | 'expired';
 
 export type EventOrganizerInvitation = {
-	id: string;
+	id: number;
 	status: EventOrganizerInvitationStatus;
 	invitedAt: string;
 	closedAt: string | null;
 	invitedByUser: {
 		id: string;
 		user: {
-			id: string;
+			id: number;
 			fullName: string;
 		};
 	};
 	senderOrganization: {
-		id: string;
+		id: number;
 		name: string;
 	};
 	recipientOrganization: {
-		id: string;
+		id: number;
 		name: string;
 	};
 };
 
 export type EventVenueAllotment = {
-	id: string;
+	id: number;
 	startsAt: string;
 	endsAt: string;
 	venue: { id: number; name: string };
@@ -356,7 +367,7 @@ export type EventSummary = {
 };
 
 export type EventDetail = {
-	id: string;
+	id: number;
 	title: string;
 	expectedParticipants: number;
 	requestDetails: string;
@@ -452,15 +463,19 @@ export type PendingApprovalEvent = {
 	endsAt: string;
 };
 
+export type EventAssignmentsAndDetails = EventDetail & { assignments: EventAssignment[] };
+
 export type EventAssignment = {
 	id: number;
 	status: 'pending' | 'approved' | 'denied' | 'skipped';
 	remarks: string | null;
 	completedAt: string | null;
+	state: 'approved' | 'denied' | 'none';
 	step: {
 		id: number;
 		name: string;
 		status: 'pending' | 'overridden' | 'active' | 'completed' | 'denied' | 'skipped' | 'blocked';
+		instanceId: number;
 	};
 	role: {
 		id: number;

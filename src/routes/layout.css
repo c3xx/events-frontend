@@ -1,8 +1,13 @@
 @import 'tailwindcss';
 
+@import '../../static/fonts.css';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+
+:root {
+	--font-sans: 'Inter', serif;
+}
 
 :root {
 	--radius: 0.625rem;
