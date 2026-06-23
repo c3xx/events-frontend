@@ -6,14 +6,13 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index';
-	import { addOrganizationState } from '$lib/global/organization.svelte';
-	import type { OrganizationType, Organization } from '$lib/types';
 
 	let errorText = $state('');
 
 	let orgValue = $state('');
 	let typeValue = $state('');
 
+	let { addSheetOpen = $bindable(false) }: { addSheetOpen: boolean } = $props();
 	async function handleSubmit(e: SubmitEvent) {
 		try {
 			errorText = '';
@@ -25,8 +24,8 @@
 			const parentOrganizationId = Number(formData.get('org')) as number;
 
 			if (await createOrg(name, organizationTypeId, parentOrganizationId)) {
+				addSheetOpen = false;
 				console.log('Organization Created');
-				addOrganizationState.sheetOpen = false;
 			}
 		} catch (err: any) {
 			errorText = err.message;
@@ -38,7 +37,7 @@
 	{errorText}
 	title="Add Organization"
 	description="Enter the details of the new organization. Click save when you're done"
-	bind:sheetOpen={addOrganizationState.sheetOpen}
+	bind:sheetOpen={addSheetOpen}
 >
 	<form class="flex h-full flex-col gap-y-sm">
 		<div class="grid gap-3">

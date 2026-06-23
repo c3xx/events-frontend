@@ -2,11 +2,11 @@ import { api } from '$lib/api';
 import type {
 	ApiResponse,
 	Venue,
-	VenueFacilities,
 	VenueMember,
 	CreateVenueData,
 	Role,
-	EntityMember
+	EntityMember,
+	VenueFacility
 } from '$lib/types';
 
 export async function getVenueById(id: number) {
@@ -81,7 +81,7 @@ export async function addMemberToVenue(id: number, memberData: { userId: number;
 }
 
 export async function getVenueFacilities(id: number) {
-	const res = await api.get(`venues/${id}/facilities`).json<ApiResponse<VenueFacilities[]>>();
+	const res = await api.get(`venues/${id}/facilities`).json<ApiResponse<VenueFacility[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
