@@ -15,7 +15,7 @@
 			class="border-muted-background sticky top-0 z-50 flex h-12 w-full items-center border-b bg-background p-xxxs"
 		>
 			<Sidebar.Trigger class="absolute left-xs z-50" />
-			<h2 class="absolute inset-0 flex w-full items-center justify-center text-center">CHW</h2>
+			<h2 class="absolute inset-0 flex w-full items-center justify-center text-center">Events</h2>
 			<button
 				onclick={async () => {
 					await logout();
