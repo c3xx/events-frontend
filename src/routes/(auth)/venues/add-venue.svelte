@@ -94,12 +94,10 @@
 					<div class="grid gap-3">
 						<Label for="venueTypeId">Venue Type</Label>
 						<DynamicSelectButton
-							name="venueTypeId"
-							initialText="Select Venue Type"
-							size="full"
+							name="venue type"
+							class="w-full"
 							bind:value={venueTypeId}
 							loadFn={loadVenueTypes}
-							mapOption={(item: VenueType) => ({ value: item.id.toString(), label: item.name })}
 						/>
 					</div>
 
@@ -107,11 +105,9 @@
 						<Label for="organizationId">Organization (Optional)</Label>
 						<DynamicSelectButton
 							name="organizationId"
-							initialText="Managed by Organization"
-							size="full"
+							class="w-full"
 							bind:value={organizationId}
 							loadFn={loadOrgs}
-							mapOption={(item: Organization) => ({ value: item.id.toString(), label: item.name })}
 						/>
 					</div>
 
@@ -131,11 +127,11 @@
 						<Label for="accessLevel">Access Level</Label>
 						<SelectButton
 							name="accessLevel"
-							label="Access Level"
 							bind:value={accessLevel}
-							trigContent={accessTriggerContent}
-							items={accessLevels}
-							size="full"
+							itemsList={accessLevels}
+							class="w-full"
+							optionName="label"
+							optionValue="value"
 						/>
 					</div>
 

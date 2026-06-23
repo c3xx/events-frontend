@@ -1,38 +1,38 @@
-<script lang="ts">
-	import * as Select from '../ui/select/index.js';
-
+<script lang="ts" generics="T extends any[]">
+	import { cn } from 'tailwind-variants';
 	let {
 		name,
-		label,
+		class: className,
 		value = $bindable(),
-		trigContent,
-		items,
-		size = 'fit'
+		itemsList,
+		optionValue,
+		optionName,
+		transformName,
+		...restProps
 	}: {
 		name: string;
-		label: string;
-		value: string;
-		trigContent: string;
-		items: { value: string; label: string }[];
-		size: 'full' | 'fit';
+		class?: string;
+		value: number | string | null;
+		itemsList: T;
+		optionValue?: keyof T[0] | null;
+		optionName?: keyof T[0] | null;
+		transformName?: (name: string) => string;
 	} = $props();
 </script>
 
-<Select.Root type="single" {name} bind:value>
-	<Select.Trigger class={`${size === 'full' ? 'w-full' : ''} rounded-xs`}>
-		{trigContent}
-	</Select.Trigger>
-	<Select.Content>
-		<Select.Group>
-			{#if items.length > 0}
-				{#each items as v (v.value)}
-					<Select.Item value={v.value} label={v.label}>
-						{v.label}
-					</Select.Item>
-				{/each}
-			{:else}
-				<p class="p-xxs text-xs italic">No items</p>
-			{/if}
-		</Select.Group>
-	</Select.Content>
-</Select.Root>
+<select {name} bind:value {...restProps} class={cn('select-button', className)}>
+	{#if itemsList.length === 0}
+		<option disabled={true}>Empty</option>
+	{/if}
+	{#each itemsList as item}
+		<option value={optionValue ? item[optionValue] : item}
+			>{optionName
+				? transformName
+					? transformName(item[optionName])
+					: item[optionName]
+				: transformName
+					? transformName(item)
+					: item}</option
+		>
+	{/each}
+</select>

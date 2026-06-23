@@ -9,7 +9,8 @@
 		OrganizationType,
 		PermissionChildType,
 		PermissionType,
-		RoleType
+		RoleType,
+		VenueType
 	} from '$lib/types';
 	import { onMount } from 'svelte';
 	import Checkbox from '../ui/checkbox/checkbox.svelte';
@@ -21,7 +22,7 @@
 		title,
 		org,
 		role
-	}: { open: boolean; title: string; org: OrganizationType; role: RoleType } = $props();
+	}: { open: boolean; title: string; org: OrganizationType | VenueType; role: RoleType } = $props();
 
 	let errorText = $state('');
 
@@ -40,7 +41,7 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		let resList: string[] = [];
+		let resList: number[] = [];
 		Object.entries(permissionWithScope).forEach(([scope, value]) => {
 			value.forEach((permission) => {
 				if (permission.status) {

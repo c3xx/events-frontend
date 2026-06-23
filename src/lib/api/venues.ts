@@ -16,7 +16,7 @@ export async function addVenueType(name: string) {
 	}
 	const res = await api.post('venue-types', { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 			name: string;
 		}>
 	>();
@@ -27,14 +27,14 @@ export async function addVenueType(name: string) {
 	}
 }
 
-export async function addChildVenueType(id: string, childId: string) {
+export async function addChildVenueType(id: number, childId: number) {
 	if (!id || !childId) {
 		throw new Error('Parent ID and Child ID are required');
 	}
 	const res = await api.post(`venue-types/${id}/children/${childId}`, { json: { name } }).json<
 		ApiResponse<{
-			parentTypeId: string;
-			childTypeId: string;
+			parentTypeId: number;
+			childTypeId: number;
 		}>
 	>();
 	if (res.success) {
@@ -44,14 +44,14 @@ export async function addChildVenueType(id: string, childId: string) {
 	}
 }
 
-export async function loadChildrenVenueType(id: string) {
+export async function loadChildrenVenueType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
 	const res = await api.get(`venue-types/${id}/children`).json<
 		ApiResponse<
 			{
-				id: string;
+				id: number;
 				name: string;
 			}[]
 		>
@@ -63,14 +63,14 @@ export async function loadChildrenVenueType(id: string) {
 	}
 }
 
-export async function loadRolesVenueType(id: string) {
+export async function loadRolesVenueType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
 	const res = await api.get(`venue-types/${id}/roles`).json<
 		ApiResponse<
 			{
-				id: string;
+				id: number;
 				name: string;
 			}[]
 		>
@@ -82,13 +82,13 @@ export async function loadRolesVenueType(id: string) {
 	}
 }
 
-export async function addVenueRole(parentId: string, name: string) {
+export async function addVenueRole(parentId: number, name: string) {
 	if (!parentId || !name) {
 		throw new Error('Parent ID and Name are required');
 	}
 	const res = await api.post(`venue-types/${parentId}/roles`, { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 		}>
 	>();
 	if (res.success) {

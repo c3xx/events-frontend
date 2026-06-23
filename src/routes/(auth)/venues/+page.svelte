@@ -3,7 +3,6 @@
 	import type { LoadedData, TableProps, Venue } from '$lib/types';
 	import { loadVenues } from '$lib/api/venue.js';
 	import { onMount } from 'svelte';
-	import AssignRole from './assign-role.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddVenue from './add-venue.svelte';
 	import VenueFacilitiesSheet from './venue-facilities-sheet.svelte';
@@ -60,14 +59,14 @@
 
 	let optionsList: TableProps<Venue>['optionsList'] = [
 		{
-			id: '1',
+			id: 1,
 			name: 'View Details',
 			onclick: (venue) => {
 				goto(`/venues/${venue.id}`);
 			}
 		},
 		{
-			id: '2',
+			id: 2,
 			name: 'Manage Facilities',
 			onclick: (venue) => {
 				venueFacilitiesState.selectedVenue = venue;
@@ -104,5 +103,4 @@
 </div>
 
 <AddVenue bind:open={addVenueSheetOpen} />
-<AssignRole />
 <VenueFacilitiesSheet />

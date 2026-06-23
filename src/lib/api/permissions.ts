@@ -10,7 +10,7 @@ export async function loadPermissions() {
 	}
 }
 
-export async function loadRolePerms(id: string) {
+export async function loadRolePerms(id: number) {
 	const res = await api.get(`roles/${id}/permissions`).json<ApiResponse<PermissionType[]>>();
 	if (res.success) {
 		return res.data;
@@ -19,14 +19,14 @@ export async function loadRolePerms(id: string) {
 	}
 }
 
-export async function updateRolePermissions(roleId: string, permissionIds: string[]) {
+export async function updateRolePermissions(roleId: number, permissionIds: number[]) {
 	if (!roleId && !permissionIds) {
 		throw new Error('Role ID and Permission list are required');
 	}
 	const res = await api.put(`roles/${roleId}/permissions`, { json: { permissionIds } }).json<
 		ApiResponse<
 			{
-				id: string;
+				id: number;
 			}[]
 		>
 	>();

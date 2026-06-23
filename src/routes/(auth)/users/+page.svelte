@@ -3,7 +3,6 @@
 	import type { LoadedData, Organization, Role, TableProps, User } from '$lib/types';
 	import { loadUsers } from '$lib/api/users.js';
 	import { onMount } from 'svelte';
-	import AssignRole from './assign-role.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddUser from './add-user.svelte';
 	import DataTable from '$lib/components/app/data-table.svelte';
@@ -35,7 +34,7 @@
 
 	let optionsList: TableProps<User>['optionsList'] = [
 		{
-			id: '1',
+			id: 1,
 			name: 'Copy Email',
 			onclick: (user) => {
 				navigator.clipboard.writeText(user.email);
@@ -44,8 +43,6 @@
 	];
 
 	let sheetOpen = $state(false);
-
-	let errorText = $state('');
 
 	onMount(async () => {
 		try {
@@ -119,4 +116,3 @@
 </div>
 
 <AddUser bind:open={sheetOpen} />
-<AssignRole />

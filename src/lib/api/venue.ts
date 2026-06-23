@@ -9,7 +9,7 @@ import type {
 	EntityMember
 } from '$lib/types';
 
-export async function getVenueById(id: string) {
+export async function getVenueById(id: number) {
 	if (!id) {
 		throw new Error('Venue ID required');
 	}
@@ -21,7 +21,7 @@ export async function getVenueById(id: string) {
 	}
 }
 
-export async function loadRolesVenueType(id: string) {
+export async function loadRolesVenueType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
@@ -55,7 +55,7 @@ export async function createVenue(data: CreateVenueData) {
 	}
 }
 
-export async function loadVenueMembers(id: string) {
+export async function loadVenueMembers(id: number) {
 	if (!id) {
 		throw new Error('Venue ID is required');
 	}
@@ -67,7 +67,7 @@ export async function loadVenueMembers(id: string) {
 	}
 }
 
-export async function addMemberToVenue(id: string, memberData: { userId: number; roleId: number }) {
+export async function addMemberToVenue(id: number, memberData: { userId: number; roleId: number }) {
 	const res = await api
 		.post(`venues/${id}/members`, {
 			json: memberData
@@ -80,7 +80,7 @@ export async function addMemberToVenue(id: string, memberData: { userId: number;
 	}
 }
 
-export async function getVenueFacilities(id: string) {
+export async function getVenueFacilities(id: number) {
 	const res = await api.get(`venues/${id}/facilities`).json<ApiResponse<VenueFacilities[]>>();
 	if (res.success) {
 		return res.data;
@@ -89,7 +89,7 @@ export async function getVenueFacilities(id: string) {
 	}
 }
 
-export async function setVenueFacilities(id: string, facilityIds: number[]) {
+export async function setVenueFacilities(id: number, facilityIds: number[]) {
 	const res = await api
 		.put(`venues/${id}/facilities`, {
 			json: { facilityId: facilityIds }
@@ -102,7 +102,7 @@ export async function setVenueFacilities(id: string, facilityIds: number[]) {
 	}
 }
 
-export async function getVenueMemberByEmail(id: string, email: string) {
+export async function getVenueMemberByEmail(id: number, email: string) {
 	if (!id) {
 		throw new Error('Venue ID required');
 	}
@@ -119,7 +119,7 @@ export async function getVenueMemberByEmail(id: string, email: string) {
 	}
 }
 
-export async function updateVenueMemberRoles(id: string, userId: string, roleIds: string[]) {
+export async function updateVenueMemberRoles(id: number, userId: number, roleIds: number[]) {
 	if (!id) {
 		throw new Error('Venue ID required');
 	}
@@ -132,7 +132,7 @@ export async function updateVenueMemberRoles(id: string, userId: string, roleIds
 				roleIds: roleIds
 			}
 		})
-		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+		.json<ApiResponse<{ id: number; roleId: number }[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -140,7 +140,7 @@ export async function updateVenueMemberRoles(id: string, userId: string, roleIds
 	}
 }
 
-export async function deleteVenueMember(id: string, userId: string) {
+export async function deleteVenueMember(id: number, userId: number) {
 	if (!id) {
 		throw new Error('Venue ID required');
 	}
@@ -149,7 +149,7 @@ export async function deleteVenueMember(id: string, userId: string) {
 	}
 	const res = await api
 		.delete(`venues/${id}/members/${userId}`)
-		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+		.json<ApiResponse<{ id: number; roleId: number }[]>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -157,13 +157,13 @@ export async function deleteVenueMember(id: string, userId: string) {
 	}
 }
 
-export async function addVenueTypeRole(parentId: string, name: string) {
+export async function addVenueTypeRole(parentId: number, name: string) {
 	if (!parentId || !name) {
 		throw new Error('Parent ID and Name are required');
 	}
 	const res = await api.post(`venue-types/${parentId}/roles`, { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 		}>
 	>();
 	if (res.success) {
@@ -173,14 +173,14 @@ export async function addVenueTypeRole(parentId: string, name: string) {
 	}
 }
 
-export async function loadChildrenVenueType(id: string) {
+export async function loadChildrenVenueType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
 	const res = await api.get(`venue-types/${id}/children`).json<
 		ApiResponse<
 			{
-				id: string;
+				id: number;
 				name: string;
 			}[]
 		>

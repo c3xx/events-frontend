@@ -16,7 +16,7 @@
 	});
 	let selectedFacilityId = $state('');
 
-	let prevVenueId: string | null = $state(null);
+	let prevVenueId: number | null = $state(null);
 
 	$effect(() => {
 		const venue = venueFacilitiesState.selectedVenue;
@@ -26,7 +26,7 @@
 		}
 	});
 
-	async function loadLinkedFacilities(venueId: string) {
+	async function loadLinkedFacilities(venueId: number) {
 		linkedFacilities = { state: 'pending', message: 'Loading facilities...' };
 		try {
 			const data = await getVenueFacilities(venueId);
@@ -124,8 +124,7 @@
 					<div class="flex">
 						<DynamicSelectButton
 							name="facility"
-							initialText="Select a Facility"
-							size="full"
+							class="w-full"
 							bind:value={selectedFacilityId}
 							loadFn={async () => {
 								const all = await loadFacilities();
@@ -133,7 +132,6 @@
 								const linkedIds = new Set(linkedFacilities.data.map((f) => f.facilityId));
 								return all.filter((f) => !linkedIds.has(f.id));
 							}}
-							mapOption={(item: Facility) => ({ value: item.id.toString(), label: item.name })}
 						/>
 						<Button variant="link" onclick={handleLinkFacility} class="rounded-none"
 							><PlusIcon />Add</Button

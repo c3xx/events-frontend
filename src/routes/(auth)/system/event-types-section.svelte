@@ -237,14 +237,19 @@
 						>
 					{/each}
 					<div class="flex">
-						<select
+						<SelectButton
+							name="event types"
+							class="w-full"
+							itemsList={eventTypes.data.filter(
+								(e) =>
+									eventTypeChildren.state === 'success' &&
+									e.id !== activeEventType?.id &&
+									!eventTypeChildren.data.some((c) => c.id === e.id)
+							)}
+							optionName="name"
+							optionValue="id"
 							bind:value={activeEventType.selectedChildId}
-							class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-						>
-							{#each eventTypes.data.filter((e) => eventTypeChildren.state === 'success' && e.id !== activeEventType?.id && !eventTypeChildren.data.some((c) => c.id === e.id)) as e}
-								<option value={e.id}>{e.name}</option>
-							{/each}
-						</select>
+						/>
 						<Button
 							disabled={addEventTypeChildLoading}
 							variant="link"
@@ -296,14 +301,14 @@
 					{#if workflows.state === 'pending'}
 						<p>Loading Workflows...</p>
 					{:else if workflows.state === 'success'}
-						<select
+						<SelectButton
+							name="workflows"
+							class="w-full"
+							itemsList={workflows.data}
+							optionName="name"
+							optionValue="id"
 							bind:value={newTypeWorkflowId}
-							class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-						>
-							{#each workflows.data as workflow}
-								<option value={workflow.id}>{workflow.name}</option>
-							{/each}
-						</select>
+						/>
 					{/if}
 
 					{#if selectedWorkflow}
@@ -340,26 +345,21 @@
 				</div>
 				<div class="grid gap-2">
 					<Label for="name" class="text-end">Collaboration Policy</Label>
-					<!-- TODO: Make this select button reusable. Use this instead of shadcn -->
-					<select
+					<SelectButton
+						name="collaboration policy"
+						class="w-full"
+						itemsList={[...EVENT_TYPE_COLLABORATION_POLICY]}
 						bind:value={newTypeCollabPolicy}
-						class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each EVENT_TYPE_COLLABORATION_POLICY as policy}
-							<option value={policy}>{policy.toUpperCase()}</option>
-						{/each}
-					</select>
+					/>
 				</div>
 				<div class="grid gap-2">
 					<Label for="name" class="text-end">Venue Policy</Label>
-					<select
+					<SelectButton
+						name="venue policy"
+						class="w-full"
+						itemsList={[...EVENT_TYPE_VENUE_POLICY]}
 						bind:value={newTypeVenuePolicy}
-						class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each EVENT_TYPE_VENUE_POLICY as policy}
-							<option value={policy}>{policy.toUpperCase()}</option>
-						{/each}
-					</select>
+					/>
 				</div>
 			</div>
 			<Sheet.Footer class="sticky bottom-0">

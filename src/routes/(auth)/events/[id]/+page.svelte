@@ -23,6 +23,7 @@
 	import { submitEvent } from '$lib/api/events/events';
 	import { Loader, Send } from '@lucide/svelte';
 	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
+	import SelectButton from '$lib/components/app/select-button.svelte';
 
 	let event = $state<LoadedData<EventDetail>>({
 		state: 'pending',
@@ -92,7 +93,7 @@
 		try {
 			event = {
 				state: 'success',
-				data: await getEvent(page.params.id!)
+				data: await getEvent(Number(page.params.id!))
 			};
 			try {
 				eventType = {
@@ -235,14 +236,7 @@
 				</div>
 				<div class="my-xs flex w-full flex-col bg-muted p-xxs sm:hidden">
 					<p class="w-full text-center text-xs uppercase">Tabs</p>
-					<select
-						bind:value={activeTab}
-						class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each tabs as tab}
-							<option value={tab}>{tab}</option>
-						{/each}
-					</select>
+					<SelectButton name="tabs" class="w-full" itemsList={tabs} bind:value={activeTab!} />
 				</div>
 			</div>
 			<div

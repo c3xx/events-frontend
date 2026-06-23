@@ -11,7 +11,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { deleteVenueMember, getVenueMemberByEmail, updateVenueMemberRoles } from '$lib/api/venue';
 
-	let userId: string | null = $state(null);
+	let userId: number | null = $state(null);
 	let userRoles = $state<LoadedData<EntityMember['roles']>>({
 		state: 'pending',
 		message: 'Loading Roles'
@@ -39,14 +39,14 @@
 
 	let delOpen = $state(false);
 
-	let selectedRoleId = $state('');
+	let selectedRoleId: null | number = $state(null);
 
 	let {
 		member = $bindable(),
 		id,
 		roles,
 		open = $bindable()
-	}: { member: EntityMember | null; id: string; roles: Role[]; open: boolean } = $props();
+	}: { member: EntityMember | null; id: number; roles: Role[]; open: boolean } = $props();
 
 	let possibleRoles = $derived.by(() => {
 		if (userRoles.state === 'success') {
@@ -217,12 +217,11 @@
 							<div class="flex">
 								<SelectButton
 									name="role"
-									label="roles"
-									bind:value={selectedRoleId}
-									trigContent={roles.find((role) => role.id === selectedRoleId)?.name ??
-										'Select a role'}
-									items={possibleRoles.map((role) => ({ value: role.id, label: role.name }))}
-									size="full"
+									class="w-full"
+									bind:value={selectedRoleId!}
+									itemsList={possibleRoles}
+									optionName="name"
+									optionValue="id"
 								/>
 								<Button
 									variant="link"
@@ -231,9 +230,9 @@
 										if (!selectedRoleId) return;
 										currentRoles = [
 											...currentRoles,
-											{ id: '', isActive: true, roleId: selectedRoleId }
+											{ id: 0, isActive: true, roleId: selectedRoleId }
 										];
-										selectedRoleId = '';
+										selectedRoleId = null;
 										saved = false;
 									}}
 									class="rounded-none"><PlusIcon />Add</Button
@@ -254,7 +253,7 @@
 						>
 					{:else}
 						<div class="flex flex-col gap-y-xs bg-muted p-xs">
-							<p class="text-justify text-sm text-muted-foreground">
+							<p class="text-sm text-muted-foreground">
 								This action will remove the user from this venue, but will not delete the user. This
 								action cannot be undone.
 							</p>

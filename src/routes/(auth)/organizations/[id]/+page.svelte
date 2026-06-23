@@ -65,7 +65,7 @@
 
 	const optionsList: TableProps<EntityMember>['optionsList'] = [
 		{
-			id: '1',
+			id: 1,
 			name: 'Edit Role(s)',
 			onclick: (row) => {
 				selectedMember = row;
@@ -75,13 +75,14 @@
 	];
 
 	let selectedMember: null | EntityMember = $state(null);
+	let organizationId = $derived(Number(page.params.id!));
 
 	$effect(() => {
 		(async () => {
 			try {
 				org = {
 					state: 'success',
-					data: await getOrgById(page.params.id!)
+					data: await getOrgById(organizationId)
 				};
 				title = org.data.name;
 				console.log(org.data);
@@ -94,7 +95,7 @@
 			try {
 				orgMembers = {
 					state: 'success',
-					data: await loadOrganizationMembers(page.params.id!)
+					data: await loadOrganizationMembers(organizationId)
 				};
 				console.log(orgMembers.data);
 			} catch (err) {
@@ -153,7 +154,7 @@
 {#if orgMembers.state === 'success' && roles.state === 'success'}
 	<AddMember
 		bind:member={selectedMember}
-		id={page.params.id!}
+		id={organizationId}
 		roles={roles.data}
 		bind:open={addSheetOpen}
 	/>

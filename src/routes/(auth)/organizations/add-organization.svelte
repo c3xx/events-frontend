@@ -20,8 +20,8 @@
 			const formData = new FormData(e.currentTarget as HTMLFormElement);
 
 			const name = formData.get('name') as string;
-			const organizationTypeId = formData.get('type') as string;
-			const parentOrganizationId = formData.get('org') as string;
+			const organizationTypeId = Number(formData.get('type')) as number;
+			const parentOrganizationId = Number(formData.get('org')) as number;
 
 			if (await createOrg(name, organizationTypeId, parentOrganizationId)) {
 				console.log('Organization Created');
@@ -55,24 +55,14 @@
 					</div>
 					<div class="grid gap-3">
 						<Label for="email" class="text-end">Type</Label>
-						<DynamicSelectButton
-							name="type"
-							initialText="Select a type"
-							size="full"
-							value={typeValue}
-							loadFn={loadOrgTypes}
-							mapOption={(item: OrganizationType) => ({ value: item.id, label: item.name })}
-						/>
+						<DynamicSelectButton name="type" bind:value={typeValue} loadFn={loadOrgTypes} />
 					</div>
 					<div class="grid gap-3">
 						<Label for="org" class="text-end">Parent Organization</Label>
 						<DynamicSelectButton
-							name="organization"
-							initialText="Select an Organization"
-							size="full"
-							value={orgValue ?? ''}
+							name="parent organization"
+							bind:value={orgValue}
 							loadFn={loadOrgs}
-							mapOption={(item: Organization) => ({ value: item.id, label: item.name })}
 						/>
 					</div>
 				</div>

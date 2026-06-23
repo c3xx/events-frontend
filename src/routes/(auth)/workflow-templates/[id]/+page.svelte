@@ -13,6 +13,7 @@
 		loadWorkflowTemplatesStepsRoles,
 		loadWorkflowTemplateSteps
 	} from '$lib/api/workflow-templates';
+	import SelectButton from '$lib/components/app/select-button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -37,7 +38,7 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 
-	const workflowId = $derived(page.params.id);
+	const workflowId = $derived(Number(page.params.id));
 	let isValidId: 'pending' | 'true' | 'false' = $state('pending');
 	let workflowTitle: string | undefined = $state('Loading...');
 
@@ -61,7 +62,7 @@
 		message: 'Loading steps...'
 	});
 	let worflowCriteria: WorkflowTargetGroupApprovalCriteriaType | null = $state(null);
-	let activeStepId: string | null | 'new' = $state(null);
+	let activeStepId: number | null | -1 = $state(null);
 
 	let addStepLoading = $state(false);
 	let addStepRoleLoading = $state(false);
@@ -70,18 +71,18 @@
 	let errorText = $state('');
 	let newRoleEntity: null | EntityType = $state(null);
 	let newRoleEntityTypeId: null | Organization['id'] | Venue['id'] = $state(null);
-	let newRoleId: null | string = $state(null);
+	let newRoleId: null | number = $state(null);
 
-	function onAddNodeClick(index: number, prevId: string, nextId: string | null) {
+	function onAddNodeClick(index: number, prevId: number, nextId: number | null) {
 		if (steps.state !== 'success') return;
 		let tempStep: WorkflowTemplate['steps'][0] = {
-			id: 'new',
+			id: -1,
 			name: '',
 			nextStepId: nextId,
 			roles: []
 		};
 		steps.data.splice(index, 0, tempStep);
-		activeStepId = 'new';
+		activeStepId = -1;
 		steps = { ...steps };
 	}
 
@@ -122,7 +123,7 @@
 		}
 	}
 
-	async function deleteStepRole(stepId: string, roleId: string, index: number) {
+	async function deleteStepRole(stepId: number, roleId: number, index: number) {
 		if (steps.state !== 'success') return;
 		try {
 			await deleteWorkflowTemplateStepRole(workflowId!, stepId, roleId);
@@ -175,13 +176,13 @@
 				isValidId = 'true';
 				if (steps.data.length === 0) {
 					let tempStep: WorkflowTemplate['steps'][0] = {
-						id: 'new',
+						id: -1,
 						name: '',
 						nextStepId: null,
 						roles: []
 					};
 					steps.data.splice(0, 0, tempStep);
-					activeStepId = 'new';
+					activeStepId = -1;
 					steps = { ...steps };
 					return;
 				}
@@ -326,7 +327,7 @@
 							<div class="h-px w-full flex-1 bg-muted"></div>
 						</div>
 					{/if}
-					{#if step.id !== 'new'}
+					{#if step.id !== -1}
 						<div
 							class={`flex w-full flex-col overflow-hidden rounded border ${activeStepId !== null && activeStepId !== step.id ? 'text-muted-foreground' : 'border-foreground'}`}
 						>
@@ -463,27 +464,26 @@
 					{/if}
 					<div class="grid gap-2">
 						<Label for="name" class="text-end">ENTITY TYPE</Label>
-						<select
+						<SelectButton
+							name="entity type"
+							class="w-full"
+							itemsList={[...ENTITIES]}
 							bind:value={newRoleEntity}
-							class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-						>
-							{#each ENTITIES as entity}
-								<option value={entity}>{entity.toUpperCase()}</option>
-							{/each}
-						</select>
+							transformName={(value) => value.toUpperCase()}
+						/>
 					</div>
 					{#if newRoleEntity !== null}
 						{#if entityTypes.state === 'success'}
 							<div class="grid gap-2">
 								<Label for="name" class="text-end">{newRoleEntity!.toUpperCase()} TYPE</Label>
-								<select
+								<SelectButton
+									name="entity type value"
+									class="w-full"
+									itemsList={entityTypes.data}
+									optionName="name"
+									optionValue="id"
 									bind:value={newRoleEntityTypeId}
-									class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-								>
-									{#each entityTypes.data as entity}
-										<option value={entity.id}>{entity.name}</option>
-									{/each}
-								</select>
+								/>
 							</div>
 						{:else}
 							<p class="border border-muted-foreground bg-background px-3 py-1 text-base italic">
@@ -495,14 +495,14 @@
 						{#if roles.state === 'success'}
 							<div class="grid gap-2">
 								<Label for="name" class="text-end">ROLE</Label>
-								<select
+								<SelectButton
+									name="roles"
+									class="w-full"
+									itemsList={roles.data}
+									optionName="name"
+									optionValue="id"
 									bind:value={newRoleId}
-									class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-								>
-									{#each roles.data as role}
-										<option value={role.id}>{role.name}</option>
-									{/each}
-								</select>
+								/>
 							</div>
 							<Separator />
 							<div class="grid gap-2">

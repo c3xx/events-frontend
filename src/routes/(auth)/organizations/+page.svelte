@@ -57,7 +57,7 @@
 
 	let optionsList: TableProps<Organization>['optionsList'] = [
 		{
-			id: '1',
+			id: 1,
 			name: 'View Details',
 			onclick: (org) => {
 				goto(`/organizations/${org.id}`);
