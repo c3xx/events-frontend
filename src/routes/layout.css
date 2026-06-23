@@ -145,6 +145,10 @@
 		@apply rounded-none border border-muted-foreground;
 	}
 
+	.select-button {
+		@apply flex h-9 min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40;
+	}
+
 	.no-scrollbar::-webkit-scrollbar {
 		display: none;
 	}

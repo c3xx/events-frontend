@@ -9,7 +9,7 @@ import type {
 	User
 } from '$lib/types';
 
-export async function getOrgById(id: string) {
+export async function getOrgById(id: number) {
 	if (!id) {
 		throw new Error('Organization ID required');
 	}
@@ -41,8 +41,8 @@ export async function loadOrgTypes() {
 
 export async function createOrg(
 	name: string,
-	organizationTypeId: string,
-	parentOrganizationId: string
+	organizationTypeId: number,
+	parentOrganizationId: number
 ) {
 	if (!name || !organizationTypeId) {
 		throw new Error('Name and Type ID are required fields');
@@ -52,7 +52,7 @@ export async function createOrg(
 		.post('organizations', {
 			json: { name, organizationTypeId: Number(organizationTypeId), parentOrganizationId }
 		})
-		.json<ApiResponse<{ id: string }>>();
+		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
 		return res.data;
 	} else {
@@ -66,7 +66,7 @@ export async function addOrgType(name: string) {
 	}
 	const res = await api.post('organization-types', { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 			name: string;
 		}>
 	>();
@@ -77,7 +77,7 @@ export async function addOrgType(name: string) {
 	}
 }
 
-export async function addChildOrgType(id: string, childId: string) {
+export async function addChildOrgType(id: number, childId: number) {
 	if (!id || !childId) {
 		throw new Error('Parent ID and Child ID are required');
 	}
@@ -85,8 +85,8 @@ export async function addChildOrgType(id: string, childId: string) {
 		.post(`organization-types/${id}/children/${childId}`, { json: { name } })
 		.json<
 			ApiResponse<{
-				parentTypeId: string;
-				childTypeId: string;
+				parentTypeId: number;
+				childTypeId: number;
 			}>
 		>();
 	if (res.success) {
@@ -96,14 +96,14 @@ export async function addChildOrgType(id: string, childId: string) {
 	}
 }
 
-export async function loadChildrenOrgType(id: string) {
+export async function loadChildrenOrgType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
 	const res = await api.get(`organization-types/${id}/children`).json<
 		ApiResponse<
 			{
-				id: string;
+				id: number;
 				name: string;
 			}[]
 		>
@@ -115,7 +115,7 @@ export async function loadChildrenOrgType(id: string) {
 	}
 }
 
-export async function loadRolesOrgType(id: string) {
+export async function loadRolesOrgType(id: number) {
 	if (!id) {
 		throw new Error('Parent ID is required');
 	}
@@ -127,13 +127,13 @@ export async function loadRolesOrgType(id: string) {
 	}
 }
 
-export async function addOrganizationTypeRole(parentId: string, name: string) {
+export async function addOrganizationTypeRole(parentId: number, name: string) {
 	if (!parentId || !name) {
 		throw new Error('Parent ID and Name are required');
 	}
 	const res = await api.post(`organization-types/${parentId}/roles`, { json: { name } }).json<
 		ApiResponse<{
-			id: string;
+			id: number;
 		}>
 	>();
 	if (res.success) {
@@ -143,7 +143,7 @@ export async function addOrganizationTypeRole(parentId: string, name: string) {
 	}
 }
 
-export async function loadOrganizationMembers(id: string) {
+export async function loadOrganizationMembers(id: number) {
 	if (!id) {
 		throw new Error('Organization ID is required');
 	}
@@ -155,7 +155,7 @@ export async function loadOrganizationMembers(id: string) {
 	}
 }
 
-export async function getOrganizationMemberByEmail(id: string, email: string) {
+export async function getOrganizationMemberByEmail(id: number, email: string) {
 	if (!id) {
 		throw new Error('Organization ID required');
 	}
@@ -172,7 +172,7 @@ export async function getOrganizationMemberByEmail(id: string, email: string) {
 	}
 }
 
-export async function updateOrganizationMemberRoles(id: string, userId: string, roleIds: string[]) {
+export async function updateOrganizationMemberRoles(id: number, userId: number, roleIds: number[]) {
 	if (!id) {
 		throw new Error('Organization ID required');
 	}
@@ -185,7 +185,7 @@ export async function updateOrganizationMemberRoles(id: string, userId: string, 
 				roleIds: roleIds
 			}
 		})
-		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+		.json<ApiResponse<{ id: number; roleId: number }[]>>();
 	if (res.success) {
 		return res.data; //fix this later, remove index as this should be a single value
 	} else {
@@ -193,7 +193,7 @@ export async function updateOrganizationMemberRoles(id: string, userId: string, 
 	}
 }
 
-export async function deleteOrganizationMember(id: string, userId: string) {
+export async function deleteOrganizationMember(id: number, userId: number) {
 	if (!id) {
 		throw new Error('Organization ID required');
 	}
@@ -202,7 +202,7 @@ export async function deleteOrganizationMember(id: string, userId: string) {
 	}
 	const res = await api
 		.delete(`organizations/${id}/members/${userId}`)
-		.json<ApiResponse<{ id: string; roleId: string }[]>>();
+		.json<ApiResponse<{ id: number; roleId: number }[]>>();
 	if (res.success) {
 		return res.data; //fix this later, remove index as this should be a single value
 	} else {

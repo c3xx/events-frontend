@@ -9,19 +9,21 @@
 		OrganizationType,
 		PermissionChildType,
 		PermissionType,
-		RoleType
+		RoleType,
+		VenueType
 	} from '$lib/types';
 	import { onMount } from 'svelte';
 	import Checkbox from '../ui/checkbox/checkbox.svelte';
 	import { loadPermissions, loadRolePerms, updateRolePermissions } from '$lib/api/permissions';
 	import { derived } from 'svelte/store';
+	import SideSheet from './side-sheet.svelte';
 
 	let {
 		open = $bindable(false),
 		title,
 		org,
 		role
-	}: { open: boolean; title: string; org: OrganizationType; role: RoleType } = $props();
+	}: { open: boolean; title: string; org: OrganizationType | VenueType; role: RoleType } = $props();
 
 	let errorText = $state('');
 
@@ -40,7 +42,7 @@
 
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		let resList: string[] = [];
+		let resList: number[] = [];
 		Object.entries(permissionWithScope).forEach(([scope, value]) => {
 			value.forEach((permission) => {
 				if (permission.status) {
@@ -141,80 +143,65 @@
 	});
 </script>
 
-<Sheet.Root bind:open>
-	<Sheet.Content class="flex w-full flex-col sm:min-w-100" side="right">
-		<form class="flex h-full flex-col" onsubmit={handleSubmit}>
-			<div class="flex h-full min-h-0 flex-col">
-				<Sheet.Header class="mb-xs border-b border-muted-foreground">
-					<div class="flex flex-col">
-						<h3 class="text-sm">{org.name}</h3>
-						<h2 class="text-lg font-bold">Edit Role</h2>
-					</div>
-				</Sheet.Header>
-				<div class="flex h-full min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4">
-					{#if errorText}
-						<p class="text-sm text-red-500">{errorText}</p>
-					{/if}
-					<div class="grid gap-3">
-						<Label for="name" class="text-end">Name</Label>
-						<Input autofocus={false} value={role.name} class="primary-input" name="name" />
-					</div>
-					<div class="grid gap-3">
-						<Label for="name" class="text-end">Permissions</Label>
-						<div class="rounded border border-muted-foreground bg-muted">
-							{#if permissionSet.state === 'pending'}
-								<p class="p-xs">{permissionSet.message}</p>
-							{:else if rolePermissionSet.state === 'pending'}
-								<p class="p-xs">{rolePermissionSet.message}</p>
-							{:else if permissionSet.state === 'success' && rolePermissionSet.state === 'success'}
-								{#each Object.keys(permissionWithScope) as scope}
-									<div class="flex flex-col border-b border-muted-foreground p-xs last:border-0">
-										<div class="flex items-center gap-x-xxs font-medium">
+<SideSheet {errorText} title="Edit Role" description={org.name} bind:sheetOpen={open}>
+	<form onsubmit={handleSubmit} class="flex h-full flex-col gap-sm">
+		<div class="grid gap-3">
+			<Label for="name" class="text-end">Name</Label>
+			<Input autofocus={false} value={role.name} class="primary-input" name="name" />
+		</div>
+		<div class="grid gap-3">
+			<Label for="name" class="text-end">Permissions</Label>
+			<div class="rounded border border-muted-foreground bg-muted">
+				{#if permissionSet.state === 'pending'}
+					<p class="p-xs">{permissionSet.message}</p>
+				{:else if rolePermissionSet.state === 'pending'}
+					<p class="p-xs">{rolePermissionSet.message}</p>
+				{:else if permissionSet.state === 'success' && rolePermissionSet.state === 'success'}
+					{#each Object.keys(permissionWithScope) as scope}
+						<div class="flex flex-col border-b border-muted-foreground p-xs last:border-0">
+							<div class="flex items-center gap-x-xxs font-medium">
+								<Checkbox
+									onCheckedChange={(value) => {
+										if (saveDisabled) saveDisabled = false;
+										permissionWithScope[scope].forEach((item) => (item.status = value));
+									}}
+									indeterminate={isScopeIndeterminate(scope)}
+									checked={isScopeChecked(scope)}
+									class="border-muted-foreground"
+								/>
+								<p>{scope}</p>
+							</div>
+							<div class="mt-2 ml-6">
+								{#each permissionWithScope[scope] as childPerm}
+									<div class="flex flex-col">
+										<div class="flex items-center gap-x-xxs">
 											<Checkbox
 												onCheckedChange={(value) => {
 													if (saveDisabled) saveDisabled = false;
-													permissionWithScope[scope].forEach((item) => (item.status = value));
 												}}
-												indeterminate={isScopeIndeterminate(scope)}
-												checked={isScopeChecked(scope)}
+												bind:checked={childPerm.status}
 												class="border-muted-foreground"
 											/>
-											<p>{scope}</p>
+											<p>{childPerm.title}</p>
 										</div>
-										<div class="mt-2 ml-6">
-											{#each permissionWithScope[scope] as childPerm}
-												<div class="flex flex-col">
-													<div class="flex items-center gap-x-xxs">
-														<Checkbox
-															onCheckedChange={(value) => {
-																if (saveDisabled) saveDisabled = false;
-															}}
-															bind:checked={childPerm.status}
-															class="border-muted-foreground"
-														/>
-														<p>{childPerm.title}</p>
-													</div>
-													<p class="ml-6 text-muted-foreground">{childPerm.description}</p>
-												</div>
-											{/each}
-										</div>
+										<p class="ml-6 text-muted-foreground">{childPerm.description}</p>
 									</div>
 								{/each}
-							{:else if permissionSet.state === 'failed'}
-								<p class="p-xs">{permissionSet.message}</p>
-							{:else if rolePermissionSet.state === 'failed'}
-								<p class="p-xs">{rolePermissionSet.message}</p>
-							{:else}
-								<p class="p-xs">Something went wrong</p>
-							{/if}
+							</div>
 						</div>
-					</div>
-				</div>
+					{/each}
+				{:else if permissionSet.state === 'failed'}
+					<p class="p-xs">{permissionSet.message}</p>
+				{:else if rolePermissionSet.state === 'failed'}
+					<p class="p-xs">{rolePermissionSet.message}</p>
+				{:else}
+					<p class="p-xs">Something went wrong</p>
+				{/if}
 			</div>
-			<Sheet.Footer class="sticky bottom-0">
-				<Button disabled={saveDisabled} type="submit">Save changes</Button>
-				<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
-			</Sheet.Footer>
-		</form>
-	</Sheet.Content>
-</Sheet.Root>
+		</div>
+		<Sheet.Footer class="sticky bottom-0 z-30 bg-background px-0 py-xs">
+			<Button disabled={saveDisabled} type="submit">Save changes</Button>
+			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
+		</Sheet.Footer>
+	</form>
+</SideSheet>

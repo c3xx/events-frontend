@@ -7,7 +7,6 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddOrganization from './add-organization.svelte';
-	import { addOrganizationState } from '$lib/global/organization.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
 
 	let orgTypes = $state<LoadedData<OrganizationType[]>>({
@@ -57,7 +56,7 @@
 
 	let optionsList: TableProps<Organization>['optionsList'] = [
 		{
-			id: '1',
+			id: 1,
 			name: 'View Details',
 			onclick: (org) => {
 				goto(`/organizations/${org.id}`);
@@ -92,6 +91,7 @@
 		}
 	});
 
+	let addSheetOpen = $state(false);
 	let canCreateOrg = $derived(permissionGrantedSomewhere('organization:create'));
 </script>
 
@@ -103,7 +103,7 @@
 		<div class="border-muted-background flex w-full justify-end border-b p-xxs">
 			<Button
 				onclick={() => {
-					addOrganizationState.sheetOpen = true;
+					addSheetOpen = true;
 				}}
 				variant="default">Add Organization <PlusIcon /></Button
 			>
@@ -120,4 +120,4 @@
 	</div>
 </div>
 
-<AddOrganization />
+<AddOrganization bind:addSheetOpen />

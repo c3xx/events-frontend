@@ -13,6 +13,7 @@
 	} from '$lib/types';
 	import { Loader, Redo, X } from '@lucide/svelte';
 	import OrganizerInvitePopup from './organizer-invite-popup.svelte';
+	import SelectButton from '$lib/components/app/select-button.svelte';
 
 	let {
 		organizers = $bindable(),
@@ -157,30 +158,27 @@
 			{#if organizations.state === 'pending'}
 				<p class="h-9 w-full border border-muted-foreground px-3 py-1">Loading Organizations...</p>
 			{:else if organizations.state === 'success'}
-				<select
+				<SelectButton
+					name="organizations"
+					itemsList={organizations.data.filter(
+						(o) => !organizers.map((org) => org.organization.id).includes(o.id)
+					)}
+					class="w-full max-w-80"
+					optionName="name"
+					optionValue="id"
 					bind:value={newOrganizerOrganizationId}
-					class="flex h-9 w-full max-w-80 min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-				>
-					{#each organizations.data.filter((o) => !organizers
-								.map((org) => org.organization.id)
-								.includes(o.id)) as o}
-						<option value={o.id}>{o.name}</option>
-					{/each}
-				</select>
+				/>
 			{/if}
 		</div>
 		<div class="flex flex-col gap-y-xxs">
 			<p class="italic">Role</p>
-			<select
+			<SelectButton
+				name="organizations"
+				itemsList={[...EVENT_ORGANIZER_ROLE].filter((r) => r !== 'host')}
+				class="w-full max-w-80"
 				bind:value={newOrganizerRole}
-				class="flex h-9 w-full max-w-80 min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-			>
-				{#each EVENT_ORGANIZER_ROLE as role}
-					{#if role !== 'host'}
-						<option value={role}>{role.toUpperCase()}</option>
-					{/if}
-				{/each}
-			</select>
+				transformName={(value) => value.split('_').join(' ')}
+			/>
 		</div>
 		<Button onclick={onaddOrganizer} class="mt-sm w-min">Invite/Add</Button>
 	</div>

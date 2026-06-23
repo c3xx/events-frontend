@@ -18,6 +18,7 @@
 	import { createEvent, loadParentableEvents } from '$lib/api/events';
 	import { authInfo } from '$lib/global/auth.svelte';
 	import { goto } from '$app/navigation';
+	import SelectButton from '$lib/components/app/select-button.svelte';
 
 	let organizationId = $state<number | null>(null);
 	let title = $state('');
@@ -178,14 +179,14 @@
 						{authInfo.get()?.memberships.find((m) => m.id === organizationId)?.name}
 					</p>
 				{:else}
-					<select
+					<SelectButton
+						name="organization"
+						itemsList={authInfo.get()?.memberships!}
+						optionName="name"
+						optionValue="id"
 						bind:value={organizationId}
-						class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each authInfo.get()?.memberships as m}
-							<option value={m.id}>{m.name}</option>
-						{/each}
-					</select>
+						class="w-full"
+					/>
 				{/if}
 			{/if}
 		</div>
@@ -228,14 +229,14 @@
 						{eventTypes.message}
 					</p>
 				{:else if eventTypes.state === 'success'}
-					<select
+					<SelectButton
+						name="event types"
+						class="w-full max-w-80"
+						itemsList={eventTypes.data}
+						optionName="name"
+						optionValue="id"
 						bind:value={typeId}
-						class="flex h-9 w-full max-w-80 min-w-0 rounded-none bg-muted px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each eventTypes.data as v}
-							<option value={v.id}>{v.name}</option>
-						{/each}
-					</select>
+					/>
 				{/if}
 			</div>
 			<div class="grid gap-y-xxs">
@@ -246,14 +247,14 @@
 						{eventCategories.message}
 					</p>
 				{:else if eventCategories.state === 'success'}
-					<select
+					<SelectButton
+						name="event categories"
+						class="w-full max-w-80"
+						itemsList={eventCategories.data}
+						optionName="name"
+						optionValue="id"
 						bind:value={categoryId}
-						class="flex h-9 w-full max-w-80 min-w-0 rounded-none bg-muted px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-					>
-						{#each eventCategories.data as v}
-							<option value={v.id}>{v.name}</option>
-						{/each}
-					</select>
+					/>
 				{/if}
 			</div>
 			<div class="grid max-w-80 gap-y-xxs">
@@ -303,14 +304,14 @@
 							{#if parentableEvents.data.length === 0}
 								<p class="h-9 w-full max-w-80 bg-muted px-3 py-1 text-base">No events found</p>
 							{:else}
-								<select
+								<SelectButton
+									name="parent events"
+									class="w-full max-w-80"
+									itemsList={parentableEvents.data}
+									optionName="title"
+									optionValue="id"
 									bind:value={parentEventId}
-									class="flex h-9 w-full max-w-80 min-w-0 rounded-none bg-muted px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-								>
-									{#each parentableEvents.data as v}
-										<option value={v.id}>{v.title}</option>
-									{/each}
-								</select>
+								/>
 							{/if}
 						{/if}
 					</div>

@@ -28,7 +28,7 @@ export async function loadWorkflowTemplate(templateId: number) {
 	}
 }
 
-export async function loadWorkflowTemplateSteps(templateId: string) {
+export async function loadWorkflowTemplateSteps(templateId: number) {
 	if (!templateId) {
 		throw new Error('template ID required');
 	}
@@ -42,7 +42,7 @@ export async function loadWorkflowTemplateSteps(templateId: string) {
 	}
 }
 
-export async function loadWorkflowTemplatesStepsRoles(templateId: string, stepId: string) {
+export async function loadWorkflowTemplatesStepsRoles(templateId: number, stepId: number) {
 	if (!templateId || !stepId) {
 		throw new Error('template ID and Step ID are required');
 	}
@@ -73,9 +73,9 @@ export async function addWorkflowTemplate(name: string) {
 }
 
 export async function addWorkflowTemplateStep(
-	templateId: string,
+	templateId: number,
 	name: string,
-	previousStepId: string | null
+	previousStepId: number | null
 ) {
 	if (!templateId) {
 		throw new Error('Template ID required');
@@ -87,8 +87,8 @@ export async function addWorkflowTemplateStep(
 		.post(`workflow-templates/${templateId}/steps/`, { json: { name, previousStepId } })
 		.json<
 			ApiResponse<{
-				id: string;
-				nextStepId: null | string;
+				id: number;
+				nextStepId: null | number;
 			}>
 		>();
 	if (res.success) {
@@ -99,9 +99,9 @@ export async function addWorkflowTemplateStep(
 }
 
 export async function addWorkflowTemplateStepRole(
-	templateId: string,
-	stepId: string,
-	roleId: string,
+	templateId: number,
+	stepId: number,
+	roleId: number,
 	targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType
 ) {
 	if (!templateId) {
@@ -129,9 +129,9 @@ export async function addWorkflowTemplateStepRole(
 }
 
 export async function deleteWorkflowTemplateStepRole(
-	templateId: string,
-	stepId: string,
-	roleId: string
+	templateId: number,
+	stepId: number,
+	roleId: number
 ) {
 	if (!templateId) {
 		throw new Error('Template ID required');

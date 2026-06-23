@@ -64,7 +64,7 @@
 						id: id,
 						closedAt: null,
 						invitedAt: '',
-						invitedByUser: { id: '', user: { id: 0, fullName: '' } },
+						invitedByUser: { id: 0, user: { id: 0, fullName: '' } },
 						recipientOrganization: {
 							id: 0,
 							name: organizations.data.find((o) => o.id === organizationId)?.name!

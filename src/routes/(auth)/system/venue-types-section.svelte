@@ -12,7 +12,7 @@
 	import TabButton from '$lib/components/app/tab-button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
-	import type { ChildType, LoadedData, OrganizationType, RoleType, VenueType } from '$lib/types';
+	import type { ChildType, LoadedData, RoleType, VenueType } from '$lib/types';
 	import { PencilIcon, PlusIcon, TrashIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
@@ -32,7 +32,7 @@
 	let newVenueTypeValue: string = $state('');
 	let newRoleValue: string = $state('');
 	let venueTypeActiveTab: 'Children' | 'Roles' = $state('Roles');
-	let activeVenueType: OrganizationType | null = $state(null);
+	let activeVenueType: VenueType | null = $state(null);
 	let selectedRole: RoleType | null = $state(null);
 
 	let roleSheetOpen = $state(false);
@@ -49,8 +49,8 @@
 						id: newType.id,
 						name: newVenueTypeValue,
 						children: [],
-						selectedChildId: '',
-						selectedRoleId: ''
+						selectedChildId: null,
+						selectedRoleId: null
 					} //TODO: change selectedId type form string to ??(null)
 				];
 			}
@@ -63,7 +63,7 @@
 		}
 	}
 
-	async function onChildAdd(parentId: string, childId: string) {
+	async function onChildAdd(parentId: number, childId: number) {
 		if (!parentId || !childId) return;
 		const promise = addChildVenueType(parentId, childId);
 		toast.promise(promise, {
@@ -162,14 +162,14 @@
 		{#if venueTypes.state === 'pending'}
 			<p class="p-xs">{venueTypes.message}</p>
 		{:else if venueTypes.state === 'success'}
-			{#each venueTypes.data as org}
+			{#each venueTypes.data as venueType}
 				<Button
 					onclick={async () => {
-						activeVenueType = org;
+						activeVenueType = venueType;
 						setActiveTab(venueTypeActiveTab);
 					}}
 					class="w-full justify-start rounded-none border-b border-b-muted-foreground text-sm text-secondary-foreground"
-					variant="link">{org.name}</Button
+					variant="link">{venueType.name}</Button
 				>
 			{/each}
 			<div class="flex w-full items-center p-xxs max-sm:flex-col">
@@ -225,16 +225,16 @@
 						<div class="flex">
 							<SelectButton
 								name="Organization"
-								label="Organization"
-								bind:value={activeVenueType.selectedChildId}
-								trigContent={selectTrigCont}
-								items={selectItems}
-								size="full"
+								class="w-full"
+								bind:value={activeVenueType.selectedChildId!}
+								itemsList={selectItems}
+								optionName="label"
+								optionValue="value"
 							/>
 							<Button
 								variant="link"
 								onclick={() => {
-									onChildAdd(activeVenueType!.id, activeVenueType!.selectedChildId);
+									onChildAdd(activeVenueType!.id, activeVenueType!.selectedChildId!);
 								}}
 								class="rounded-none"><PlusIcon />Add</Button
 							>

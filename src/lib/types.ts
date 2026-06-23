@@ -4,15 +4,15 @@ export type WorkflowTemplate = {
 	id: number;
 	name: string;
 	steps: {
-		id: string;
+		id: number;
 		name: string;
-		nextStepId: string | null;
+		nextStepId: number | null;
 		roles: {
 			targetGroupApprovalCriteria: WorkflowTargetGroupApprovalCriteriaType;
 			role: {
-				id: string;
+				id: number;
 				name: string;
-				scope: { type: EntityType; kindId: string; kindName: string };
+				scope: { type: EntityType; kindId: number; kindName: string };
 			};
 		}[];
 	}[];
@@ -74,25 +74,25 @@ export const ENTITIES = ['organization', 'venue'] as const;
 export type EntityType = (typeof ENTITIES)[number];
 
 export type EntityMember = {
-	id: string;
+	id: number;
 	fullName: string;
 	email: string;
 	roles: {
-		id: string;
-		roleId: string;
+		id: number;
+		roleId: number;
 		isActive: boolean;
 	}[];
 };
 
 type EntityRole = {
-	id: string;
+	id: number;
 	isActive: boolean;
-	roleId: string;
+	roleId: number;
 	managedEntityId: string;
 };
 
 export type User = {
-	id: string;
+	id: number;
 	fullName: string;
 	email: string;
 	type: 'admin' | 'end_user';
@@ -101,10 +101,10 @@ export type User = {
 };
 
 export type Venue = {
-	id: string;
+	id: number;
 	name: string;
-	venueTypeId: string;
-	organizationId: string;
+	venueTypeId: number;
+	organizationId: number;
 	maxCapacity: string;
 	accessLevel: string;
 	isAvailable: boolean;
@@ -116,49 +116,49 @@ export type Venue = {
 export type Organization = {
 	id: number;
 	name: string;
-	organizationTypeId: string;
-	parentOrganizationId: string | null;
+	organizationTypeId: number;
+	parentOrganizationId: number | null;
 	isActive: boolean;
 };
 
 export type Role = {
-	id: string;
+	id: number;
 	name: string;
 };
 
 export type AssignRole = {
-	userId: string;
-	roleId: string | null;
-	organizationId: string | null;
+	userId: number;
+	roleId: number | null;
+	organizationId: number | null;
 };
 
 export type OrganizationType = {
-	id: string;
+	id: number;
 	name: string;
 	children: {
-		childTypeId: string;
+		childTypeId: number;
 	}[];
-	selectedChildId: string;
-	selectedRoleId: string;
+	selectedChildId: number | null;
+	selectedRoleId: number | null;
 };
 
 export type VenueType = {
-	id: string;
+	id: number;
 	name: string;
 	children: {
-		childTypeId: string;
+		childTypeId: number;
 	}[];
-	selectedChildId: string;
-	selectedRoleId: string;
+	selectedChildId: number | null;
+	selectedRoleId: number | null;
 };
 
 export type ChildType = {
-	id: string;
+	id: number;
 	name: string;
 };
 
 export type RoleType = {
-	id: string;
+	id: number;
 	name: string;
 };
 
@@ -190,13 +190,13 @@ export type PermissionCode =
 	| 'event_organizer:manage';
 
 export type PermissionType = {
-	id: string;
+	id: number;
 	code: PermissionCode;
 	description: string;
 };
 
 export type PermissionChildType = {
-	id: string;
+	id: number;
 	title: string;
 	description: string;
 	status: boolean;
@@ -252,7 +252,7 @@ export type TableProps<T> = {
 };
 
 export type ActionMenuItem<T> = {
-	id: string;
+	id: number;
 	name: string;
 	onclick: (selectedItem: T) => void;
 };
@@ -317,7 +317,7 @@ export type EventOrganizerInvitation = {
 	invitedAt: string;
 	closedAt: string | null;
 	invitedByUser: {
-		id: string;
+		id: number;
 		user: {
 			id: number;
 			fullName: string;
@@ -341,7 +341,7 @@ export type EventVenueAllotment = {
 };
 
 export type Event = {
-	id: string;
+	id: number;
 	title: string;
 	type: { id: number; name: string };
 	category: { id: number; name: string };
@@ -356,7 +356,7 @@ export type Event = {
 };
 
 export type EventSummary = {
-	id: string;
+	id: number;
 	title: string;
 	type: { id: number; name: string };
 	category: { id: number; name: string };
@@ -400,7 +400,7 @@ export type CreateEventData = {
 export type UpdateEventData = Partial<Omit<CreateEventData, 'organizationId'>>;
 
 export type CreateVenueAllotmentData = {
-	venueId: string;
+	venueId: number;
 	startsAt: string;
 	endsAt: string;
 };
@@ -418,7 +418,7 @@ export type EventType = {
 };
 
 export type EventCategory = {
-	id: string;
+	id: number;
 	name: string;
 };
 
@@ -432,11 +432,11 @@ export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_
 export type WorkflowTargetGroupApprovalCriteriaType =
 	(typeof WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA)[number];
 
-export type VenueFacilities = {
+export type VenueFacility = {
 	id: number;
 	facilityId: number;
 	facilityName: string;
-}[];
+};
 
 export type VenueMember = { id: number };
 

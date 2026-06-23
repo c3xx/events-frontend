@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends {id: string}">
+<script lang="ts" generics="T extends {id: number}">
 	import type { TableProps } from '$lib/types';
 	import { ChevronDown, ChevronUp } from '@lucide/svelte';
 	import Button from '../ui/button/button.svelte';
@@ -24,7 +24,7 @@
 		internalData = internalData.map((row) => ({ ...row, rowSelected: checked }));
 	}
 
-	function toggleRow(id: string, checked: boolean) {
+	function toggleRow(id: number, checked: boolean) {
 		internalData = internalData.map((row) =>
 			row.id === id ? { ...row, rowSelected: checked } : row
 		);

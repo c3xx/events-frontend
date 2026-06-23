@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { allotEventVenue } from '$lib/api/events/venue-allotments';
+	import DynamicSelectButton from '$lib/components/app/dynamic-select-button.svelte';
+	import SelectButton from '$lib/components/app/select-button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { formatDate } from '$lib/helpers';
@@ -22,7 +24,7 @@
 
 	let addVenueLoading = $state(false);
 	let errorText = $state('');
-	let newVenueId: string | null = $state(null);
+	let newVenueId: number | null = $state(null);
 	let newStartDate: string | undefined = $state(undefined);
 	let newStartTime: string = $state('00:00:00');
 	let newEndDate: string | undefined = $state(undefined);
@@ -61,7 +63,7 @@
 			allotedVenues.push({
 				id: id,
 				venue: {
-					id: parseInt(newVenueId),
+					id: newVenueId,
 					name: venues.data.find((v) => v.id === newVenueId)?.name!
 				},
 				startsAt,
@@ -148,14 +150,14 @@
 			{#if venues.state === 'pending'}
 				<p class="h-9 w-full border border-muted-foreground px-3 py-1">Loading Organizations...</p>
 			{:else if venues.state === 'success'}
-				<select
+				<SelectButton
+					name="venue"
+					itemsList={venues.data}
+					class="w-full max-w-80"
+					optionName="name"
+					optionValue="id"
 					bind:value={newVenueId}
-					class="flex h-9 w-full max-w-80 min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-				>
-					{#each venues.data as v}
-						<option value={v.id}>{v.name}</option>
-					{/each}
-				</select>
+				/>
 			{/if}
 		</div>
 		<div class="flex w-full max-w-80 gap-x-sm">

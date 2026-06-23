@@ -3,7 +3,7 @@ import type { ApiResponse } from '$lib/types';
 
 export async function allotEventVenue(
 	eventId: number,
-	venueId: string,
+	venueId: number,
 	startsAt: string,
 	endsAt: string
 ) {

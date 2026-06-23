@@ -13,6 +13,8 @@
 		loadWorkflowTemplatesStepsRoles,
 		loadWorkflowTemplateSteps
 	} from '$lib/api/workflow-templates';
+	import SelectButton from '$lib/components/app/select-button.svelte';
+	import SideSheet from '$lib/components/app/side-sheet.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
@@ -37,7 +39,7 @@
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 
-	const workflowId = $derived(page.params.id);
+	const workflowId = $derived(Number(page.params.id));
 	let isValidId: 'pending' | 'true' | 'false' = $state('pending');
 	let workflowTitle: string | undefined = $state('Loading...');
 
@@ -61,7 +63,7 @@
 		message: 'Loading steps...'
 	});
 	let worflowCriteria: WorkflowTargetGroupApprovalCriteriaType | null = $state(null);
-	let activeStepId: string | null | 'new' = $state(null);
+	let activeStepId: number | null | -1 = $state(null);
 
 	let addStepLoading = $state(false);
 	let addStepRoleLoading = $state(false);
@@ -70,18 +72,18 @@
 	let errorText = $state('');
 	let newRoleEntity: null | EntityType = $state(null);
 	let newRoleEntityTypeId: null | Organization['id'] | Venue['id'] = $state(null);
-	let newRoleId: null | string = $state(null);
+	let newRoleId: null | number = $state(null);
 
-	function onAddNodeClick(index: number, prevId: string, nextId: string | null) {
+	function onAddNodeClick(index: number, prevId: number, nextId: number | null) {
 		if (steps.state !== 'success') return;
 		let tempStep: WorkflowTemplate['steps'][0] = {
-			id: 'new',
+			id: -1,
 			name: '',
 			nextStepId: nextId,
 			roles: []
 		};
 		steps.data.splice(index, 0, tempStep);
-		activeStepId = 'new';
+		activeStepId = -1;
 		steps = { ...steps };
 	}
 
@@ -122,7 +124,7 @@
 		}
 	}
 
-	async function deleteStepRole(stepId: string, roleId: string, index: number) {
+	async function deleteStepRole(stepId: number, roleId: number, index: number) {
 		if (steps.state !== 'success') return;
 		try {
 			await deleteWorkflowTemplateStepRole(workflowId!, stepId, roleId);
@@ -175,13 +177,13 @@
 				isValidId = 'true';
 				if (steps.data.length === 0) {
 					let tempStep: WorkflowTemplate['steps'][0] = {
-						id: 'new',
+						id: -1,
 						name: '',
 						nextStepId: null,
 						roles: []
 					};
 					steps.data.splice(0, 0, tempStep);
-					activeStepId = 'new';
+					activeStepId = -1;
 					steps = { ...steps };
 					return;
 				}
@@ -326,7 +328,7 @@
 							<div class="h-px w-full flex-1 bg-muted"></div>
 						</div>
 					{/if}
-					{#if step.id !== 'new'}
+					{#if step.id !== -1}
 						<div
 							class={`flex w-full flex-col overflow-hidden rounded border ${activeStepId !== null && activeStepId !== step.id ? 'text-muted-foreground' : 'border-foreground'}`}
 						>
@@ -442,94 +444,83 @@
 	{/if}
 </div>
 
-<Sheet.Root bind:open={sheetOpen}>
-	<Sheet.Content class="w-full sm:min-w-100" side="right">
-		<form onsubmit={handleSubmit}>
-			<div class="overflow-auto">
-				<Sheet.Header class="mb-xs border-b border-muted-foreground">
-					<div class="flex flex-col">
-						<h2 class="text-lg font-bold">Add Role</h2>
-						<h3 class="text-sm">
-							Select the options below to add a role to step: <span class="italic"
-								>{steps.state === 'success' &&
-									steps.data.find((s) => s.id === activeStepId)?.name}</span
-							>.
-						</h3>
-					</div>
-				</Sheet.Header>
-				<div class="grid flex-1 auto-rows-min gap-6 px-4">
-					{#if errorText}
-						<p class="text-sm text-red-500">{errorText}</p>
-					{/if}
-					<div class="grid gap-2">
-						<Label for="name" class="text-end">ENTITY TYPE</Label>
-						<select
-							bind:value={newRoleEntity}
-							class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-						>
-							{#each ENTITIES as entity}
-								<option value={entity}>{entity.toUpperCase()}</option>
-							{/each}
-						</select>
-					</div>
-					{#if newRoleEntity !== null}
-						{#if entityTypes.state === 'success'}
-							<div class="grid gap-2">
-								<Label for="name" class="text-end">{newRoleEntity!.toUpperCase()} TYPE</Label>
-								<select
-									bind:value={newRoleEntityTypeId}
-									class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-								>
-									{#each entityTypes.data as entity}
-										<option value={entity.id}>{entity.name}</option>
-									{/each}
-								</select>
-							</div>
-						{:else}
-							<p class="border border-muted-foreground bg-background px-3 py-1 text-base italic">
-								{entityTypes.message}
-							</p>
-						{/if}
-					{/if}
-					{#if newRoleEntityTypeId !== null}
-						{#if roles.state === 'success'}
-							<div class="grid gap-2">
-								<Label for="name" class="text-end">ROLE</Label>
-								<select
-									bind:value={newRoleId}
-									class="flex h-9 w-full min-w-0 rounded-none border border-muted-foreground bg-background px-3 py-1 text-base shadow-xs ring-offset-background transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40"
-								>
-									{#each roles.data as role}
-										<option value={role.id}>{role.name}</option>
-									{/each}
-								</select>
-							</div>
-							<Separator />
-							<div class="grid gap-2">
-								<Label for="name" class="text-end">TARGET GROUP APPROVAL CRITERIA</Label>
-								{#each WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA as criteria}
-									<div class="flex items-center gap-x-2">
-										<input bind:group={worflowCriteria} value={criteria} type="radio" />
-										<p class="uppercase">{criteria}</p>
-									</div>
-								{/each}
-							</div>
-						{:else}
-							<p class="border border-muted-foreground bg-background px-3 py-1 text-base italic">
-								{roles.message}
-							</p>
-						{/if}
-					{/if}
+<SideSheet
+	title="Add Role"
+	description={`Select the options below to add a role to step: ${
+		steps.state === 'success' && steps.data.find((s) => s.id === activeStepId)?.name
+	}`}
+	{errorText}
+	bind:sheetOpen
+>
+	<form onsubmit={handleSubmit} class="flex h-full flex-col gap-y-6">
+		{#if errorText}
+			<p class="text-sm text-red-500">{errorText}</p>
+		{/if}
+		<div class="grid gap-2">
+			<Label for="name" class="text-end">ENTITY TYPE</Label>
+			<SelectButton
+				name="entity type"
+				class="w-full"
+				itemsList={[...ENTITIES]}
+				bind:value={newRoleEntity}
+				transformName={(value) => value.toUpperCase()}
+			/>
+		</div>
+		{#if newRoleEntity !== null}
+			{#if entityTypes.state === 'success'}
+				<div class="grid gap-2">
+					<Label for="name" class="text-end">{newRoleEntity!.toUpperCase()} TYPE</Label>
+					<SelectButton
+						name="entity type value"
+						class="w-full"
+						itemsList={entityTypes.data}
+						optionName="name"
+						optionValue="id"
+						bind:value={newRoleEntityTypeId}
+					/>
 				</div>
-			</div>
-			<Sheet.Footer>
-				<Button disabled={addStepRoleLoading} type="submit"
-					>{#if addStepRoleLoading}
-						<Loader class="animate-spin" />
-					{/if} Add</Button
-				>
-				<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
-			</Sheet.Footer>
-		</form>
-	</Sheet.Content>
-</Sheet.Root>
+			{:else}
+				<p class="border border-muted-foreground bg-background px-3 py-1 text-base italic">
+					{entityTypes.message}
+				</p>
+			{/if}
+		{/if}
+		{#if newRoleEntityTypeId !== null}
+			{#if roles.state === 'success'}
+				<div class="grid gap-2">
+					<Label for="name" class="text-end">ROLE</Label>
+					<SelectButton
+						name="roles"
+						class="w-full"
+						itemsList={roles.data}
+						optionName="name"
+						optionValue="id"
+						bind:value={newRoleId}
+					/>
+				</div>
+				<Separator />
+				<div class="grid gap-2">
+					<Label for="name" class="text-end">TARGET GROUP APPROVAL CRITERIA</Label>
+					{#each WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA as criteria}
+						<div class="flex items-center gap-x-2">
+							<input bind:group={worflowCriteria} value={criteria} type="radio" />
+							<p class="uppercase">{criteria}</p>
+						</div>
+					{/each}
+				</div>
+			{:else}
+				<p class="border border-muted-foreground bg-background px-3 py-1 text-base italic">
+					{roles.message}
+				</p>
+			{/if}
+		{/if}
+		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
+			<Button disabled={addStepRoleLoading} type="submit"
+				>{#if addStepRoleLoading}
+					<Loader class="animate-spin" />
+				{/if} Add</Button
+			>
+			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
+		</Sheet.Footer>
+	</form>
+</SideSheet>

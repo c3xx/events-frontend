@@ -11,6 +11,7 @@
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
 	import type { Organization, VenueType } from '$lib/types';
+	import SideSheet from '$lib/components/app/side-sheet.svelte';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -63,109 +64,86 @@
 	}
 </script>
 
-<Sheet.Root bind:open>
-	<Sheet.Content class="w-full sm:min-w-100" side="right">
-		<form onsubmit={handleSubmit}>
-			<div class="flex h-full flex-col overflow-auto">
-				<Sheet.Header class="mb-xs border-b border-muted-foreground pb-2">
-					<div class="flex flex-col">
-						<h2 class="text-lg font-bold">Add Venue</h2>
-						<h3 class="text-sm">
-							Enter the details of the new venue. Click save when you're done.
-						</h3>
-					</div>
-				</Sheet.Header>
-				<div class="grid flex-1 auto-rows-min gap-6 overflow-y-auto px-4 py-6">
-					{#if errorText}
-						<p class="text-sm text-red-500">{errorText}</p>
-					{/if}
+<SideSheet
+	title="Add Venue"
+	description="Enter the details of the new venue. Click save when you're done"
+	bind:sheetOpen={open}
+	{errorText}
+>
+	<form class="flex h-full flex-col gap-y-6" onsubmit={handleSubmit}>
+		<div class="grid gap-y-xxs">
+			<Label for="name">Venue Name</Label>
+			<Input id="name" name="name" class="primary-input" placeholder="e.g. Auditorium" required />
+		</div>
 
-					<div class="grid gap-3">
-						<Label for="name">Venue Name</Label>
-						<Input
-							id="name"
-							name="name"
-							class="primary-input"
-							placeholder="e.g. Auditorium"
-							required
-						/>
-					</div>
+		<div class="grid gap-y-xxs">
+			<Label for="venueTypeId">Venue Type</Label>
+			<DynamicSelectButton
+				name="venue type"
+				class="w-full"
+				bind:value={venueTypeId}
+				loadFn={loadVenueTypes}
+			/>
+		</div>
 
-					<div class="grid gap-3">
-						<Label for="venueTypeId">Venue Type</Label>
-						<DynamicSelectButton
-							name="venueTypeId"
-							initialText="Select Venue Type"
-							size="full"
-							bind:value={venueTypeId}
-							loadFn={loadVenueTypes}
-							mapOption={(item: VenueType) => ({ value: item.id.toString(), label: item.name })}
-						/>
-					</div>
+		<div class="grid gap-y-xxs">
+			<Label for="organizationId">Organization (Optional)</Label>
+			<DynamicSelectButton
+				name="organizationId"
+				class="w-full"
+				bind:value={organizationId}
+				loadFn={loadOrgs}
+			/>
+		</div>
 
-					<div class="grid gap-3">
-						<Label for="organizationId">Organization (Optional)</Label>
-						<DynamicSelectButton
-							name="organizationId"
-							initialText="Managed by Organization"
-							size="full"
-							bind:value={organizationId}
-							loadFn={loadOrgs}
-							mapOption={(item: Organization) => ({ value: item.id.toString(), label: item.name })}
-						/>
-					</div>
+		<div class="grid gap-y-xxs">
+			<Label for="maxCapacity">Max Capacity</Label>
+			<Input
+				id="maxCapacity"
+				name="maxCapacity"
+				type="number"
+				class="primary-input"
+				placeholder="e.g. 500"
+				required
+			/>
+		</div>
 
-					<div class="grid gap-3">
-						<Label for="maxCapacity">Max Capacity</Label>
-						<Input
-							id="maxCapacity"
-							name="maxCapacity"
-							type="number"
-							class="primary-input"
-							placeholder="e.g. 500"
-							required
-						/>
-					</div>
+		<div class="grid gap-y-xxs">
+			<Label for="accessLevel">Access Level</Label>
+			<SelectButton
+				name="accessLevel"
+				bind:value={accessLevel}
+				itemsList={accessLevels}
+				class="w-full"
+				optionName="label"
+				optionValue="value"
+			/>
+		</div>
 
-					<div class="grid gap-3">
-						<Label for="accessLevel">Access Level</Label>
-						<SelectButton
-							name="accessLevel"
-							label="Access Level"
-							bind:value={accessLevel}
-							trigContent={accessTriggerContent}
-							items={accessLevels}
-							size="full"
-						/>
-					</div>
+		<div class="flex items-center space-x-2 py-xxs">
+			<Checkbox id="isAvailable" bind:checked={isAvailable} />
+			<Label
+				for="isAvailable"
+				class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+			>
+				Available for Booking
+			</Label>
+		</div>
 
-					<div class="flex items-center space-x-2 py-2">
-						<Checkbox id="isAvailable" bind:checked={isAvailable} />
-						<Label
-							for="isAvailable"
-							class="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							Available for Booking
-						</Label>
-					</div>
-
-					{#if !isAvailable}
-						<div class="grid gap-3">
-							<Label for="unavailabilityReason">Unavailability Reason</Label>
-							<Textarea
-								id="unavailabilityReason"
-								name="unavailabilityReason"
-								placeholder="Reason for being unavailable..."
-								required
-							/>
-						</div>
-					{/if}
-				</div>
-				<Sheet.Footer class="mt-auto border-t pt-4">
-					<Button type="submit">Save changes</Button>
-					<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
-				</Sheet.Footer>
+		{#if !isAvailable}
+			<div class="grid gap-y-xxs">
+				<Label for="unavailabilityReason">Unavailability Reason</Label>
+				<Textarea
+					id="unavailabilityReason"
+					name="unavailabilityReason"
+					placeholder="Reason for being unavailable..."
+					required
+				/>
 			</div>
-		</form>
-	</Sheet.Content>
-</Sheet.Root>
+		{/if}
+		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
+			<Button type="submit">Save changes</Button>
+			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
+		</Sheet.Footer>
+	</form>
+</SideSheet>

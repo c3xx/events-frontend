@@ -33,8 +33,8 @@ export async function removeOrganizerInvitation(eventId: number, invitationId: n
 }
 
 export async function respondOrganizerInvitations(
-	eventId: string,
-	invitationId: string,
+	eventId: number,
+	invitationId: number,
 	status: 'accepted' | 'rejected'
 ) {
 	if (!eventId) {

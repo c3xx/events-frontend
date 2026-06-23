@@ -1,74 +1,49 @@
-<script lang="ts" generics="T">
+<script lang="ts" generics="T extends {id: number, name?: string}[]">
 	import type { LoadedData } from '$lib/types';
-	import * as Select from '../ui/select/index.js';
-	import SelectButton from './select-button.svelte';
-
+	import { cn } from 'tailwind-variants';
 	let {
 		name,
-		initialText,
-		value = $bindable(''),
-		size = 'fit',
+		class: className,
+		value = $bindable(),
 		loadFn,
-		mapOption,
-		isBg = false
+		...restProps
 	}: {
 		name: string;
-		initialText: string;
-		value: string;
-		size: 'full' | 'fit';
-		loadFn: () => Promise<T[]>;
-		mapOption: (item: T) => { value: string; label: string };
-		isBg?: boolean;
+		class?: string;
+		value: string | number | null;
+		loadFn: () => Promise<T>;
 	} = $props();
 
-	const ddTriggerContent = $derived.by(() => {
-		if (itemsList.state === 'success') {
-			return itemsList.data.find((o) => o.value === value)?.label ?? initialText;
-		} else {
-			return initialText;
-		}
-	});
-
-	let itemsList = $state<LoadedData<{ value: string; label: string }[]>>({
+	let itemsList = $state<LoadedData<T>>({
 		state: 'pending',
-		message: 'Loading organizations'
+		message: 'Loading...'
 	});
 
-	const reloadItems = async () => {
+	async function loadItems() {
+		if (itemsList.state === 'success') return;
 		try {
-			const data = await loadFn();
-
 			itemsList = {
 				state: 'success',
-				data: data.map(mapOption)
+				data: await loadFn()
 			};
-		} catch (error) {
+		} catch (err: any) {
 			itemsList = {
 				state: 'failed',
-				message: 'Loading failed'
+				message: err.message ?? 'Failed to load'
 			};
 		}
-	};
+	}
 </script>
 
-<Select.Root type="single" {name} bind:value>
-	<Select.Trigger
-		onclick={reloadItems}
-		class={`${size === 'full' ? 'w-full' : ''} ${isBg ? 'bg-background' : ''} rounded-xs`}
-	>
-		{ddTriggerContent}
-	</Select.Trigger>
-	<Select.Content>
-		<Select.Group>
-			{#if itemsList.state === 'pending'}
-				<Select.Label>Loading...</Select.Label>
-			{:else if itemsList.state === 'success'}
-				{#each itemsList.data as v (v.value)}
-					<Select.Item value={v.value} label={v.label}>
-						{v.label}
-					</Select.Item>
-				{/each}
-			{/if}
-		</Select.Group>
-	</Select.Content>
-</Select.Root>
+<select {name} bind:value onclick={loadItems} {...restProps} class={cn('select-button', className)}>
+	{#if itemsList.state === 'success'}
+		{#if itemsList.data.length === 0}
+			<option disabled={true}>Empty</option>
+		{/if}
+		{#each itemsList.data as item}
+			<option value={item.id}>{item.name}</option>
+		{/each}
+	{:else}
+		<option disabled={true}>Loading...</option>
+	{/if}
+</select>

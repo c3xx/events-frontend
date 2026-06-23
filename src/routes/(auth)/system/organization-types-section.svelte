@@ -49,8 +49,8 @@
 						id: newType.id,
 						name: newOrgTypeValue,
 						children: [],
-						selectedChildId: '',
-						selectedRoleId: ''
+						selectedChildId: null,
+						selectedRoleId: null
 					} //TODO: change selectedId type form string to ??(null)
 				];
 			}
@@ -63,7 +63,7 @@
 		}
 	}
 
-	async function onChildAdd(parentId: string, childId: string) {
+	async function onChildAdd(parentId: number, childId: number) {
 		if (!parentId || !childId) return;
 		const promise = addChildOrgType(parentId, childId);
 		toast.promise(promise, {
@@ -223,16 +223,16 @@
 						<div class="flex">
 							<SelectButton
 								name="Organization"
-								label="Organization"
-								bind:value={activeOrgTpe.selectedChildId}
-								trigContent={selectTrigCont}
-								items={selectItems}
-								size="full"
+								class="w-full"
+								bind:value={activeOrgTpe.selectedChildId!}
+								itemsList={selectItems}
+								optionName="label"
+								optionValue="value"
 							/>
 							<Button
 								variant="link"
 								onclick={() => {
-									onChildAdd(activeOrgTpe!.id, activeOrgTpe!.selectedChildId);
+									onChildAdd(activeOrgTpe!.id, activeOrgTpe!.selectedChildId!);
 								}}
 								class="rounded-none"><PlusIcon />Add</Button
 							>

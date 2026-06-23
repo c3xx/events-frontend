@@ -19,7 +19,7 @@ export async function loadEvents() {
 }
 
 export async function loadParentableEvents(
-	typeId: string | number,
+	typeId: number | number,
 	organizationId: string | number
 ) {
 	const res = await api
@@ -46,7 +46,7 @@ export async function createEvent(eventData: CreateEventData): Promise<Event> {
 	}
 }
 
-export async function getEvent(id: string) {
+export async function getEvent(id: number) {
 	if (!id) {
 		throw new Error('Event ID required');
 	}
@@ -58,7 +58,7 @@ export async function getEvent(id: string) {
 	}
 }
 
-export async function updateEvent(id: string, data: UpdateEventData) {
+export async function updateEvent(id: number, data: UpdateEventData) {
 	if (!id) {
 		throw new Error('Event ID required');
 	}
@@ -70,7 +70,7 @@ export async function updateEvent(id: string, data: UpdateEventData) {
 	}
 }
 
-export async function createVenueAllotment(eventId: string, data: CreateVenueAllotmentData) {
+export async function createVenueAllotment(eventId: number, data: CreateVenueAllotmentData) {
 	if (!eventId) {
 		throw new Error('Event ID required');
 	}
