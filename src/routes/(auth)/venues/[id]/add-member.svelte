@@ -10,6 +10,7 @@
 	import { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { deleteVenueMember, getVenueMemberByEmail, updateVenueMemberRoles } from '$lib/api/venue';
+	import SideSheet from '$lib/components/app/side-sheet.svelte';
 
 	let userId: number | null = $state(null);
 	let userRoles = $state<LoadedData<EntityMember['roles']>>({
@@ -141,17 +142,14 @@
 	});
 </script>
 
-<Sheet.Root bind:open>
-	<Sheet.Content class="flex h-screen w-full flex-col sm:min-w-100" side="right">
-		<Sheet.Header>
-			<Sheet.Title>Manage members</Sheet.Title>
-			<Sheet.Description>Enter the email address to add/edit member roles</Sheet.Description>
-		</Sheet.Header>
-		<Separator />
-		<div class="flex flex-1 flex-col gap-y-r-pad overflow-y-auto p-r-pad">
-			{#if errorText}
-				<p class="text-sm text-red-500">{errorText}</p>
-			{/if}
+<SideSheet
+	bind:sheetOpen={open}
+	title="Manage members"
+	description="Enter the email address to add/edit member roles"
+	{errorText}
+>
+	<form class="flex h-full flex-col">
+		<div class="flex h-full flex-col gap-y-6">
 			<div class="mx-0 flex flex-col gap-y-xxs">
 				<Label for="email" class="text-sm">Email</Label>
 				{#if isLoadBtnActive}
@@ -180,94 +178,96 @@
 				</div>
 			</div>
 			{#if !isLoadBtnActive && !isRoleLoading}
-				<div class="flex flex-col gap-y-xxs">
-					<h3 class="text-sm font-medium">Name</h3>
-					<div class="flex items-center justify-between border px-3 py-1 text-foreground">
-						<p>{userName}</p>
+				<div class="flex h-full flex-col gap-y-4">
+					<div class="flex flex-col gap-y-xxs">
+						<h3 class="text-sm font-medium">Name</h3>
+						<div class="flex items-center justify-between border px-3 py-1 text-foreground">
+							<p>{userName}</p>
+						</div>
 					</div>
-				</div>
-				<div class="flex flex-col gap-y-xxs">
-					<h3 class="text-sm font-medium">Role(s)</h3>
-					<div class="border border-muted-foreground bg-muted">
-						{#if userRoles.state === 'pending'}
-							<p class="p-xs text-sm">{userRoles.message}</p>
-						{:else if userRoles.state === 'success'}
-							{#each currentRoles as role}
-								<div
-									class="flex w-full items-center justify-start rounded-none border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
-								>
-									<p class="w-full py-xs">
-										{roles.find((_role) => _role.id === role.roleId)?.name}
-									</p>
+					<div class="flex flex-col gap-y-xxs">
+						<h3 class="text-sm font-medium">Role(s)</h3>
+						<div class="border border-muted-foreground bg-muted">
+							{#if userRoles.state === 'pending'}
+								<p class="p-xs text-sm">{userRoles.message}</p>
+							{:else if userRoles.state === 'success'}
+								{#each currentRoles as role}
+									<div
+										class="flex w-full items-center justify-start rounded-none border-b border-b-muted-foreground px-sm text-sm text-secondary-foreground"
+									>
+										<p class="w-full py-xs">
+											{roles.find((_role) => _role.id === role.roleId)?.name}
+										</p>
+										<Button
+											onclick={() => {
+												errorText = '';
+												saved = false;
+												currentRoles = currentRoles.filter((_role) => _role.roleId !== role.roleId);
+											}}
+											class="text-red-400"
+											size="icon"
+											variant="ghost"><TrashIcon /></Button
+										>
+									</div>
+								{/each}
+								<!-- {#if userRoles.data.length === 0}
+							<p class="p-xs text-sm">No Roles.</p>
+						{/if} -->
+								<div class="flex">
+									<SelectButton
+										name="role"
+										class="w-full"
+										bind:value={selectedRoleId!}
+										itemsList={possibleRoles}
+										optionName="name"
+										optionValue="id"
+									/>
 									<Button
+										variant="link"
 										onclick={() => {
 											errorText = '';
+											if (!selectedRoleId) return;
+											currentRoles = [
+												...currentRoles,
+												{ id: 0, isActive: true, roleId: selectedRoleId }
+											];
+											selectedRoleId = null;
 											saved = false;
-											currentRoles = currentRoles.filter((_role) => _role.roleId !== role.roleId);
 										}}
-										class="text-red-400"
-										size="icon"
-										variant="ghost"><TrashIcon /></Button
+										class="rounded-none"><PlusIcon />Add</Button
 									>
 								</div>
-							{/each}
-							<!-- {#if userRoles.data.length === 0}
-								<p class="p-xs text-sm">No Roles.</p>
-							{/if} -->
-							<div class="flex">
-								<SelectButton
-									name="role"
-									class="w-full"
-									bind:value={selectedRoleId!}
-									itemsList={possibleRoles}
-									optionName="name"
-									optionValue="id"
-								/>
-								<Button
-									variant="link"
-									onclick={() => {
-										errorText = '';
-										if (!selectedRoleId) return;
-										currentRoles = [
-											...currentRoles,
-											{ id: 0, isActive: true, roleId: selectedRoleId }
-										];
-										selectedRoleId = null;
-										saved = false;
-									}}
-									class="rounded-none"><PlusIcon />Add</Button
+							{:else}
+								<p class="p-xs text-sm">Failed to load facilities.</p>
+							{/if}
+						</div>
+					</div>
+
+					{#if userRoles.state === 'success' && userRoles.data.length !== 0}
+						{#if !delOpen}
+							<Button
+								onclick={() => (delOpen = true)}
+								class="cursor-pointer bg-muted text-red-500"
+								variant="secondary">Delete Member</Button
+							>
+						{:else}
+							<div class="flex flex-col gap-y-xs bg-muted p-xs">
+								<p class="text-sm text-muted-foreground">
+									This action will remove the user from this venue, but will not delete the user.
+									This action cannot be undone.
+								</p>
+								<Button onclick={deleteMember} variant="destructive"
+									>Delete Member {#if isDeleting}
+										<Loader class="animate-spin" />
+									{/if}</Button
 								>
 							</div>
-						{:else}
-							<p class="p-xs text-sm">Failed to load facilities.</p>
 						{/if}
-					</div>
-				</div>
-
-				{#if userRoles.state === 'success' && userRoles.data.length !== 0}
-					{#if !delOpen}
-						<Button
-							onclick={() => (delOpen = true)}
-							class="cursor-pointer bg-muted text-red-500"
-							variant="secondary">Delete Member</Button
-						>
-					{:else}
-						<div class="flex flex-col gap-y-xs bg-muted p-xs">
-							<p class="text-sm text-muted-foreground">
-								This action will remove the user from this venue, but will not delete the user. This
-								action cannot be undone.
-							</p>
-							<Button onclick={deleteMember} variant="destructive"
-								>Delete Member {#if isDeleting}
-									<Loader class="animate-spin" />
-								{/if}</Button
-							>
-						</div>
 					{/if}
-				{/if}
+				</div>
 			{/if}
 		</div>
-		<Sheet.Footer>
+		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
 			<Button
 				class={`${saved ? 'bg-green-700 text-background' : ''}`}
 				onclick={updateRoles}
@@ -279,5 +279,5 @@
 			>
 			<Sheet.Close class={`${buttonVariants({ variant: 'outline' })} flex-1`}>Close</Sheet.Close>
 		</Sheet.Footer>
-	</Sheet.Content>
-</Sheet.Root>
+	</form>
+</SideSheet>

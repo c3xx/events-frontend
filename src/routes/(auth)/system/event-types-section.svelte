@@ -24,6 +24,7 @@
 	import { EVENT_TYPE_COLLABORATION_POLICY, EVENT_TYPE_VENUE_POLICY } from '$lib/types';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Sheet from '$lib/components/ui/sheet';
+	import SideSheet from '$lib/components/app/side-sheet.svelte';
 
 	let eventTypes = $state<LoadedData<(EventType & { selectedChildId: number | null })[]>>({
 		state: 'pending',
@@ -272,104 +273,94 @@
 	{/if}
 </div>
 
-<Sheet.Root bind:open={addEventTypeSheetOpen}>
-	<Sheet.Content class="flex h-screen w-full flex-col sm:min-w-100" side="right">
-		<form onsubmit={handleSubmit} class="flex flex-col">
-			<Sheet.Header class="mb-xs flex flex-col border-b border-muted-foreground">
-				<div class="flex flex-col">
-					<h2 class="text-lg font-bold">Add Event Type</h2>
-					<h3 class="text-sm">
-						Enter the details of the new event type. Click save when you're done.
-					</h3>
-				</div>
-			</Sheet.Header>
-			<div class="grid flex-1 gap-6 px-4">
-				{#if errorText}
-					<p class="text-sm text-red-500">{errorText}</p>
-				{/if}
-				<div class="grid gap-2">
-					<Label for="name" class="text-end">Name</Label>
-					<Input
-						class="primary-input"
-						bind:value={newTypeName}
-						onchange={(e) => (newTypeName = e.currentTarget.value)}
-						name="name"
-					/>
-				</div>
-				<div class="grid gap-2">
-					<Label for="name" class="text-end">Workflow Template</Label>
-					{#if workflows.state === 'pending'}
-						<p>Loading Workflows...</p>
-					{:else if workflows.state === 'success'}
-						<SelectButton
-							name="workflows"
-							class="w-full"
-							itemsList={workflows.data}
-							optionName="name"
-							optionValue="id"
-							bind:value={newTypeWorkflowId}
-						/>
-					{/if}
+<SideSheet
+	title="Add Event Type"
+	description="Enter the details of the new event type. Click save when you're done"
+	{errorText}
+	bind:sheetOpen={addEventTypeSheetOpen}
+>
+	<form onsubmit={handleSubmit} class="flex h-full flex-col gap-y-6">
+		<div class="grid gap-2">
+			<Label for="name" class="text-end">Name</Label>
+			<Input
+				class="primary-input"
+				bind:value={newTypeName}
+				onchange={(e) => (newTypeName = e.currentTarget.value)}
+				name="name"
+			/>
+		</div>
+		<div class="grid gap-2">
+			<Label for="name" class="text-end">Workflow Template</Label>
+			{#if workflows.state === 'pending'}
+				<p>Loading Workflows...</p>
+			{:else if workflows.state === 'success'}
+				<SelectButton
+					name="workflows"
+					class="w-full"
+					itemsList={workflows.data}
+					optionName="name"
+					optionValue="id"
+					bind:value={newTypeWorkflowId}
+				/>
+			{/if}
 
-					{#if selectedWorkflow}
-						<div class="flex flex-col bg-muted p-xxs">
-							<p class="mb-xs text-xs text-muted-foreground">Template Preview</p>
-							{#if selectedWorkflow.steps.length === 0}
-								<p class="italic">No steps found</p>
-							{/if}
-							{#each selectedWorkflow.steps as step, index}
-								<div class="flex flex-col">
-									{#if index !== 0}
-										<div class="flex w-5 justify-center">
-											<div class="h-3 w-px bg-muted-foreground"></div>
-										</div>
-									{/if}
-									<div class="flex h-5 items-center">
-										<div class="flex h-5 w-5 flex-col items-center">
-											<div
-												class={`w-px flex-1 bg-muted-foreground
-											${index === 0 ? 'invisible' : ''}`}
-											></div>
-											<div class="h-3 w-3 rounded-full border border-muted-foreground"></div>
-											<div
-												class={`w-px flex-1 bg-muted-foreground
-											${workflows.state === 'success' && index === workflows.data.find((w) => w.id === newTypeWorkflowId!)!.steps.length - 1 ? 'invisible' : ''}`}
-											></div>
-										</div>
-										<p class="ml-xxs">{step.name}</p>
-									</div>
-								</div>
-							{/each}
-						</div>
+			{#if selectedWorkflow}
+				<div class="flex flex-col bg-muted p-xxs">
+					<p class="mb-xs text-xs text-muted-foreground">Template Preview</p>
+					{#if selectedWorkflow.steps.length === 0}
+						<p class="italic">No steps found</p>
 					{/if}
+					{#each selectedWorkflow.steps as step, index}
+						<div class="flex flex-col">
+							{#if index !== 0}
+								<div class="flex w-5 justify-center">
+									<div class="h-3 w-px bg-muted-foreground"></div>
+								</div>
+							{/if}
+							<div class="flex h-5 items-center">
+								<div class="flex h-5 w-5 flex-col items-center">
+									<div
+										class={`w-px flex-1 bg-muted-foreground
+									${index === 0 ? 'invisible' : ''}`}
+									></div>
+									<div class="h-3 w-3 rounded-full border border-muted-foreground"></div>
+									<div
+										class={`w-px flex-1 bg-muted-foreground
+									${workflows.state === 'success' && index === workflows.data.find((w) => w.id === newTypeWorkflowId!)!.steps.length - 1 ? 'invisible' : ''}`}
+									></div>
+								</div>
+								<p class="ml-xxs">{step.name}</p>
+							</div>
+						</div>
+					{/each}
 				</div>
-				<div class="grid gap-2">
-					<Label for="name" class="text-end">Collaboration Policy</Label>
-					<SelectButton
-						name="collaboration policy"
-						class="w-full"
-						itemsList={[...EVENT_TYPE_COLLABORATION_POLICY]}
-						bind:value={newTypeCollabPolicy}
-					/>
-				</div>
-				<div class="grid gap-2">
-					<Label for="name" class="text-end">Venue Policy</Label>
-					<SelectButton
-						name="venue policy"
-						class="w-full"
-						itemsList={[...EVENT_TYPE_VENUE_POLICY]}
-						bind:value={newTypeVenuePolicy}
-					/>
-				</div>
-			</div>
-			<Sheet.Footer class="sticky bottom-0">
-				<Button disabled={addEventTypeLoading} type="submit"
-					>{#if addEventTypeLoading}
-						<Loader class="animate-spin" />
-					{/if} Save changes</Button
-				>
-				<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
-			</Sheet.Footer>
-		</form>
-	</Sheet.Content>
-</Sheet.Root>
+			{/if}
+		</div>
+		<div class="grid gap-2">
+			<Label for="name" class="text-end">Collaboration Policy</Label>
+			<SelectButton
+				name="collaboration policy"
+				class="w-full"
+				itemsList={[...EVENT_TYPE_COLLABORATION_POLICY]}
+				bind:value={newTypeCollabPolicy}
+			/>
+		</div>
+		<div class="grid gap-2">
+			<Label for="name" class="text-end">Venue Policy</Label>
+			<SelectButton
+				name="venue policy"
+				class="w-full"
+				itemsList={[...EVENT_TYPE_VENUE_POLICY]}
+				bind:value={newTypeVenuePolicy}
+			/>
+		</div>
+		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
+			<Button disabled={addEventTypeLoading} type="submit"
+				>{#if addEventTypeLoading}
+					<Loader class="animate-spin" />
+				{/if} Save changes</Button
+			>
+			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
+		</Sheet.Footer>
+	</form>
+</SideSheet>

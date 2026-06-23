@@ -432,11 +432,11 @@ export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_
 export type WorkflowTargetGroupApprovalCriteriaType =
 	(typeof WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA)[number];
 
-export type VenueFacilities = {
+export type VenueFacility = {
 	id: number;
 	facilityId: number;
 	facilityName: string;
-}[];
+};
 
 export type VenueMember = { id: number };
 

@@ -94,7 +94,13 @@ export async function setVenueFacilities(id: number, facilityIds: number[]) {
 		.put(`venues/${id}/facilities`, {
 			json: { facilityId: facilityIds }
 		})
-		.json<ApiResponse<any>>();
+		.json<
+			ApiResponse<
+				{
+					facilityId: number;
+				}[]
+			>
+		>();
 	if (res.success) {
 		return res.data;
 	} else {

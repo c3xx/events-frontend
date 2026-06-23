@@ -7,7 +7,6 @@
 	import AddVenue from './add-venue.svelte';
 	import VenueFacilitiesSheet from './venue-facilities-sheet.svelte';
 	import { goto } from '$app/navigation';
-	import { venueFacilitiesState } from '$lib/global/venueFacilities.svelte';
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
 
@@ -17,6 +16,8 @@
 	});
 
 	let addVenueSheetOpen = $state(false);
+	let facilitiesSheetOpen = $state(false);
+	let activeVenueId: null | number = $state(null);
 
 	async function refreshVenues() {
 		try {
@@ -69,8 +70,8 @@
 			id: 2,
 			name: 'Manage Facilities',
 			onclick: (venue) => {
-				venueFacilitiesState.selectedVenue = venue;
-				venueFacilitiesState.sheetOpen = true;
+				activeVenueId = venue.id;
+				facilitiesSheetOpen = true;
 			}
 		}
 	];
@@ -102,5 +103,11 @@
 	</div>
 </div>
 
-<AddVenue bind:open={addVenueSheetOpen} />
-<VenueFacilitiesSheet />
+{#if venues.state === 'success'}
+	<AddVenue bind:open={addVenueSheetOpen} />
+	<VenueFacilitiesSheet
+		activeVenueId={activeVenueId!}
+		activeVenueName={venues.data.find((v) => v.id === activeVenueId)?.name!}
+		bind:sheetOpen={facilitiesSheetOpen}
+	/>
+{/if}
