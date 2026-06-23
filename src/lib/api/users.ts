@@ -20,7 +20,7 @@ export async function loadMatchResults(query: string) {
 	}
 }
 
-export async function createUser(name: string, email: string, status: string) {
+export async function createUser(name: string, email: string) {
 	if (!name || !email) {
 		throw new Error('Name and Email are required fields');
 	}
@@ -29,8 +29,7 @@ export async function createUser(name: string, email: string, status: string) {
 		.post('users', {
 			json: {
 				fullName: name,
-				email,
-				password: email.split('@')[0] ?? '123456'
+				email
 			}
 		})
 		.json<ApiResponse<User>>();
