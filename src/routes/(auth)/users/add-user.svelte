@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createUser } from '$lib/api/users';
-	import SelectButton from '$lib/components/app/select-button.svelte';
 	import Button, { buttonVariants } from '$lib/components/ui/button/button.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -10,15 +9,6 @@
 
 	let errorText = $state('');
 
-	const status = [
-		{ value: 'Active', label: 'Active' },
-		{ value: 'Inactive', label: 'Inactive' }
-	];
-	let statusValue = $state(status[0]?.label ?? 'Active');
-	const statusTriggerContent = $derived(
-		status.find((s) => s.value === statusValue)?.label ?? 'Active'
-	);
-
 	async function handleSubmit(e: SubmitEvent) {
 		try {
 			errorText = '';
@@ -27,9 +17,8 @@
 
 			const name = formData.get('name') as string;
 			const email = formData.get('email') as string;
-			const status = formData.get('status') as string;
 
-			if (await createUser(name, email, status)) {
+			if (await createUser(name, email)) {
 				console.log('User Added');
 				open = false;
 			}
@@ -60,17 +49,6 @@
 					<div class="grid gap-3">
 						<Label for="email" class="text-end">Email</Label>
 						<Input class="primary-input" name="email" />
-					</div>
-					<div class="grid gap-3">
-						<Label for="status" class="text-end">Status</Label>
-						<SelectButton
-							name={'status'}
-							label={'Status'}
-							bind:value={statusValue}
-							trigContent={statusTriggerContent}
-							items={status}
-							size="full"
-						/>
 					</div>
 				</div>
 			</div>
