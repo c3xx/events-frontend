@@ -1,8 +1,9 @@
 import { goto } from '$app/navigation';
 import { page } from '$app/state';
 import { api } from '$lib/api';
+import { UNPROTECTED_ROUTE_IDS } from '$lib/constants';
 import { authInfo } from '$lib/global/auth.svelte';
-import { ERROR_CODES, type ApiResponse, type AuthUser } from '$lib/types';
+import { ERROR_CODES, type ApiResponse, type AuthUser, type PasswordTokenType } from '$lib/types';
 
 export async function authUser() {
 	const accessToken = localStorage.getItem('accessToken');
@@ -10,7 +11,7 @@ export async function authUser() {
 		// there is no access token. that means, nothing to authenticate with.
 
 		// todo: change all these "/login" references to cover all possible such routes
-		if (page.route.id === '/login') {
+		if (UNPROTECTED_ROUTE_IDS.includes(page.route.id)) {
 			// if we are in the login page, we ignore the cookie (if any), and we just stay there.
 			return;
 		} else {
@@ -21,7 +22,7 @@ export async function authUser() {
 		}
 	} else {
 		// we have an access token:
-		if (page.route.id === '/login') {
+		if (page.route.id === '/(unauth)/login') {
 			// we are in the login page,
 			// then we should try to go to the home page. if still unauthenticated,
 			// we will be taken back to the login page again, after clearing the localstorage.
@@ -86,5 +87,60 @@ export async function authMe() {
 			return;
 			// 	}
 		}
+	}
+}
+
+export async function requestPasswordToken(email: string, type: PasswordTokenType) {
+	const res = await api
+		.post('auth/request-password-token', {
+			json: {
+				email: email,
+				type: type
+			}
+		})
+		.json<ApiResponse<true>>();
+
+	if (res.success) {
+		return true;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function validatePasswordToken(token: string) {
+	const res = await api
+		.post('auth/validate-password-token', {
+			json: {
+				token: token
+			}
+		})
+		.json<
+			ApiResponse<{
+				type: PasswordTokenType;
+				expiresAt: string;
+			}>
+		>();
+
+	if (res.success) {
+		return res.data;
+	} else {
+		throw new Error(res.message);
+	}
+}
+
+export async function resetPassword(token: string, password: string) {
+	const res = await api
+		.post('auth/reset-password', {
+			json: {
+				token: token,
+				password: password
+			}
+		})
+		.json<ApiResponse<true>>();
+
+	if (res.success) {
+		return true;
+	} else {
+		throw new Error(res.message);
 	}
 }
