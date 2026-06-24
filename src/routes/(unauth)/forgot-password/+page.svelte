@@ -70,7 +70,7 @@
 				Verifying & sending...
 			{:else}
 				<Mail />
-				Send me the setup link
+				Send me reset link
 			{/if}
 		</Button>
 	</form>
