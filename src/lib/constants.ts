@@ -1,7 +1,28 @@
+import type { page } from '$app/state';
 import type { Event, PermissionCode, WorkflowInstance } from './types';
 
-export const UNPROTECTED_API_ROUTES = ['/auth/login', '/auth/refresh', '/auth/logout'];
-export const UNPROTECTED_ROUTES = ['/login', '/'];
+export const UNPROTECTED_API_ROUTES = [
+	'/auth/login',
+	'/auth/refresh',
+	'/auth/logout',
+	'/auth/request-password-token',
+	'/auth/validate-token',
+	'/auth/reset-password'
+];
+export const UNPROTECTED_ROUTES = [
+	'/login',
+	'/',
+	'/forgot-password',
+	'/new-password',
+	'/set-password'
+];
+export const UNPROTECTED_ROUTE_IDS: (typeof page.route.id)[] = [
+	'/(unauth)/login',
+	'/(unauth)',
+	'/(unauth)/forgot-password',
+	'/(unauth)/new-password',
+	'/(unauth)/set-password'
+];
 
 export const ROUTE_PERMISSIONS: Record<string, PermissionCode[]> = {
 	'/users': ['user:create'],

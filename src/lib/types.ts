@@ -492,3 +492,5 @@ export type EventAssignment = {
 		name: string;
 	};
 };
+
+export type PasswordTokenType = 'set_password' | 'reset_password';
