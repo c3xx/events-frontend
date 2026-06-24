@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
-	import { formatDate } from '$lib/helpers';
+	import AvatarCircle from '$lib/components/app/avatar-circle.svelte';
+	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
+	import { Calendar } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
@@ -41,9 +43,39 @@
 				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
-						<div class="flex min-w-56 flex-col border border-neutral-400 bg-background p-xs">
-							<p>{event.title}</p>
-							<p class="text-xs text-muted-foreground">{formatDate(event.startsAt)}</p>
+						<div
+							class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-background bg-muted p-xs"
+						>
+							<div class="flex items-start justify-between gap-x-0.5">
+								<p class="font-bold">
+									{event.title}
+									{#if event.parentEvent}
+										<span class="italic">({event.parentEvent.title})</span>
+									{/if}
+								</p>
+								<p class="text-xs text-muted-foreground">{formatDateDayAndMonth(event.startsAt)}</p>
+								<!-- change this to createdAt -->
+							</div>
+							<div class="flex items-center gap-x-xxs text-xs text-muted-foreground">
+								<p>
+									{formatDateDayAndMonth(event.startsAt)}
+								</p>
+								{#if formatDateDayAndMonth(event.startsAt) === formatDateDayAndMonth(event.endsAt)}
+									<p>-</p>
+									<p>
+										{formatDateDayAndMonth(event.endsAt)}
+									</p>
+								{/if}
+							</div>
+							<div class="mt-xxs flex items-center gap-x-xxs">
+								<AvatarCircle
+									size={20}
+									text={event.organizers.find((o) => o.role === 'host')?.organization.name!}
+								/>
+								<p class={`text-xs`}>
+									{event.organizers.find((o) => o.role === 'host')?.organization.name!}
+								</p>
+							</div>
 						</div>
 					</a>
 				{/each}

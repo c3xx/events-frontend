@@ -5,6 +5,7 @@
 		CircleCheck,
 		CirclePileIcon,
 		Home,
+		Link,
 		LogOut,
 		MonitorCogIcon,
 		NetworkIcon,
@@ -59,6 +60,11 @@
 						title: 'Approvals',
 						url: '/approvals',
 						icon: CircleCheck
+					},
+					{
+						title: 'Invitations',
+						url: '/invitations',
+						icon: Link
 					},
 					...(canAccessRoute('/users')
 						? [

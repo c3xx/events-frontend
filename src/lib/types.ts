@@ -425,7 +425,7 @@ export type EventCategory = {
 export const EVENT_TYPE_VENUE_POLICY = ['required', 'optional', 'forbidden'] as const;
 export const EVENT_TYPE_COLLABORATION_POLICY = ['required', 'optional', 'forbidden'] as const;
 export const WORKFLOW_TARGET_GROUP_APPROVAL_CRITERIA = ['all', 'any'] as const;
-export const EVENT_ORGANIZER_ROLE = ['host', 'co_host', 'resource_provider '] as const;
+export const EVENT_ORGANIZER_ROLE = ['host', 'co_host', 'resource_provider'] as const;
 
 export type EventTypeVenuePolicyType = (typeof EVENT_TYPE_VENUE_POLICY)[number];
 export type EventTypeCollaborationPolicyType = (typeof EVENT_TYPE_COLLABORATION_POLICY)[number];
@@ -458,9 +458,128 @@ export type ParentableEvent = {
 export type PendingApprovalEvent = {
 	id: number;
 	title: string;
-	status: EventStatus;
 	startsAt: string;
 	endsAt: string;
+	type: {
+		id: number;
+		name: string;
+	};
+	category: {
+		id: number;
+		name: string;
+	};
+	parentEvent: {
+		id: number;
+		title: string;
+	} | null;
+	organizers: {
+		id: number;
+		role: 'host' | 'co_host' | 'resource_provider';
+		organization: {
+			id: number;
+			name: string;
+		};
+	}[];
+};
+
+export type PendingInvitation = {
+	id: number;
+	intendedRole: 'co_host';
+	invitedAt: string;
+	event: {
+		id: number;
+		title: string;
+		type: {
+			id: number;
+			name: string;
+		};
+		category: {
+			id: number;
+			name: string;
+		};
+	};
+	sender: {
+		id: number;
+		fullName: string;
+		role: {
+			id: number;
+			name: string;
+		};
+		organization: {
+			id: number;
+			name: string;
+			type: {
+				id: number;
+				name: string;
+			};
+		};
+	};
+	recipientOrganization: {
+		id: number;
+		name: string;
+		type: {
+			id: number;
+			name: string;
+		};
+	};
+};
+
+export type PendingInvitationDetailed = {
+	id: number;
+	intendedRole: 'co_host';
+	invitedAt: string;
+	event: {
+		id: number;
+		title: string;
+		requestDetails: string;
+		expectedParticipants: number;
+		startsAt: string;
+		endsAt: string;
+		parentEvent: {
+			id: number;
+			title: string;
+		} | null;
+		type: {
+			id: number;
+			name: string;
+		};
+		category: {
+			id: number;
+			name: string;
+		};
+		organizers: {
+			id: number;
+			role: EventOrganizerRole;
+			organization: {
+				id: number;
+				name: string;
+			};
+		}[];
+	};
+	sender: {
+		id: number;
+		fullName: string;
+		role: {
+			id: number;
+			name: string;
+		};
+		organization: {
+			id: number;
+			name: string;
+			type: {
+				id: number;
+				name: string;
+			};
+		};
+	};
+	recipientOrganization: {
+		id: number;
+		name: string;
+		type: {
+			id: number;
+			name: string;
+		};
+	};
 };
 
 export type EventAssignmentsAndDetails = EventDetail & { assignments: EventAssignment[] };
