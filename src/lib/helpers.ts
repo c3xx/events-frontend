@@ -10,6 +10,13 @@ export function formatDate(dateStr: string) {
 	});
 }
 
+export function formatDateDayAndMonth(dateStr: string) {
+	return new Date(dateStr).toLocaleString('en-IN', {
+		day: '2-digit',
+		month: 'short'
+	});
+}
+
 export function canAccessRoute(route: string): boolean {
 	if (UNPROTECTED_ROUTES.includes(route)) return true;
 	const user = authInfo.get();
@@ -46,4 +53,16 @@ export function permissionGrantedUnderEntity(
 	const memberShips = user.memberships.find((m) => m.id === entityId);
 	if (!memberShips) return false;
 	return memberShips.roles.some((r) => r.permissions.some((p) => p === permission));
+}
+
+export function stringToColor(str: string) {
+	let hash = 0;
+	for (const c of str) {
+		hash = c.charCodeAt(0) + ((hash << 5) - hash);
+	}
+	const hue = Math.abs(hash) % 360;
+	return {
+		bg: `hsl(${hue}, 65%, 55%)`,
+		fg: `hsl(${hue}, 20%, 95%)`
+	};
 }

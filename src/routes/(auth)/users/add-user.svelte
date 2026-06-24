@@ -5,26 +5,51 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
+	import type { LoadedData, User } from '$lib/types';
+	import { Loader } from '@lucide/svelte';
 
-	let { open = $bindable(false) }: { open: boolean } = $props();
+	let form: HTMLFormElement;
+	let {
+		open = $bindable(false),
+		users = $bindable()
+	}: { open: boolean; users: LoadedData<User[]> } = $props();
 
 	let errorText = $state('');
+	let addLoading = $state(false);
 
 	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		if (users.state !== 'success') return;
 		try {
-			errorText = '';
-			e.preventDefault();
+			addLoading = true;
 			const formData = new FormData(e.currentTarget as HTMLFormElement);
 
-			const name = formData.get('name') as string;
+			const name = formData.get('name')?.toString().trim();
 			const email = formData.get('email') as string;
 
-			if (await createUser(name, email)) {
-				console.log('User Added');
-				open = false;
+			if (!name || name.length === 0) {
+				errorText = 'Enter a valid name';
+				return;
 			}
+			if (!email || email.length === 0) {
+				errorText = 'Enter a valid name';
+				return;
+			}
+			errorText = '';
+			const { id } = await createUser(name, email);
+			users = {
+				state: 'success',
+				data: [
+					...users.data,
+					{ id: id, email: email, fullName: name, isActive: false, roles: [], type: 'end_user' }
+				]
+			};
+			form.reset();
+			open = false;
 		} catch (err: any) {
 			errorText = err.message;
+		} finally {
+			addLoading = false;
 		}
 	}
 </script>
@@ -35,7 +60,7 @@
 	{errorText}
 	bind:sheetOpen={open}
 >
-	<form class="flex h-full flex-col gap-y-6" onsubmit={handleSubmit}>
+	<form bind:this={form} class="flex h-full flex-col gap-y-6" onsubmit={handleSubmit}>
 		<div class="grid gap-3">
 			<Label for="name" class="text-end">Name</Label>
 			<Input class="primary-input" name="name" />
@@ -45,7 +70,11 @@
 			<Input class="primary-input" name="email" />
 		</div>
 		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
-			<Button type="submit">Save changes</Button>
+			<Button disabled={addLoading} type="submit"
+				>{#if addLoading}
+					<Loader size="15" class="animate-spin" />
+				{/if} Save changes</Button
+			>
 			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
 		</Sheet.Footer>
 	</form>

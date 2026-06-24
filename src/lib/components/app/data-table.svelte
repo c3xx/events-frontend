@@ -3,6 +3,7 @@
 	import { ChevronDown, ChevronUp } from '@lucide/svelte';
 	import Button from '../ui/button/button.svelte';
 	import DataTableActions from './data-table-actions.svelte';
+	import { slide } from 'svelte/transition';
 
 	let {
 		columns,
@@ -16,9 +17,16 @@
 
 	type RowWithSelection<T> = T & { rowSelected: boolean; isExpanded: boolean };
 
-	let internalData = $state<RowWithSelection<T>[]>(
-		data.map((row) => ({ ...row, rowSelected: false, isExpanded: false }))
-	);
+	let internalData = $state<RowWithSelection<T>[]>([]);
+
+	$effect(() => {
+		if (!data) return;
+		internalData = data.map((row) => ({
+			...row,
+			rowSelected: false,
+			isExpanded: false
+		}));
+	});
 
 	function toggleAll(checked: boolean) {
 		internalData = internalData.map((row) => ({ ...row, rowSelected: checked }));

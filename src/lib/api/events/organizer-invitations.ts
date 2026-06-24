@@ -15,15 +15,24 @@ export async function loadOrganizerInvitations(eventId: number) {
 	}
 }
 
-export async function removeOrganizerInvitation(eventId: number, invitationId: number) {
+export async function removeOrganizerInvitation(
+	eventId: number,
+	invitationId: number,
+	roleId: number
+) {
 	if (!eventId) {
 		throw new Error('Event ID is required');
 	}
 	if (!invitationId) {
 		throw new Error('Invitation ID is required');
 	}
+	if (!roleId) {
+		throw new Error('Role ID required');
+	}
 	const res = await api
-		.delete(`events/${eventId}/organizer-invitations/${invitationId}`, { json: { userRoleId: 3 } })
+		.delete(`events/${eventId}/organizer-invitations/${invitationId}`, {
+			json: { roleId: roleId }
+		})
 		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
 		return res.data;

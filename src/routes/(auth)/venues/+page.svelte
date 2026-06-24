@@ -104,7 +104,7 @@
 </div>
 
 {#if venues.state === 'success'}
-	<AddVenue bind:open={addVenueSheetOpen} />
+	<AddVenue bind:venues bind:open={addVenueSheetOpen} />
 	<VenueFacilitiesSheet
 		activeVenueId={activeVenueId!}
 		activeVenueName={venues.data.find((v) => v.id === activeVenueId)?.name!}

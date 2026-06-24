@@ -6,29 +6,57 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index';
+	import type { LoadedData, Organization } from '$lib/types';
+	import { Loader } from '@lucide/svelte';
 
 	let errorText = $state('');
 
-	let orgValue = $state('');
-	let typeValue = $state('');
+	let form: HTMLFormElement;
+	let name = $state('');
+	let orgValue: null | number = $state(null);
+	let typeValue: null | number = $state(null);
+	let addLoading = $state(false);
 
-	let { addSheetOpen = $bindable(false) }: { addSheetOpen: boolean } = $props();
+	let {
+		addSheetOpen = $bindable(false),
+		organizations = $bindable()
+	}: { addSheetOpen: boolean; organizations: LoadedData<Organization[]> } = $props();
+
 	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
 		try {
-			errorText = '';
-			e.preventDefault();
+			if (organizations.state !== 'success') return;
+			addLoading = true;
 			const formData = new FormData(e.currentTarget as HTMLFormElement);
 
-			const name = formData.get('name') as string;
-			const organizationTypeId = Number(formData.get('type')) as number;
-			const parentOrganizationId = Number(formData.get('org')) as number;
-
-			if (await createOrg(name, organizationTypeId, parentOrganizationId)) {
-				addSheetOpen = false;
-				console.log('Organization Created');
+			const name = formData.get('name')?.toString().trim();
+			if (!name || orgValue === null || typeValue === null) {
+				errorText = 'All are required fields.';
+				return;
 			}
+			errorText = '';
+			const { id } = await createOrg(name, typeValue, orgValue);
+			organizations = {
+				state: 'success',
+				data: [
+					...organizations.data,
+					{
+						id: id,
+						name: name,
+						isActive: false,
+						organizationTypeId: typeValue,
+						parentOrganizationId: orgValue
+					}
+				]
+			};
+			form.reset();
+			typeValue = null;
+			orgValue = null;
+			addSheetOpen = false;
 		} catch (err: any) {
 			errorText = err.message;
+		} finally {
+			addLoading = false;
 		}
 	}
 </script>
@@ -39,10 +67,10 @@
 	description="Enter the details of the new organization. Click save when you're done"
 	bind:sheetOpen={addSheetOpen}
 >
-	<form class="flex h-full flex-col gap-y-sm">
+	<form bind:this={form} onsubmit={handleSubmit} class="flex h-full flex-col gap-y-sm">
 		<div class="grid gap-3">
 			<Label for="name" class="text-end">Name</Label>
-			<Input class="primary-input" name="name" />
+			<Input class="primary-input" bind:value={name} name="name" />
 		</div>
 		<div class="grid gap-3">
 			<Label for="email" class="text-end">Type</Label>
@@ -53,7 +81,11 @@
 			<DynamicSelectButton name="parent organization" bind:value={orgValue} loadFn={loadOrgs} />
 		</div>
 		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
-			<Button type="submit">Save changes</Button>
+			<Button disabled={addLoading} type="submit"
+				>{#if addLoading}
+					<Loader size="15" class="animate-spin" />
+				{/if} Save changes</Button
+			>
 			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
 		</Sheet.Footer>
 	</form>

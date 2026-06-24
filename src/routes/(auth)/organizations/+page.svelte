@@ -120,4 +120,4 @@
 	</div>
 </div>
 
-<AddOrganization bind:addSheetOpen />
+<AddOrganization bind:organizations={fetchedOrgs} bind:addSheetOpen />
