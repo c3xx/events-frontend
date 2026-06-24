@@ -115,4 +115,4 @@
 	</div>
 </div>
 
-<AddUser bind:open={sheetOpen} />
+<AddUser bind:open={sheetOpen} bind:users />

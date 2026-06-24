@@ -47,7 +47,7 @@ export async function createVenue(data: CreateVenueData) {
 		.post('venues', {
 			json: data
 		})
-		.json<ApiResponse<Venue>>();
+		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
 		return res.data;
 	} else {

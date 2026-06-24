@@ -1,5 +1,5 @@
 import type { page } from '$app/state';
-import type { Event, PermissionCode, WorkflowInstance } from './types';
+import type { Event, EventOrganizerInvitation, PermissionCode, WorkflowInstance } from './types';
 
 export const UNPROTECTED_API_ROUTES = [
 	'/auth/login',
@@ -52,6 +52,28 @@ export const eventStatusTextColors: Record<Event['status'], string> = {
 	approved: 'text-green-700',
 	cancelled: 'text-red-700',
 	overridden: 'text-purple-700'
+};
+
+export const eventOrganizerInvitationStatusColors: Record<
+	EventOrganizerInvitation['status'],
+	string
+> = {
+	expired: 'bg-yellow-400/50',
+	revoked: 'bg-neutral-400/50',
+	accepted: 'bg-green-400/50',
+	rejected: 'bg-red-400/50',
+	pending: 'bg-blue-400/50'
+};
+
+export const eventOrganizerInvitationStatusTextColors: Record<
+	EventOrganizerInvitation['status'],
+	string
+> = {
+	expired: 'text-yellow-700',
+	revoked: 'text-neutral-700',
+	accepted: 'text-green-700',
+	rejected: 'text-red-700',
+	pending: 'text-blue-700'
 };
 
 export const workflowStatusColors: Record<WorkflowInstance['status'], string> = {

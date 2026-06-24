@@ -32,7 +32,7 @@ export async function createUser(name: string, email: string) {
 				email
 			}
 		})
-		.json<ApiResponse<User>>();
+		.json<ApiResponse<{ id: number }>>();
 	if (res.success) {
 		return res.data;
 	} else {

@@ -1,10 +1,8 @@
 <script lang="ts">
-	import { addOrganizer } from '$lib/api/events/organizers';
-	import { respondEventAssignments } from '$lib/api/me/approval-assignments';
+	import { removeOrganizerInvitation } from '$lib/api/events/organizer-invitations';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { authInfo } from '$lib/global/auth.svelte';
 	import {
-		EVENT_ORGANIZER_ROLE,
 		type AuthUser,
 		type EventOrganizer,
 		type EventOrganizerInvitation,
@@ -17,29 +15,29 @@
 	let {
 		isOpen = $bindable(false),
 		eventId,
+		invitationId,
 		eventName,
 		organizations,
 		organizers = $bindable(),
 		organizerInvitations = $bindable(),
 		organizationId,
-		organizationName,
-		role
+		organizationName
 	}: {
 		isOpen: boolean;
 		eventId: number;
+		invitationId: number;
 		eventName: string;
 		organizations: LoadedData<Organization[]>;
 		organizers: EventOrganizer[];
 		organizerInvitations: LoadedData<EventOrganizerInvitation[]>;
 		organizationId: number;
 		organizationName: string;
-		role: EventOrganizerRole;
 	} = $props();
 
 	let errorText = $state('');
 	let loading = $state(false);
 
-	async function sendInvitation() {
+	async function deleteInvitation() {
 		if (organizations.state !== 'success') return;
 		if (organizerInvitations.state !== 'success') return;
 		if (selectedUserRoleId === null) {
@@ -49,31 +47,10 @@
 		errorText = '';
 		try {
 			loading = true;
-			const { id } = await addOrganizer(eventId, selectedUserRoleId, organizationId, role);
-			if (role === 'resource_provider') {
-				organizers.push({
-					id: id,
-					organization: organizations.data.find((o) => o.id === organizationId)!,
-					role: role
-				});
-				organizers = { ...organizers };
-			} else if (role === 'co_host') {
-				organizerInvitations.data = [
-					{
-						id: id,
-						closedAt: null,
-						invitedAt: '',
-						invitedByUser: { id: 0, user: { id: 0, fullName: '' } },
-						recipientOrganization: {
-							id: 0,
-							name: organizations.data.find((o) => o.id === organizationId)?.name!
-						},
-						senderOrganization: { id: 0, name: '' },
-						status: 'pending'
-					},
-					...organizerInvitations.data
-				];
-			}
+			const { id } = await removeOrganizerInvitation(eventId, invitationId, selectedUserRoleId);
+			organizerInvitations.data = [
+				...organizerInvitations.data.filter((o) => o.id !== invitationId)
+			];
 			isOpen = false;
 		} catch (err: any) {
 			errorText = err.message;
@@ -103,7 +80,7 @@
 <Dialog.Root bind:open={isOpen}>
 	<form>
 		<Dialog.Content class="flex flex-col overflow-hidden sm:max-w-xl">
-			<p class="border-b bg-muted p-3 italic">Confirm Invite</p>
+			<p class="border-b bg-muted p-3 italic">Delete Invite</p>
 			<div class="min-w-60 p-3">
 				<p class="leading-7">
 					I <span
@@ -122,14 +99,10 @@
 							</select>
 						{/if}</span
 					>
-					of {userOrgName},invite <span class="font-bold">{organizationName}</span> for the role
-					<span class="font-bold"
-						>{role === 'co_host'
-							? 'Co-Host'
-							: role === 'resource_provider'
-								? 'Resource Provider'
-								: 'Host'}</span
-					>
+					of {userOrgName},delete the invitation sent to
+					<span class="font-bold">{organizationName}</span>
+					for the role
+					<span class="font-bold">Co-Host</span>
 					for the event
 					<span class="italic">{eventName}</span>
 				</p>
@@ -147,7 +120,7 @@
 				>
 				<button
 					type="button"
-					onclick={sendInvitation}
+					onclick={deleteInvitation}
 					disabled={loading}
 					class="flex items-center bg-muted px-2 py-2 font-bold text-foreground"
 					>{#if loading}<Loader size="15" class="animate-spin" />

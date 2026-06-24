@@ -14,6 +14,11 @@
 	import { Loader, Redo, X } from '@lucide/svelte';
 	import OrganizerInvitePopup from './organizer-invite-popup.svelte';
 	import SelectButton from '$lib/components/app/select-button.svelte';
+	import OrganizerDeletePopup from './organizer-delete-popup.svelte';
+	import {
+		eventOrganizerInvitationStatusColors,
+		eventOrganizerInvitationStatusTextColors
+	} from '$lib/constants';
 
 	let {
 		organizers = $bindable(),
@@ -43,30 +48,23 @@
 		popupOpen = true;
 	}
 
+	let deletingOrganizerId: null | number = $state(null);
 	async function deleteOrganizer(organizerId: number) {
 		try {
+			deletingOrganizerId = organizerId;
 			await removeOrganizer(eventId, organizerId);
-			organizers = organizers.filter((o) => Number(o.id) !== Number(organizerId));
-			organizers = { ...organizers };
-		} catch (err) {
-			//
-		}
-	}
-
-	async function deleteOrganizerInvitation(invitationId: number) {
-		if (organizerInvitations.state !== 'success') return;
-		try {
-			await removeOrganizerInvitation(eventId, invitationId);
-			organizerInvitations.data = organizerInvitations.data.filter(
-				(o) => Number(o.id) !== Number(invitationId)
-			);
-			organizerInvitations = { ...organizerInvitations };
-		} catch (err) {
-			//
+			organizers = organizers.filter((o) => o.id !== organizerId);
+			organizers = [...organizers];
+		} catch (err: any) {
+			errorText = err.message ?? 'Failed to delete organizer';
+		} finally {
+			deletingOrganizerId = null;
 		}
 	}
 
 	let popupOpen = $state(false);
+	let deletePopupOpen = $state(false);
+	let deleteInvitationId: null | number = $state(null);
 	let popupOrgId: number | null = $state(null);
 	let popupRole: EventOrganizerRole | null = $state(null);
 </script>
@@ -103,10 +101,16 @@
 								{#if o.role !== 'host'}
 									<div class="flex h-full rounded border">
 										<button
+											disabled={deletingOrganizerId === o.id}
 											onclick={() => {
+												deletingOrganizerId = o.id;
 												deleteOrganizer(o.id);
 											}}
-											class="p-xxs"><X size="15" /></button
+											class="p-xxs"
+											>{#if deletingOrganizerId === o.id}
+												<Loader size="15" class="animate-spin" />{:else}
+												<X size="15" />
+											{/if}</button
 										>
 									</div>
 								{/if}
@@ -131,10 +135,16 @@
 					{#if o.role !== 'host'}
 						<div class="flex h-full rounded border">
 							<button
+								disabled={deletingOrganizerId === o.id}
 								onclick={() => {
+									deletingOrganizerId = o.id;
 									deleteOrganizer(o.id);
 								}}
-								class="p-xxs"><X size="15" /></button
+								class="p-xxs"
+								>{#if deletingOrganizerId === o.id}
+									<Loader size="15" class="animate-spin" />{:else}
+									<X size="15" />
+								{/if}</button
 							>
 						</div>
 					{/if}
@@ -209,35 +219,40 @@
 							<tr>
 								<td class="flex items-center gap-x-xxs px-xs py-xxs text-left"
 									>{o.recipientOrganization.name}
-									<div class="w-min bg-muted p-xxs text-xs text-muted-foreground uppercase">
+									<div
+										class={`w-min ${eventOrganizerInvitationStatusColors[o.status]} ${eventOrganizerInvitationStatusTextColors[o.status]} p-xxs text-xs uppercase`}
+									>
 										{o.status}
 									</div></td
 								>
 								<td class="px-xs py-xxs text-left">Co-host</td>
 								<td class="flex items-center justify-start px-xs py-xxs text-left">
-									<div class="flex h-full rounded border">
-										{#if o.status === 'pending'}
-											<button
-												onclick={() => {
-													deleteOrganizerInvitation(o.id);
-												}}
-												title="Revoke Invitation"
-												class="p-xxs"><X size="15" /></button
-											>
-											<div class="my-0 w-[0.5px] bg-border"></div>
-										{/if}
-										{#if o.status !== 'pending'}
-											<button
-												onclick={() => {
-													popupOrgId = o.recipientOrganization.id;
-													popupRole = 'co_host';
-													popupOpen = true;
-												}}
-												title="Resend Invitation"
-												class="p-xxs"><Redo size="15" /></button
-											>
-										{/if}
-									</div>
+									{#if o.status === 'pending' || !organizers.find((org) => org.organization.id === o.recipientOrganization.id)}
+										<div class="flex h-full rounded border">
+											{#if o.status === 'pending'}
+												<button
+													onclick={() => {
+														deleteInvitationId = o.id;
+														deletePopupOpen = true;
+													}}
+													title="Revoke Invitation"
+													class="p-xxs"><X size="15" /></button
+												>
+												<div class="my-0 w-[0.5px] bg-border"></div>
+											{/if}
+											{#if o.status !== 'pending' && !organizers.find((org) => org.organization.id === o.recipientOrganization.id) && !organizerInvitations.data.find((org) => org.recipientOrganization.id === o.recipientOrganization.id && org.status === 'pending')}
+												<button
+													onclick={() => {
+														popupOrgId = o.recipientOrganization.id;
+														popupRole = 'co_host';
+														popupOpen = true;
+													}}
+													title="Resend Invitation"
+													class="p-xxs"><Redo size="15" /></button
+												>
+											{/if}
+										</div>
+									{/if}
 								</td>
 							</tr>
 						{/each}
@@ -259,34 +274,39 @@
 							<p class="text-lg">{o.recipientOrganization.name}</p>
 							<div class="flex items-center gap-x-xxs">
 								<p class="text-muted-foreground capitalize">Co-host</p>
-								<div class="w-min bg-muted p-xxs text-xs text-muted-foreground uppercase">
+								<div
+									class={`w-min ${eventOrganizerInvitationStatusColors[o.status]} ${eventOrganizerInvitationStatusTextColors[o.status]} p-xxs text-xs uppercase`}
+								>
 									{o.status}
 								</div>
 							</div>
 						</div>
-						<div class="flex h-full rounded border">
-							{#if o.status === 'pending'}
-								<button
-									onclick={() => {
-										deleteOrganizerInvitation(o.id);
-									}}
-									title="Revoke Invitation"
-									class="p-xxs"><X size="15" /></button
-								>
-								<div class="my-0 w-[0.5px] bg-border"></div>
-							{/if}
-							{#if o.status !== 'pending'}
-								<button
-									onclick={() => {
-										popupOrgId = o.recipientOrganization.id;
-										popupRole = 'co_host';
-										popupOpen = true;
-									}}
-									title="Resend Invitation"
-									class="p-xxs"><Redo size="15" /></button
-								>
-							{/if}
-						</div>
+						{#if o.status === 'pending' || !organizers.find((org) => org.organization.id === o.recipientOrganization.id)}
+							<div class="flex h-full rounded border">
+								{#if o.status === 'pending'}
+									<button
+										onclick={() => {
+											deleteInvitationId = o.id;
+											deletePopupOpen = true;
+										}}
+										title="Revoke Invitation"
+										class="p-xxs"><X size="15" /></button
+									>
+									<div class="my-0 w-[0.5px] bg-border"></div>
+								{/if}
+								{#if o.status !== 'pending' && !organizers.find((org) => org.organization.id === o.recipientOrganization.id) && !organizerInvitations.data.find((org) => org.recipientOrganization.id === o.recipientOrganization.id && org.status === 'pending')}
+									<button
+										onclick={() => {
+											popupOrgId = o.recipientOrganization.id;
+											popupRole = 'co_host';
+											popupOpen = true;
+										}}
+										title="Resend Invitation"
+										class="p-xxs"><Redo size="15" /></button
+									>
+								{/if}
+							</div>
+						{/if}
 					</div>
 				{/each}
 			</div>
@@ -305,5 +325,19 @@
 		organizationId={popupOrgId!}
 		organizationName={organizations.data.find((o) => o.id === popupOrgId)?.name ?? ''}
 		role={popupRole!}
+	/>
+{/if}
+
+{#if deletePopupOpen && organizations.state === 'success'}
+	<OrganizerDeletePopup
+		bind:isOpen={deletePopupOpen}
+		{eventId}
+		invitationId={deleteInvitationId!}
+		{eventName}
+		{organizations}
+		bind:organizerInvitations
+		bind:organizers
+		organizationId={popupOrgId!}
+		organizationName={organizations.data.find((o) => o.id === popupOrgId)?.name ?? ''}
 	/>
 {/if}
