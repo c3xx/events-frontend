@@ -46,13 +46,12 @@
 				const minutes = Math.floor((distance % (60 * 60)) / 60);
 				const seconds = Math.floor(distance % 60);
 
-				let s = '';
-				if (days > 0) s += `${days} days`;
-				if (hours > 0) s += `${hours} hours`;
-				if (minutes > 0) s += `${minutes} minutes`;
-				if (seconds > 0) s += `${seconds} seconds`;
-				console.log(days, hours, seconds, minutes);
-				timeLeft = s;
+				let s = [];
+				if (days > 0) s.push(`${days} days`);
+				if (hours > 0) s.push(`${hours} hours`);
+				if (minutes > 0) s.push(`${minutes} minutes`);
+				if (seconds > 0) s.push(`${seconds} seconds`);
+				timeLeft = s.join(' ');
 			}, 1000);
 
 			setTimeout(() => {
