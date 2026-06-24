@@ -36,10 +36,12 @@
 	<div class="flex flex-col gap-y-8 p-r-pad">
 		{#if approvalEvents.state === 'pending' || approvalEvents.state === 'failed'}
 			<p>{approvalEvents.message}</p>
-		{:else if approvalEvents.data.length > 0}
+		{:else}
 			<div class="flex flex-col gap-y-xs">
 				{#if approvalEvents.data.length === 0}
-					<p class="flex w-full items-center justify-center border py-6">No pending approvals</p>
+					<div class="flex h-full max-h-100 w-full items-center justify-center border">
+						<p class="">No pending approvals</p>
+					</div>
 				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">

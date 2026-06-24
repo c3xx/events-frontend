@@ -26,26 +26,26 @@
 	});
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
+<div class="flex h-full w-full max-w-200 flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
 			<h1 class="text-2xl leading-none">Invitations</h1>
 		</div>
 	</div>
 
-	<div class="flex flex-col gap-y-8 p-r-pad">
+	<div class="flex h-full flex-col gap-y-8 p-r-pad">
 		{#if pendingInvitations.state === 'pending' || pendingInvitations.state === 'failed'}
 			<p>{pendingInvitations.message}</p>
-		{:else if pendingInvitations.data.length > 0}
-			<div class="flex flex-col gap-y-xs">
+		{:else}
+			<div class="flex h-full flex-col gap-y-xs">
 				{#if pendingInvitations.data.length === 0}
-					<p class="flex w-full items-center justify-center border py-6">No invitations</p>
+					<div class="flex h-full max-h-100 w-full items-center justify-center border">
+						<p class="">No invitations</p>
+					</div>
 				{/if}
 				{#each pendingInvitations.data as invitation}
 					<a href={`/invitations/${invitation.id}`} class="no-underline">
-						<div
-							class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-background bg-muted p-xs"
-						>
+						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
 							<div class="flex items-start justify-between gap-x-0.5">
 								<div class="flex items-center gap-x-1">
 									<p class={`text-xs`}>
