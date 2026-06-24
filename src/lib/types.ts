@@ -105,7 +105,7 @@ export type Venue = {
 	name: string;
 	venueTypeId: number;
 	organizationId: number;
-	maxCapacity: string;
+	maxCapacity: number;
 	accessLevel: string;
 	isAvailable: boolean;
 	unavailabilityReason: string | null;

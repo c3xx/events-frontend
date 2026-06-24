@@ -10,15 +10,20 @@
 	import Checkbox from '$lib/components/ui/checkbox/checkbox.svelte';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import * as Sheet from '$lib/components/ui/sheet/index.js';
-	import type { Organization, VenueType } from '$lib/types';
+	import type { LoadedData, Venue } from '$lib/types';
 	import SideSheet from '$lib/components/app/side-sheet.svelte';
+	import { Loader } from '@lucide/svelte';
 
-	let { open = $bindable(false) }: { open: boolean } = $props();
+	let form: HTMLFormElement;
+	let {
+		open = $bindable(false),
+		venues = $bindable()
+	}: { open: boolean; venues: LoadedData<Venue[]> } = $props();
 
 	let errorText = $state('');
 
-	let venueTypeId = $state('');
-	let organizationId = $state('');
+	let venueTypeId: number | null = $state(null);
+	let organizationId: number | null = $state(null);
 	let accessLevel: 'public' | 'private' = $state('public');
 	let isAvailable = $state(true);
 
@@ -26,40 +31,60 @@
 		{ value: 'public', label: 'Public' },
 		{ value: 'private', label: 'Private' }
 	];
-
-	const accessTriggerContent = $derived(
-		accessLevels.find((a) => a.value === accessLevel)?.label ?? 'Public'
-	);
+	let addLoading = $state(false);
 
 	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		if (venues.state !== 'success') return;
 		try {
-			errorText = '';
-			e.preventDefault();
 			const formData = new FormData(e.currentTarget as HTMLFormElement);
 
-			const name = formData.get('name') as string;
-			const maxCapacity = parseInt(formData.get('maxCapacity') as string);
-			const unavailabilityReason = formData.get('unavailabilityReason') as string;
+			const name = formData.get('name')?.toString().trim();
+			const maxCapacity = Number(formData.get('maxCapacity') as string);
+			const unavailabilityReason = formData.get('unavailabilityReason')?.toString().trim();
 
-			if (!name || !venueTypeId || !maxCapacity) {
-				errorText = 'Name, Venue Type, and Capacity are required.';
+			if (!name || name.length === 0 || !venueTypeId || !maxCapacity || !organizationId) {
+				errorText = 'Name, Venue Type, Capacity and organization are required fields';
 				return;
 			}
-
-			await createVenue({
+			errorText = '';
+			addLoading = true;
+			const { id } = await createVenue({
 				name,
-				venueTypeId: parseInt(venueTypeId),
-				organizationId: organizationId ? parseInt(organizationId) : null,
+				venueTypeId: venueTypeId,
+				organizationId: organizationId,
 				maxCapacity,
 				accessLevel,
 				isAvailable,
 				unavailabilityReason: isAvailable ? undefined : unavailabilityReason
 			});
-
-			console.log('Venue Added');
+			venues = {
+				state: 'success',
+				data: [
+					...venues.data,
+					{
+						id: id,
+						name,
+						accessLevel,
+						isAvailable,
+						isActive: false,
+						maxCapacity,
+						organizationId,
+						unavailabilityReason: unavailabilityReason ? unavailabilityReason : '',
+						venueTypeId
+					}
+				]
+			};
+			form.reset();
+			accessLevel = 'public';
+			isAvailable = true;
+			venueTypeId = null;
+			organizationId = null;
 			open = false;
 		} catch (err: any) {
 			errorText = err.message;
+		} finally {
+			addLoading = false;
 		}
 	}
 </script>
@@ -70,7 +95,7 @@
 	bind:sheetOpen={open}
 	{errorText}
 >
-	<form class="flex h-full flex-col gap-y-6" onsubmit={handleSubmit}>
+	<form bind:this={form} class="flex h-full flex-col gap-y-6" onsubmit={handleSubmit}>
 		<div class="grid gap-y-xxs">
 			<Label for="name">Venue Name</Label>
 			<Input id="name" name="name" class="primary-input" placeholder="e.g. Auditorium" required />
@@ -142,7 +167,11 @@
 			</div>
 		{/if}
 		<Sheet.Footer class="sticky bottom-0 bg-background p-0">
-			<Button type="submit">Save changes</Button>
+			<Button disabled={addLoading} type="submit"
+				>{#if addLoading}
+					<Loader size="15" class="animate-spin" />
+				{/if} Save changes</Button
+			>
 			<Sheet.Close class={buttonVariants({ variant: 'outline' })}>Close</Sheet.Close>
 		</Sheet.Footer>
 	</form>
