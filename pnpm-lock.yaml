@@ -8,12 +8,21 @@ importers:
 
   .:
     dependencies:
+      '@dicebear/core':
+        specifier: ^10.3.0
+        version: 10.3.0
+      '@dicebear/styles':
+        specifier: ^10.2.0
+        version: 10.2.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
       ky:
         specifier: ^1.14.3
         version: 1.14.3
+      svelte-inview:
+        specifier: ^4.0.4
+        version: 4.0.4(svelte@5.53.0)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
@@ -74,6 +83,13 @@ importers:
         version: 7.3.1(jiti@2.6.1)(lightningcss@1.31.1)
 
 packages:
+
+  '@dicebear/core@10.3.0':
+    resolution: {integrity: sha512-HbzHvYY/E0m3B7BfBjs8SO7JyqJnORJgQhM2YM7VoN/EQzrqJ3Z0j4+op+WfEWXWzZj75tQqBU5SZpUssi5m/Q==}
+    engines: {node: '>=22.0.0'}
+
+  '@dicebear/styles@10.2.0':
+    resolution: {integrity: sha512-o4rw0+7Q7sSAyr9YxYrUe3jCxlOAzEcBvbQvl4hQKQ+9WNmBK4p7wGYvsmGeJbxFh8y/Ux6ltrCPyXBIDV6qYA==}
 
   '@esbuild/aix-ppc64@0.27.3':
     resolution: {integrity: sha512-9fJMTNFTWZMh5qwrBItuziu834eOCUcEqymSH7pY+zoMVEZg3gcPuBNxH1EvfVYe9h0x/Ptw8KBzv7qxb7l8dg==}
@@ -872,6 +888,11 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
+  svelte-inview@4.0.4:
+    resolution: {integrity: sha512-PlXNSHHijvQ6MhmSYUj6cMyS+39NttoTffk7W5WYF8T2tsyLgJnKhyuAF+/hSujbY0vpsmqXaMd2nolEKvR8Kw==}
+    peerDependencies:
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^5.0.0-next
+
   svelte-sonner@1.0.7:
     resolution: {integrity: sha512-1EUFYmd7q/xfs2qCHwJzGPh9n5VJ3X6QjBN10fof2vxgy8fYE7kVfZ7uGnd7i6fQaWIr5KvXcwYXE/cmTEjk5A==}
     peerDependencies:
@@ -987,6 +1008,10 @@ packages:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
 snapshots:
+
+  '@dicebear/core@10.3.0': {}
+
+  '@dicebear/styles@10.2.0': {}
 
   '@esbuild/aix-ppc64@0.27.3':
     optional: true
@@ -1582,6 +1607,10 @@ snapshots:
       typescript: 5.9.3
     transitivePeerDependencies:
       - picomatch
+
+  svelte-inview@4.0.4(svelte@5.53.0):
+    dependencies:
+      svelte: 5.53.0
 
   svelte-sonner@1.0.7(svelte@5.53.0):
     dependencies:

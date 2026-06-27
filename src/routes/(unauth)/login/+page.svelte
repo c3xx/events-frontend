@@ -72,12 +72,12 @@
 
 		<a class="text-sm hover:underline" href="/forgot-password">Forgot password?</a>
 
-		<Button disabled={loginLoading} type="submit" class="mt-heavy text-sm">
+		<button disabled={loginLoading} type="submit" class="btn-primary mt-heavy flex">
 			Log In
 			{#if loginLoading}
 				<Loader size="15" class="animate-spin" />
 			{/if}
-		</Button>
+		</button>
 
 		<a class="text-center text-sm hover:underline" href="/set-password">
 			Set up your account password if you are new here <ArrowRight class="inline size-4" />

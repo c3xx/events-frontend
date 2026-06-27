@@ -47,7 +47,7 @@
 						</div>
 					</div>
 					<p
-						class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
+						class={`w-min rounded px-1 py-0.5 text-start text-[10px] font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
 					>
 						{event.status}
 					</p>

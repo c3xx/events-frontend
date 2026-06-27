@@ -11,7 +11,7 @@
 		type LoadedData,
 		type Organization
 	} from '$lib/types';
-	import { Loader, Redo, X } from '@lucide/svelte';
+	import { Blend, History, Link, Loader, Redo, User, X } from '@lucide/svelte';
 	import OrganizerInvitePopup from './organizer-invite-popup.svelte';
 	import SelectButton from '$lib/components/app/select-button.svelte';
 	import OrganizerDeletePopup from './organizer-delete-popup.svelte';
@@ -19,6 +19,10 @@
 		eventOrganizerInvitationStatusColors,
 		eventOrganizerInvitationStatusTextColors
 	} from '$lib/constants';
+	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
+	import * as Popover from '$lib/components/ui/popover/index';
+	import OrganizerSelectionPopup from './organizer-selection-popup.svelte';
+	import OrganizerHistory from './organizer-history.svelte';
 
 	let {
 		organizers = $bindable(),
@@ -34,19 +38,10 @@
 		eventName: string;
 	} = $props();
 
-	let errorText = $state('');
 	let newOrganizerOrganizationId: number | null = $state(null);
 	let newOrganizerRole: EventOrganizerRole = $state('co_host');
 
-	async function onaddOrganizer() {
-		if (newOrganizerOrganizationId == null) {
-			errorText = 'Select a valid organization';
-			return;
-		}
-		popupOrgId = newOrganizerOrganizationId;
-		popupRole = newOrganizerRole;
-		popupOpen = true;
-	}
+	let errorText = $state('');
 
 	let deletingOrganizerId: null | number = $state(null);
 	async function deleteOrganizer(organizerId: number) {
@@ -62,137 +57,102 @@
 		}
 	}
 
-	let popupOpen = $state(false);
+	let orgSelectionPopupOpen = $state(false);
+	let orgInviteConfirmPopupOpen = $state(false);
 	let deletePopupOpen = $state(false);
+	let invitationHistoryPopupOpen = $state(false);
 	let deleteInvitationId: null | number = $state(null);
 	let popupOrgId: number | null = $state(null);
 	let popupRole: EventOrganizerRole | null = $state(null);
 </script>
 
-<div class="flex flex-col gap-y-sm">
-	<div class="mt-sm flex flex-col gap-y-xxs">
-		<div class="flex max-w-200 items-center justify-between">
-			<p>Organizers</p>
-		</div>
-		<div class="hidden sm:block">
-			<table class="w-full max-w-200 border border-muted-foreground text-sm">
-				<thead class="border-b border-muted-foreground text-muted-foreground">
-					<tr class="bg-muted">
-						<th class="p-xs text-left"> Name </th>
-						<th class="p-xs text-left">Role</th>
-						<th class="w-20 p-xs text-left">Actions</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#if organizers.length === 0}
-						<tr
-							><td class="py-6" colspan="3"
-								><p class="w-full text-center text-muted-foreground italic">
-									No organizers found
-								</p></td
-							></tr
-						>
-					{/if}
-					{#each organizers as o}
-						<tr>
-							<td class="px-xs py-xxs text-left">{o.organization.name}</td>
-							<td class="px-xs py-xxs text-left capitalize">{o.role}</td>
-							<td class="flex items-center justify-start px-xs py-xxs text-center">
-								{#if o.role !== 'host'}
-									<div class="flex h-full rounded border">
-										<button
-											disabled={deletingOrganizerId === o.id}
-											onclick={() => {
-												deletingOrganizerId = o.id;
-												deleteOrganizer(o.id);
-											}}
-											class="p-xxs"
-											>{#if deletingOrganizerId === o.id}
-												<Loader size="15" class="animate-spin" />{:else}
-												<X size="15" />
-											{/if}</button
-										>
-									</div>
-								{/if}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-		<div class="block max-w-200 border border-muted-foreground text-sm sm:hidden">
-			{#if organizers.length === 0}
-				<p class="w-full py-6 text-center text-muted-foreground italic">No organizers found</p>
-			{/if}
-			{#each organizers as o}
-				<div
-					class="flex items-center justify-between gap-xxs border-b border-muted-foreground p-xs last:border-b-0"
-				>
-					<div class="flex flex-col gap-px">
-						<p class="text-lg">{o.organization.name}</p>
-						<p class="text-muted-foreground capitalize">{o.role}</p>
-					</div>
-					{#if o.role !== 'host'}
-						<div class="flex h-full rounded border">
-							<button
-								disabled={deletingOrganizerId === o.id}
-								onclick={() => {
-									deletingOrganizerId = o.id;
-									deleteOrganizer(o.id);
-								}}
-								class="p-xxs"
-								>{#if deletingOrganizerId === o.id}
-									<Loader size="15" class="animate-spin" />{:else}
-									<X size="15" />
-								{/if}</button
-							>
+<div class="flex flex-col gap-sm">
+	<div class="flex items-center justify-between">
+		<p class="text-base font-semibold uppercase">Organizers</p>
+	</div>
+	<div class="flex grid-cols-2 flex-col gap-xs text-sm sm:grid sm:gap-sm">
+		{#each organizers as o}
+			<div class="flex items-center gap-xs bg-background sm:border sm:p-xs">
+				<ShapeAvatarSvg size={25} seed={o.organization.name} />
+				<div class="flex w-full items-center gap-x-xxs">
+					<p class="text-lg">{o.organization.name}</p>
+					<p class="text-muted-foreground capitalize">({o.role})</p>
+				</div>
+				{#if o.role !== 'host'}
+					<button
+						disabled={deletingOrganizerId === o.id}
+						onclick={() => {
+							deletingOrganizerId = o.id;
+							deleteOrganizer(o.id);
+						}}
+						class="p-xxs"
+						>{#if deletingOrganizerId === o.id}
+							<Loader size="15" class="animate-spin" />{:else}
+							<X size="15" />
+						{/if}</button
+					>
+				{/if}
+			</div>
+		{/each}
+		{#if organizerInvitations.state === 'success'}
+			{#each organizerInvitations.data.filter((o) => o.status === 'pending') as org}
+				<div class="flex items-center gap-xs bg-background sm:border sm:p-xs">
+					<ShapeAvatarSvg size={25} seed={org.recipientOrganization.name} />
+					<div class="flex w-full flex-col">
+						<div class="flex w-full items-center gap-x-xxs">
+							<p class="text-lg">{org.recipientOrganization.name}</p>
+							<p class="text-muted-foreground capitalize">(Co-Host)</p>
 						</div>
-					{/if}
+						<p class="text-xs text-muted-foreground uppercase">PENDING</p>
+					</div>
+					<button
+						onclick={() => {
+							deleteInvitationId = org.id;
+							deletePopupOpen = true;
+						}}
+						class="p-xxs"><X size="15" /></button
+					>
 				</div>
 			{/each}
-		</div>
-	</div>
-	<div
-		class="flex flex-col gap-y-xxs max-sm:mt-sm sm:border sm:border-muted-foreground sm:bg-muted sm:p-xs"
-	>
-		<p class="font-bold">Add Organizer</p>
-		<p class="text-xs text-muted-foreground">
-			Add an organizer by choosing an organization and assigning an appropriate role. The selected
-			role determines the organizer's access level and responsibilities for managing the event.
-		</p>
-		{#if errorText}
-			<p class="text-sm text-red-500">{errorText}</p>
 		{/if}
-		<div class="flex flex-col gap-y-xxs">
-			<p class="italic">Organization</p>
-			{#if organizations.state === 'pending'}
-				<p class="h-9 w-full border border-muted-foreground px-3 py-1">Loading Organizations...</p>
-			{:else if organizations.state === 'success'}
-				<SelectButton
-					name="organizations"
-					itemsList={organizations.data.filter(
-						(o) => !organizers.map((org) => org.organization.id).includes(o.id)
-					)}
-					class="w-full max-w-80"
-					optionName="name"
-					optionValue="id"
-					bind:value={newOrganizerOrganizationId}
-				/>
-			{/if}
-		</div>
-		<div class="flex flex-col gap-y-xxs">
-			<p class="italic">Role</p>
-			<SelectButton
-				name="organizations"
-				itemsList={[...EVENT_ORGANIZER_ROLE].filter((r) => r !== 'host')}
-				class="w-full max-w-80"
-				bind:value={newOrganizerRole}
-				transformName={(value) => value.split('_').join(' ')}
-			/>
-		</div>
-		<Button onclick={onaddOrganizer} class="mt-sm w-min">Invite/Add</Button>
 	</div>
-	{#if organizerInvitations.state === 'success'}
+	<div class="flex gap-sm">
+		<Popover.Root>
+			<Popover.Trigger class={`${buttonVariants({ variant: 'link' })} has-[>svg]:p-0 sm:w-min`}
+				><Link />Invite</Popover.Trigger
+			>
+			<Popover.Content class="w-min rounded-none p-0">
+				<div class="flex flex-col">
+					<Popover.Close
+						class={`w-full justify-start ${buttonVariants({ variant: 'outline' })}`}
+						onclick={() => {
+							popupRole = 'co_host';
+							orgSelectionPopupOpen = true;
+						}}
+						><User size="15" />
+						<p>Invite Co-Host</p></Popover.Close
+					>
+					<Popover.Close
+						class={`w-full justify-start ${buttonVariants({ variant: 'outline' })}`}
+						onclick={() => {
+							popupRole = 'resource_provider';
+							orgSelectionPopupOpen = true;
+						}}
+						><Blend size="15" />
+						<p>Add Resource Provider</p></Popover.Close
+					>
+				</div>
+			</Popover.Content>
+		</Popover.Root>
+		<Button
+			variant="link"
+			class="has-[>svg]:p-0 sm:w-min"
+			onclick={() => {
+				invitationHistoryPopupOpen = true;
+			}}><History /> View All</Button
+		>
+	</div>
+	<!-- {#if organizerInvitations.state === 'success'}
 		<Separator class="sm:hidden" />
 		<div class="mt-sm flex flex-col gap-y-xxs">
 			<p class="">Invitations</p>
@@ -311,12 +271,12 @@
 				{/each}
 			</div>
 		</div>
-	{/if}
+	{/if} -->
 </div>
 
-{#if popupOpen && organizations.state === 'success'}
+{#if orgInviteConfirmPopupOpen && organizations.state === 'success'}
 	<OrganizerInvitePopup
-		bind:isOpen={popupOpen}
+		bind:isOpen={orgInviteConfirmPopupOpen}
 		{eventId}
 		{eventName}
 		{organizations}
@@ -325,6 +285,19 @@
 		organizationId={popupOrgId!}
 		organizationName={organizations.data.find((o) => o.id === popupOrgId)?.name ?? ''}
 		role={popupRole!}
+	/>
+{/if}
+
+{#if orgSelectionPopupOpen && organizations.state === 'success'}
+	<OrganizerSelectionPopup
+		bind:isOpen={orgSelectionPopupOpen}
+		bind:isConfirmPopupOpen={orgInviteConfirmPopupOpen}
+		{eventId}
+		{eventName}
+		bind:organizerInvitations
+		bind:organizers
+		role={popupRole!}
+		bind:selectedOrgId={popupOrgId}
 	/>
 {/if}
 
@@ -340,4 +313,8 @@
 		organizationId={popupOrgId!}
 		organizationName={organizations.data.find((o) => o.id === popupOrgId)?.name ?? ''}
 	/>
+{/if}
+
+{#if invitationHistoryPopupOpen}
+	<OrganizerHistory bind:isOpen={invitationHistoryPopupOpen} {organizerInvitations} />
 {/if}

@@ -17,6 +17,20 @@ export function formatDateDayAndMonth(dateStr: string) {
 	});
 }
 
+export function formatDateDayAndMonthAndYear(dateStr: string) {
+	return new Date(dateStr).toLocaleString('en-IN', {
+		day: '2-digit',
+		month: 'short',
+		year: 'numeric'
+	});
+}
+
+export function formatDateOnlyTime(dateStr: string) {
+	return new Date(dateStr).toLocaleString('en-IN', {
+		timeStyle: 'short'
+	});
+}
+
 export function canAccessRoute(route: string): boolean {
 	if (UNPROTECTED_ROUTES.includes(route)) return true;
 	const user = authInfo.get();

@@ -35,20 +35,20 @@
 	let { children, title }: { children: Snippet<[]>; title: string } = $props();
 </script>
 
-<div class="relative flex w-full flex-col gap-y-xs sm:bg-muted/50 sm:p-sm">
+<div class="relative flex w-full flex-col gap-y-xs">
 	<h2 class="text-sm font-semibold uppercase">
 		{title}
 	</h2>
 	<div class="relative w-full">
 		<button
 			onclick={scrollLeftFn}
-			class={`${!canScrollLeft ? 'hidden' : ''} absolute left-0 z-10 my-0 h-full border border-muted-foreground bg-white/90 p-1 hover:border hover:bg-muted hover:text-foreground max-sm:hidden`}
+			class={`${!canScrollLeft ? 'hidden' : ''} /max-sm:hidden absolute left-0 z-10 my-0 h-full border border-muted-foreground bg-white/90 p-1 hover:border hover:bg-muted hover:text-foreground`}
 		>
 			<ChevronLeft class="h-5 w-5" />
 		</button>
 		<button
 			onclick={scrollRightFn}
-			class={`${!canScrollRight ? 'hidden' : ''} absolute right-0 z-10 my-0 h-full border border-muted-foreground bg-white/90 p-1 hover:border hover:bg-muted hover:text-foreground max-sm:hidden`}
+			class={`${!canScrollRight ? 'hidden' : ''} /max-sm:hidden absolute right-0 z-10 my-0 h-full border border-muted-foreground bg-white/90 p-1 hover:border hover:bg-muted hover:text-foreground`}
 		>
 			<ChevronRight class="h-5 w-5" />
 		</button>
