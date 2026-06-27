@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { loadApprovalEvents, loadEventAssignments } from '$lib/api/me/approval-assignments';
 	import { loadPendingInvitations } from '$lib/api/me/invitations';
-	import AvatarCircle from '$lib/components/app/avatar-circle.svelte';
+	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent, PendingInvitation } from '$lib/types';
@@ -81,7 +81,9 @@
 										<span class="italic">({event.parentEvent.title})</span>
 									{/if}
 								</p>
-								<p class="text-xs text-muted-foreground">{formatDateDayAndMonth(event.startsAt)}</p>
+								<p class="text-xs text-muted-foreground">
+									{formatDateDayAndMonth(event.createdAt)}
+								</p>
 								<!-- change this to createdAt -->
 							</div>
 							<div class="flex items-center gap-x-xxs text-xs text-muted-foreground">
@@ -96,9 +98,9 @@
 								{/if}
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<AvatarCircle
+								<ShapeAvatarSvg
 									size={20}
-									text={event.organizers.find((o) => o.role === 'host')?.organization.name!}
+									seed={event.organizers.find((o) => o.role === 'host')?.organization.name!}
 								/>
 								<p class={`text-xs`}>
 									{event.organizers.find((o) => o.role === 'host')?.organization.name!}
@@ -130,7 +132,7 @@
 								</p>
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<AvatarCircle size={30} text={invitation.sender.organization.name} />
+								<ShapeAvatarSvg seed={invitation.sender.organization.name} />
 								<div class="flex flex-col">
 									<p class="text-sm font-bold text-foreground">
 										{invitation.event.title}

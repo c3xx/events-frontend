@@ -458,6 +458,7 @@ export type ParentableEvent = {
 export type PendingApprovalEvent = {
 	id: number;
 	title: string;
+	createdAt: string;
 	startsAt: string;
 	endsAt: string;
 	type: {
