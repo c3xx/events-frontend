@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import { loadPendingInvitations } from '$lib/api/me/invitations';
-	import AvatarCircle from '$lib/components/app/avatar-circle.svelte';
+	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingInvitation } from '$lib/types';
 	import { onMount } from 'svelte';
@@ -57,7 +57,7 @@
 								</p>
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<AvatarCircle size={30} text={invitation.sender.organization.name} />
+								<ShapeAvatarSvg size={30} seed={invitation.sender.organization.name} />
 								<div class="flex flex-col">
 									<p class="text-sm font-bold text-foreground">
 										{invitation.event.title}
