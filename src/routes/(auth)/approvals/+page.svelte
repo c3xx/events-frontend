@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
-	import AvatarCircle from '$lib/components/app/avatar-circle.svelte';
+	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
 	import { Calendar } from '@lucide/svelte';
@@ -70,9 +70,9 @@
 								{/if}
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<AvatarCircle
+								<ShapeAvatarSvg
 									size={20}
-									text={event.organizers.find((o) => o.role === 'host')?.organization.name!}
+									seed={event.organizers.find((o) => o.role === 'host')?.organization.name!}
 								/>
 								<p class={`text-xs`}>
 									{event.organizers.find((o) => o.role === 'host')?.organization.name!}
