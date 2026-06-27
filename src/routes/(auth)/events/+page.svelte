@@ -66,7 +66,7 @@
 <div class="flex w-full max-w-200 flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
-			<h1 class="text-2xl leading-none">Events</h1>
+			<h1>Events</h1>
 			<div class="flex items-center gap-x-xxs">
 				<div
 					class="flex h-8 max-w-56 items-center gap-x-xxs border p-xxs text-muted-foreground/50 max-sm:hidden"
@@ -86,12 +86,20 @@
 					{/if}
 				</div>
 				{#if canCreateEvent}
-					<Button
+					<button
 						onclick={async () => {
 							await goto('events/new');
 						}}
-						class="h-8 rounded-none"><span>Create </span><Plus size="15" /></Button
+						class="btn-primary max-sm:invisible">Create<Plus size="15" /></button
 					>
+					<button
+						onclick={async () => {
+							await goto('events/new');
+						}}
+						class="text-primary sm:hidden"
+					>
+						<Plus />
+					</button>
 				{/if}
 			</div>
 		</div>
@@ -134,7 +142,7 @@
 			{/if}
 
 			<div class="flex flex-col gap-y-xs">
-				<h2 class="text-sm font-semibold uppercase">Past Events</h2>
+				<!-- <h2 class="text-sm font-semibold uppercase">Past Events</h2> -->
 				<div class="flex flex-col border border-neutral-400 sm:hidden">
 					{#if groupedEvents.past.length === 0}
 						<p class="w-full py-6 text-center text-muted-foreground italic">No events yet</p>
@@ -144,15 +152,15 @@
 					{/each}
 				</div>
 				<div class="max-sm:hidden">
-					<table class="w-full max-w-200 border border-muted-foreground text-sm">
-						<thead class="border-b border-muted-foreground text-muted-foreground">
+					<table class="/border-muted-foreground w-full max-w-200 border text-sm">
+						<thead class="text-xs text-muted-foreground">
 							<tr class="bg-muted">
-								<th class="p-xs text-left">Event</th>
-								<th class="p-xs text-left whitespace-nowrap">Status</th>
-								<th class="p-xs text-left whitespace-nowrap">Type</th>
-								<th class="p-xs text-left whitespace-nowrap">Host</th>
-								<th class="p-xs text-left whitespace-nowrap">Start Date</th>
-								<th class="p-xs text-left whitespace-nowrap">Parent Event</th>
+								<th class="p-xs text-left font-normal">Event</th>
+								<th class="p-xs text-left font-normal whitespace-nowrap">Status</th>
+								<th class="p-xs text-left font-normal whitespace-nowrap">Type</th>
+								<th class="p-xs text-left font-normal whitespace-nowrap">Host</th>
+								<th class="p-xs text-left font-normal whitespace-nowrap">Start Date</th>
+								<th class="p-xs text-left font-normal whitespace-nowrap">Parent Event</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -166,28 +174,33 @@
 								>
 							{/if}
 							{#each groupedEvents.past as event}
-								<tr class="text-muted-foreground">
-									<td class="px-xs py-xxs text-foreground">
+								<tr
+									onclick={() => {
+										goto(`/events/${event.id}`);
+									}}
+									class="cursor-pointer text-sm text-muted-foreground hover:bg-primary/10"
+								>
+									<td class="px-xs py-sm text-foreground">
 										<div class="max-w-full truncate">
 											{event.title}
 										</div>
 									</td>
-									<td class="px-xs py-xxs text-left whitespace-nowrap"
+									<td class="px-xs py-sm text-left whitespace-nowrap"
 										><p
-											class={`w-min px-2 py-1 text-start text-xs font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
+											class={`w-min rounded px-1 py-0.5 text-start text-[10px] font-semibold uppercase ${eventStatusTextColors[event.status]} ${eventStatusColors[event.status]}`}
 										>
 											{event.status}
 										</p></td
 									>
-									<td class="px-xs py-xxs text-left whitespace-nowrap">{event.type.name}</td>
-									<td class="px-xs py-xxs text-left whitespace-nowrap"
+									<td class="px-xs py-sm text-left whitespace-nowrap">{event.type.name}</td>
+									<td class="px-xs py-sm text-left whitespace-nowrap"
 										>{event.organizers.find((o) => o.role === 'host')?.organization.name ??
 											'--'}</td
 									>
-									<td class="px-xs py-xxs text-left whitespace-nowrap"
+									<td class="px-xs py-sm text-left whitespace-nowrap"
 										>{formatDate(event.startsAt)}</td
 									>
-									<td class="px-xs py-xxs text-left whitespace-nowrap"
+									<td class="px-xs py-sm text-left whitespace-nowrap"
 										>{event.parentEvent?.title ?? 'NIL'}</td
 									>
 								</tr>
