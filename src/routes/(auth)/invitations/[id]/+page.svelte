@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import CenterLoader from '$lib/components/app/center-loader.svelte';
-	import { formatDate } from '$lib/helpers';
+	import { formatDate, formatDateDayAndMonthAndYear, formatDateOnlyTime } from '$lib/helpers';
 	import type { LoadedData, PendingInvitationDetailed } from '$lib/types';
 	import { onMount } from 'svelte';
 	import Popup from './popup.svelte';
-	import { Calendar, Check, X } from '@lucide/svelte';
-	import AvatarCircle from '$lib/components/app/avatar-circle.svelte';
+	import { Ban, Calendar, Check, CheckCircle, Ellipsis, X, XCircle } from '@lucide/svelte';
+	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	let invitationId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -61,6 +62,11 @@
 		})();
 	});
 
+	let descLength = $state(150);
+	function onMoreClick() {
+		descLength += 100;
+	}
+
 	let popupOpen = $state(false);
 	let activeDecision: 'accepted' | 'rejected' | null = $state(null);
 </script>
@@ -70,7 +76,7 @@
 {:else}
 	<div class="flex w-full max-w-200 flex-col">
 		<div class="flex items-center gap-x-xs border-b p-r-pad">
-			<AvatarCircle size={30} text={invitationEvent.data.sender.fullName} />
+			<ShapeAvatarSvg styleName={'thumb'} seed={invitationEvent.data.sender.fullName} />
 			<div class="flex flex-col">
 				<p class="text-sm font-semibold">
 					{invitationEvent.data.sender.fullName}
@@ -86,9 +92,9 @@
 				<h1 class="text-2xl leading-none">
 					{invitationEvent.data.event.title}
 				</h1>
-				<div class="flex gap-x-sm text-xs">
+				<div class="flex gap-x-xxs text-xs">
 					<p class="">{invitationEvent.data.event.type.name}</p>
-					<p>|</p>
+					<p>&middot;</p>
 					<p class=" text-muted-foreground">
 						{invitationEvent.data.event.category.name}
 					</p>
@@ -96,66 +102,96 @@
 			</div>
 		</div>
 
-		<div class="flex flex-1 flex-col gap-xs">
-			<div class="flex flex-col gap-sm px-r-pad pb-r-pad">
-				{#if invitationEvent.data.event.parentEvent}
-					<div class="flex flex-col">
-						<p class="text-xs text-muted-foreground">Parent Event</p>
-						<p class="text-sm font-bold">{invitationEvent.data.event.parentEvent}</p>
-					</div>
-				{/if}
-				<div class="flex items-center gap-x-xs text-xs text-muted-foreground">
-					<Calendar size="15" />
-					<p>
-						{formatDate(invitationEvent.data.event.startsAt)} - {formatDate(
-							invitationEvent.data.event.endsAt
-						)}
+		<div class="flex flex-col gap-8 p-r-pad">
+			{#if invitationEvent.data.event.parentEvent}
+				<div class="flex flex-col">
+					<p class="text-xs text-muted-foreground">Parent Event</p>
+					<p class="text-sm font-bold">{invitationEvent.data.event.parentEvent}</p>
+				</div>
+			{/if}
+			<div class="flex flex-col gap-6">
+				<div class="flex w-full flex-col">
+					<p class="leading-tight text-muted-foreground">
+						{invitationEvent.data.event.requestDetails.slice(0, descLength).trim()}
+						{#if invitationEvent.data.event.requestDetails.length > descLength}
+							<span
+								><Button onclick={onMoreClick} variant="link" class="h-min p-0 text-xs"
+									>Show more</Button
+								></span
+							>
+						{/if}
 					</p>
 				</div>
-				<p class="w-full text-sm">
-					{invitationEvent.data.event.requestDetails}
-				</p>
-				<div class="flex flex-col gap-y-xxs">
-					<p class="text-sm text-muted-foreground">Organizers</p>
-					<div class="flex flex-col">
-						{#each invitationEvent.data.event.organizers as organizer}
-							<div class="flex items-center gap-x-xs">
-								<AvatarCircle size={30} text={organizer.organization.name} />
-								<div class="flex flex-col">
-									<p class="text-sm font-semibold">{organizer.organization.name}</p>
-									<p class="text-xs">
-										{organizer.role.split('_').join(' ')}
-									</p>
-								</div>
+				<div class="flex gap-sm max-sm:flex-col">
+					<div class="flex w-full flex-col">
+						<p class="text-xs text-muted-foreground">Expected Participants</p>
+						<p class="text-lg leading-tight">{invitationEvent.data.event.expectedParticipants}</p>
+					</div>
+					<div class="flex w-full items-center justify-between">
+						<div class="flex w-full flex-col">
+							<p class="text-xs text-muted-foreground">Starts At</p>
+							<p class="text-left text-lg leading-tight">
+								{formatDateDayAndMonthAndYear(invitationEvent.data.event.startsAt)}
+							</p>
+							<p class="text-lg leading-tight">
+								{formatDateOnlyTime(invitationEvent.data.event.startsAt)}
+							</p>
+						</div>
+						<Ellipsis />
+						<div class="flex w-full flex-col items-end">
+							<p class="text-xs text-muted-foreground">Ends At</p>
+							<p class="text-right text-lg leading-tight">
+								{formatDateDayAndMonthAndYear(invitationEvent.data.event.endsAt)}
+							</p>
+							<p class="text-lg leading-tight">
+								{formatDateOnlyTime(invitationEvent.data.event.endsAt)}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-sm">
+				<div class="flex items-center justify-between">
+					<p class="text-base font-semibold uppercase">Organizers</p>
+				</div>
+				<div class="flex grid-cols-2 flex-col gap-xs text-sm sm:grid sm:gap-sm">
+					{#each invitationEvent.data.event.organizers as o}
+						<div class="flex items-center gap-xs bg-background sm:border sm:p-xs">
+							<ShapeAvatarSvg size={25} seed={o.organization.name} />
+							<div class="flex w-full items-center gap-x-xxs">
+								<p class="text-lg">{o.organization.name}</p>
+								<p class="text-muted-foreground capitalize">({o.role})</p>
 							</div>
-						{/each}
-					</div>
+						</div>
+					{/each}
 				</div>
 			</div>
-			<div class="flex gap-sm p-r-pad max-sm:sticky max-sm:bottom-0 max-sm:flex-col-reverse">
-				{#if decisionMade === null}
-					<button
-						onclick={() => {
-							activeDecision = 'rejected';
-							popupOpen = true;
-						}}
-						class="flex items-center justify-center gap-xxs border px-6 py-2 text-sm max-sm:w-full"
-						><X size="15" />Deny</button
-					>
-					<button
-						onclick={() => {
-							activeDecision = 'accepted';
-							popupOpen = true;
-						}}
-						class="flex items-center justify-center gap-xxs bg-primary px-6 py-2 text-sm text-white max-sm:w-full"
-						><Check size="15" />Approve</button
-					>
-				{:else}
-					<p class="w-full bg-muted p-sm text-sm text-muted-foreground">
-						{decisionMade.charAt(0).toUpperCase() + decisionMade.slice(1)} the invitation
-					</p>
-				{/if}
-			</div>
+		</div>
+		<div class="flex w-full gap-xs p-r-pad max-sm:flex-col-reverse">
+			{#if decisionMade === null}
+				<Button
+					onclick={() => {
+						activeDecision = 'rejected';
+						popupOpen = true;
+					}}
+					class="bg-red-600  text-white hover:bg-red-900 sm:flex-1"><Ban size="15" />Reject</Button
+				>
+				<Button
+					onclick={() => {
+						activeDecision = 'accepted';
+						popupOpen = true;
+					}}
+					class="bg-green-600 text-white hover:bg-green-900 sm:flex-1"
+					><CheckCircle size="15" />Accept</Button
+				>
+			{:else}
+				<p
+					class={`w-full p-sm text-sm text-muted-foreground ${decisionMade === 'accepted' ? 'bg-green-200 text-foreground' : 'bg-green-200 text-foreground'}`}
+				>
+					{decisionMade.charAt(0).toUpperCase() + decisionMade.slice(1)} the invitation
+				</p>
+			{/if}
 		</div>
 	</div>
 {/if}
