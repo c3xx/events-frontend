@@ -7,6 +7,12 @@
 	import FacilitiesSection from './facilities-section.svelte';
 	import EventCategorySection from './event-category-section.svelte';
 	import EventTypesSection from './event-types-section.svelte';
+	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
+
+	onMount(() => {
+		nav.set([{ title: 'System', url: '/system' }]);
+	});
 </script>
 
 <div class="relative flex">

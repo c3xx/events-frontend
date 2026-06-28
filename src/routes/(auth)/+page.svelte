@@ -7,6 +7,7 @@
 	import type { LoadedData, PendingApprovalEvent, PendingInvitation } from '$lib/types';
 	import { Inbox } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { nav } from './header.svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
 		state: 'pending',
@@ -18,6 +19,8 @@
 	});
 
 	onMount(async () => {
+		nav.set([{ title: 'Dashboard', url: '/' }]);
+
 		try {
 			approvalEvents = {
 				state: 'success',

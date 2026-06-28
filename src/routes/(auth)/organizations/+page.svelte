@@ -8,6 +8,7 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import AddOrganization from './add-organization.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../header.svelte';
 
 	let orgTypes = $state<LoadedData<OrganizationType[]>>({
 		state: 'pending',
@@ -65,6 +66,8 @@
 	];
 
 	onMount(async () => {
+		nav.set([{ title: 'Organizations', url: '/organizations' }]);
+
 		try {
 			fetchedOrgs = {
 				state: 'success',

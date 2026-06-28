@@ -19,6 +19,7 @@
 	import { authInfo } from '$lib/global/auth.svelte';
 	import { goto } from '$app/navigation';
 	import SelectButton from '$lib/components/app/select-button.svelte';
+	import { nav } from '../../header.svelte';
 
 	let organizationId = $state<number | null>(null);
 	let title = $state('');
@@ -45,6 +46,11 @@
 	});
 
 	onMount(async () => {
+		nav.set([
+			{ title: 'Events', url: '/events' },
+			{ title: 'New', url: '/events/new' }
+		]);
+
 		try {
 			eventTypes = {
 				state: 'success',

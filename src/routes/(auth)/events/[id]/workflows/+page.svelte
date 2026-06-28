@@ -6,6 +6,7 @@
 	import type { LoadedData, WorkflowInstance } from '$lib/types';
 	import { Check, ChevronDown, ChevronUp, X } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
+	import { nav } from '../../../header.svelte';
 
 	let workflows = $state<LoadedData<WorkflowInstance[]>>({
 		state: 'pending',

@@ -11,6 +11,7 @@
 	import type { LoadedData, WorkflowTemplate } from '$lib/types';
 	import { Loader, Network, PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let workflows: LoadedData<WorkflowTemplate[]> = $state({
 		state: 'pending',
@@ -50,6 +51,8 @@
 	}
 
 	onMount(async () => {
+		nav.set([{ title: 'Workflow Templates', url: '/workflow-templates' }]);
+
 		try {
 			const workflowList = await loadWorkflowTemplates();
 

@@ -4,6 +4,7 @@
 	import { formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
 	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
 		state: 'pending',
@@ -11,6 +12,8 @@
 	});
 
 	onMount(async () => {
+		nav.set([{ title: 'Approvals', url: '/approvals' }]);
+
 		try {
 			approvalEvents = {
 				state: 'success',

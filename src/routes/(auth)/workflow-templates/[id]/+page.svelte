@@ -38,6 +38,7 @@
 	import { error } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
+	import { nav } from '../../header.svelte';
 
 	const workflowId = $derived(Number(page.params.id));
 	let isValidId: 'pending' | 'true' | 'false' = $state('pending');
@@ -138,6 +139,8 @@
 	}
 
 	onMount(async () => {
+		nav.set([{ title: 'Workflow Templates', url: '/workflow-templates' }]);
+
 		try {
 			workflowList = {
 				state: 'success',

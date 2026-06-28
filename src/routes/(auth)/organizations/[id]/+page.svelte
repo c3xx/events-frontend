@@ -7,6 +7,7 @@
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import AddMember from './add-member.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../../header.svelte';
 
 	let addSheetOpen = $state(false);
 
@@ -78,12 +79,19 @@
 	let organizationId = $derived(Number(page.params.id!));
 
 	$effect(() => {
+		nav.set([{ title: 'Organizations', url: '/organizations' }]);
+
 		(async () => {
 			try {
 				org = {
 					state: 'success',
 					data: await getOrgById(organizationId)
 				};
+				nav.set([
+					{ title: 'Organizations', url: '/organizations' },
+					{ title: org.data.name, url: `/organizations/${org.data.id}` }
+				]);
+
 				title = org.data.name;
 				console.log(org.data);
 			} catch (err) {

@@ -9,6 +9,7 @@
 	import { goto } from '$app/navigation';
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../header.svelte';
 
 	let venues = $state<LoadedData<Venue[]>>({
 		state: 'pending',
@@ -37,7 +38,11 @@
 		}
 	}
 
-	onMount(refreshVenues);
+	onMount(async () => {
+		nav.set([{ title: 'Venues', url: '/venues' }]);
+
+		await refreshVenues();
+	});
 
 	let columns: TableProps<Venue>['columns'] = [
 		{

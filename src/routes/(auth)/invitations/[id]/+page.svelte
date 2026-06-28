@@ -8,6 +8,7 @@
 	import { Ban, Calendar, Check, CheckCircle, Ellipsis, X, XCircle } from '@lucide/svelte';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { nav } from '../../header.svelte';
 
 	let invitationId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -18,6 +19,8 @@
 	let decisionMade: 'accepted' | 'rejected' | null = $state(null);
 
 	onMount(() => {
+		nav.set([{ title: 'Invitations', url: '/invitations' }]);
+
 		(async () => {
 			if (!invitationId) return null;
 			try {

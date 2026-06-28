@@ -21,6 +21,7 @@
 	import { Ban, CheckCircle, Edit, Loader, Send, XCircle } from '@lucide/svelte';
 	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { nav } from '../../header.svelte';
 
 	let event = $state<LoadedData<EventDetail>>({
 		state: 'pending',
@@ -82,6 +83,11 @@
 				state: 'success',
 				data: await getEvent(Number(page.params.id!))
 			};
+			nav.set([
+				{ title: 'Events', url: '/events' },
+				{ title: event.data.title, url: `/events/${event.data.id}` }
+			]);
+
 			try {
 				eventType = {
 					state: 'success',

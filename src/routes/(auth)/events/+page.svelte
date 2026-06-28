@@ -10,6 +10,8 @@
 	import { goto } from '$app/navigation';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
 	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
+	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let events = $state<LoadedData<Event[]>>({
 		state: 'pending',
@@ -36,6 +38,10 @@
 				})()
 			: { drafts: [], pending: [], past: [] }
 	);
+
+	onMount(() => {
+		nav.set([{ title: 'Events', url: '/events' }]);
+	});
 
 	$effect(() => {
 		(async () => {
@@ -66,7 +72,6 @@
 <div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
-			<h1>Events</h1>
 			<div class="flex items-center gap-x-xxs">
 				<div
 					class="flex h-8 max-w-56 items-center gap-x-xxs border p-xxs text-muted-foreground/50 max-sm:hidden"
@@ -81,8 +86,10 @@
 						<button
 							onclick={() => {
 								search = '';
-							}}><X size="15" /></button
+							}}
 						>
+							<X size="15" />
+						</button>
 					{/if}
 				</div>
 				{#if canCreateEvent}

@@ -5,6 +5,7 @@
 	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingInvitation } from '$lib/types';
 	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let pendingInvitations = $state<LoadedData<PendingInvitation[]>>({
 		state: 'pending',
@@ -12,6 +13,8 @@
 	});
 
 	onMount(async () => {
+		nav.set([{ title: 'Invitations', url: '/invitations' }]);
+
 		try {
 			pendingInvitations = {
 				state: 'success',
@@ -27,12 +30,6 @@
 </script>
 
 <div class="mx-auto flex max-w-prose flex-col">
-	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
-		<div class="flex w-full items-center justify-between">
-			<h1 class="text-2xl leading-none">Invitations</h1>
-		</div>
-	</div>
-
 	<div class="flex h-full flex-col gap-y-8 p-r-pad">
 		{#if pendingInvitations.state === 'pending' || pendingInvitations.state === 'failed'}
 			<p>{pendingInvitations.message}</p>

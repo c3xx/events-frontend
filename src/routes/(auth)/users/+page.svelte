@@ -8,6 +8,7 @@
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { loadOrgs } from '$lib/api/organizations';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../header.svelte';
 
 	let users = $state<LoadedData<User[]>>({
 		state: 'pending',
@@ -45,6 +46,8 @@
 	let sheetOpen = $state(false);
 
 	onMount(async () => {
+		nav.set([{ title: 'Users', url: '/users' }]);
+
 		try {
 			users = {
 				state: 'success',

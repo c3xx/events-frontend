@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import Popup from './popup.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { nav } from '../../header.svelte';
 
 	let eventId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -21,6 +22,8 @@
 	});
 
 	onMount(() => {
+		nav.set([{ title: 'Approvals', url: '/approvals' }]);
+
 		(async () => {
 			if (!eventId) return null;
 			try {
