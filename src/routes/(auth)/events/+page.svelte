@@ -63,7 +63,7 @@
 	let canCreateEvent = $derived(permissionGrantedSomewhere('event:manage'));
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
 			<h1>Events</h1>

@@ -1,5 +1,5 @@
 import { api } from '$lib/api';
-import type { ApiResponse, WorkflowInstance } from '$lib/types';
+import { ERROR_CODES, type ApiResponse, type WorkflowInstance } from '$lib/types';
 
 export async function loadEventWorkflowsLatest(eventId: number) {
 	if (!eventId) {
@@ -11,6 +11,9 @@ export async function loadEventWorkflowsLatest(eventId: number) {
 	if (res.success) {
 		return res.data;
 	} else {
+		if (res.code === ERROR_CODES.not_found) {
+			return null;
+		}
 		throw new Error(res.message);
 	}
 }

@@ -158,7 +158,7 @@
 	}
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="sticky top-12 flex flex-col gap-y-sm bg-background p-r-pad">
 		<h1 class="text-2xl leading-none">New Event</h1>
 		{#if errorText}

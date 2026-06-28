@@ -42,7 +42,7 @@
 		message: 'Loading organizations...'
 	});
 
-	let latestWorkflow = $state<LoadedData<WorkflowInstance> | null>({
+	let latestWorkflow = $state<LoadedData<WorkflowInstance | null>>({
 		state: 'pending',
 		message: 'Loading latest workflow...'
 	});
@@ -111,20 +111,16 @@
 						};
 					}
 				}
-				if (event.data.status !== 'draft') {
-					try {
-						latestWorkflow = {
-							state: 'success',
-							data: await loadEventWorkflowsLatest(event.data.id)
-						};
-					} catch (err: any) {
-						latestWorkflow = {
-							state: 'failed',
-							message: 'Failed to load latest workflow'
-						};
-					}
-				} else {
-					latestWorkflow = null;
+				try {
+					latestWorkflow = {
+						state: 'success',
+						data: await loadEventWorkflowsLatest(event.data.id)
+					};
+				} catch (err: any) {
+					latestWorkflow = {
+						state: 'failed',
+						message: 'Failed to load latest workflow'
+					};
 				}
 			} catch (err: any) {
 				eventType = {
@@ -158,14 +154,14 @@
 		<p class="text-red-500">{event.message}</p>
 	</div>
 {:else}
-	<div class="flex w-full max-w-200 flex-col">
+	<div class="mx-auto flex w-full max-w-prose flex-col">
 		<div class="flex w-full flex-col">
-			<div class="sticky top-12 z-40 bg-background p-r-pad shadow-xs max-sm:border-b">
-				<div class="flex w-full flex-col gap-xxs pt-sm">
+			<div class="sticky top-12 z-40 bg-background p-4 max-sm:border-b">
+				<div class="flex w-full flex-col gap-xxs">
 					<div class="flex items-start justify-between gap-xxs">
 						<div class="flex items-center gap-0.5 text-sm text-muted-foreground">
 							<p class="text-foreground">{event.data.type.name}</p>
-							<p>·</p>
+							<p>&middot;</p>
 							<p>{event.data.category.name}</p>
 						</div>
 						<p
@@ -198,9 +194,8 @@
 					</p>
 				{/if}
 			</div>
-			<div
-				class={`/sm:border-b /sm:border-muted-foreground /sm:p-sm /sm:border-x flex h-full max-w-200 flex-col gap-8 p-r-pad`}
-			>
+
+			<div class="space-y-6 p-4">
 				<OverviewSection event={event.data} />
 				<OrganizersSection
 					eventId={event.data.id}
@@ -211,23 +206,28 @@
 				/>
 				<VenuesSection eventId={event.data.id} bind:allotedVenues={event.data.venueAllotments} />
 				<WorkflowsSection eventId={event.data.id} activeWorkflow={latestWorkflow} />
+
 				<div class="flex w-full gap-xs max-sm:flex-col-reverse">
-					<Button class="bg-red-600 text-white sm:flex-1"><XCircle size="15" /> Cancel Event</Button
-					>
+					<Button class="bg-red-600 text-white sm:flex-1">
+						<XCircle size="15" /> Cancel Event
+					</Button>
 					{#if event.data.status !== 'pending'}
-						<Button onclick={onSubmitEvent} class="sm:flex-1"
-							>{#if submitLoading}
-								<Loader size="15" class="animate-spin" />{:else}<CheckCircle size="15" />
-							{/if} Submit Event</Button
-						>
+						<Button onclick={onSubmitEvent} class="sm:flex-1">
+							{#if submitLoading}
+								<Loader size="15" class="animate-spin" />
+							{:else}
+								<CheckCircle size="15" />
+							{/if}
+							Submit Event
+						</Button>
 					{:else}
-						<Button class="bg-red-300 text-foreground sm:flex-1"
-							><Ban size="15" /> Abort Workflow</Button
-						>
+						<Button class="bg-red-300 text-foreground sm:flex-1">
+							<Ban size="15" /> Abort Workflow
+						</Button>
 					{/if}
 				</div>
 			</div>
-			<!-- <TabsScrollBar bind:activeTab /> -->
 		</div>
+		<!-- <TabsScrollBar bind:activeTab /> -->
 	</div>
 {/if}
