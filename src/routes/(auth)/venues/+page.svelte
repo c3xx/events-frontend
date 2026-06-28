@@ -79,7 +79,7 @@
 	let canCreateVenue = $derived(permissionGrantedSomewhere('venue:create'));
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
 		<h1 class="px-2 text-xl">Venues</h1>
 	</div>

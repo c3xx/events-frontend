@@ -26,7 +26,7 @@
 	});
 </script>
 
-<div class="flex h-full w-full max-w-200 flex-col">
+<div class="mx-auto flex h-full w-full max-w-prose flex-col">
 	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 		<div class="flex w-full items-center justify-between">
 			<h1 class="text-2xl leading-none">Invitations</h1>

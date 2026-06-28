@@ -124,7 +124,7 @@
 	let canAddMember = $derived(permissionGrantedSomewhere('organization:add_member'));
 </script>
 
-<div class="relative flex max-w-200">
+<div class="relative mx-auto flex max-w-prose">
 	<div class="flex w-full flex-col gap-y-xs p-r-pad">
 		<div class="flex items-center">
 			<h2 class="text-lg">{title}</h2>

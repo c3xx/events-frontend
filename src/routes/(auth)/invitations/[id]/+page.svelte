@@ -74,7 +74,7 @@
 {#if invitationEvent.state === 'pending' || invitationEvent.state === 'failed'}
 	<CenterLoader state={invitationEvent.state} message={invitationEvent.message} />
 {:else}
-	<div class="flex w-full max-w-200 flex-col">
+	<div class="mx-auto flex w-full max-w-prose flex-col">
 		<div class="flex items-center gap-x-xs border-b p-r-pad">
 			<ShapeAvatarSvg styleName={'thumb'} seed={invitationEvent.data.sender.fullName} />
 			<div class="flex flex-col">
