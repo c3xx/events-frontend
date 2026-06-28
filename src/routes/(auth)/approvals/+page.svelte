@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
-	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
+	import { formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
-	import { Calendar } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
@@ -45,9 +44,7 @@
 				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
-						<div
-							class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-background bg-muted p-xs"
-						>
+						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
 							<div class="flex items-start justify-between gap-x-0.5">
 								<p class="font-bold">
 									{event.title}

@@ -118,9 +118,7 @@
 				<p class="text-xs text-muted-foreground uppercase">Invitations</p>
 				{#each pendingInvitations.data as invitation}
 					<a href={`/invitations/${invitation.id}`} class="no-underline">
-						<div
-							class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-background bg-muted p-xs"
-						>
+						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
 							<div class="flex items-start justify-between gap-x-0.5">
 								<div class="flex items-center gap-x-1">
 									<p class={`text-xs`}>
