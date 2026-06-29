@@ -29,12 +29,6 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-prose flex-col">
-	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
-		<div class="flex w-full items-center justify-between">
-			<h1 class="text-2xl leading-none">Pending Approvals</h1>
-		</div>
-	</div>
-
 	<div class="flex flex-col gap-y-8 p-r-pad">
 		{#if approvalEvents.state === 'pending' || approvalEvents.state === 'failed'}
 			<p>{approvalEvents.message}</p>

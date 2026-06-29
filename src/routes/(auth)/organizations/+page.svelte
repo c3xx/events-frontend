@@ -99,9 +99,6 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-prose flex-col">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
-		<h1 class="px-2 text-xl">Organizations</h1>
-	</div>
 	{#if canCreateOrg}
 		<div class="border-muted-background flex w-full justify-end border-b p-xxs">
 			<Button

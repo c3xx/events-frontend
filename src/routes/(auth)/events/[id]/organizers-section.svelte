@@ -118,7 +118,7 @@
 				class="flex place-items-center justify-between gap-4 py-2 pr-2 pl-3 first:rounded-t-lg last:rounded-b-lg"
 			>
 				<div class="flex place-items-center gap-2.5">
-					<ShapeAvatarSvg size={32} seed={o.organization.name} />
+					<ShapeAvatarSvg size={32} seed={o.organization.name} class="rounded-sm" />
 					<div>
 						<div>{o.organization.name}</div>
 						<p class="text-xs text-muted-foreground">

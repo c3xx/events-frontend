@@ -85,9 +85,6 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-prose flex-col">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
-		<h1 class="px-2 text-xl">Venues</h1>
-	</div>
 	{#if canCreateVenue}
 		<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
 			<Button

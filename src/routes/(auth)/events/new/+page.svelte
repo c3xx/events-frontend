@@ -48,7 +48,7 @@
 	onMount(async () => {
 		nav.set([
 			{ title: 'Events', url: '/events' },
-			{ title: 'New', url: '/events/new' }
+			{ title: 'New event', url: '/events/new' }
 		]);
 
 		try {
