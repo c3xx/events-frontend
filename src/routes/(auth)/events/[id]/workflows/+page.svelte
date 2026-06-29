@@ -32,6 +32,8 @@
 	$effect(() => {
 		(async () => {
 			try {
+				nav.set([{ title: 'Workflow runs', url: `/events/${eventId}/workflows` }]);
+
 				workflows = {
 					state: 'success',
 					data: await loadEventWorkflows(eventId)
