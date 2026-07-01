@@ -56,11 +56,11 @@
 					<div class="flex place-items-center justify-between gap-4 text-xs text-muted-foreground">
 						<div>
 							<div>{formatDateDayAndMonthAndYear(allotment.startsAt)}</div>
-							<div>{formatDateOnlyTime(allotment.endsAt)}</div>
+							<div>{formatDateOnlyTime(allotment.startsAt)}</div>
 						</div>
 						<div>&hellip;</div>
 						<div class="text-right">
-							<div>{formatDateDayAndMonthAndYear(allotment.startsAt)}</div>
+							<div>{formatDateDayAndMonthAndYear(allotment.endsAt)}</div>
 							<div>{formatDateOnlyTime(allotment.endsAt)}</div>
 						</div>
 					</div>
