@@ -28,7 +28,9 @@
 	function isStepPending(step: WorkflowInstance['steps'][0]) {
 		return step.roles.some((role) =>
 			role.targetGroups.some((group) =>
-				group.assignments.some((assignment) => assignment.status === 'pending')
+				group.assignments.some(
+					(assignment) => assignment.status === 'pending' || assignment.status === 'denied'
+				)
 			)
 		);
 	}
