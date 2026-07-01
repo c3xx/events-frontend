@@ -86,49 +86,47 @@
 								.name}</span
 						>
 					</p>
-					{#if decision === 'approved'}
-						<button
-							onclick={() => {
-								rolesVisible = !rolesVisible;
-							}}
-							class="flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:underline"
-							>Select roles to approve {#if rolesVisible}
-								<ChevronUp size="10" />
-							{:else}
-								<ChevronDown size="10" />
-							{/if}</button
-						>
-						{#if rolesVisible}
-							<div transition:slide class="h-min max-h-50 w-full overflow-auto">
-								<div class="flex flex-col divide-y rounded-lg border">
-									{#each eventAssignments.data.assignments.filter((a) => a.status === 'pending') as assignment}
-										<div
-											class="flex place-items-center justify-between gap-4 py-2 pr-2 pl-3 first:rounded-t-lg last:rounded-b-lg"
-										>
-											<div class="flex place-items-center gap-2.5">
-												<input
-													checked={activeIds.includes(assignment.id)}
-													onchange={(e) => {
-														if (e.currentTarget.checked) {
-															activeIds = [...activeIds, assignment.id];
-														} else {
-															activeIds = activeIds.filter((id) => id !== assignment.id);
-														}
-													}}
-													type="checkbox"
-												/>
-												<div class="text-xs">
-													<p class="font-semibold">{assignment.role.name}</p>
-													<p class="text-muted-foreground">
-														{assignment.role.scope.kindName}
-													</p>
-												</div>
+					<button
+						onclick={() => {
+							rolesVisible = !rolesVisible;
+						}}
+						class="flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:underline"
+						>Select roles to approve {#if rolesVisible}
+							<ChevronUp size="10" />
+						{:else}
+							<ChevronDown size="10" />
+						{/if}</button
+					>
+					{#if rolesVisible}
+						<div transition:slide class="h-min max-h-50 w-full overflow-auto">
+							<div class="flex flex-col divide-y rounded-lg border">
+								{#each eventAssignments.data.assignments.filter((a) => a.status === 'pending') as assignment}
+									<div
+										class="flex place-items-center justify-between gap-4 py-2 pr-2 pl-3 first:rounded-t-lg last:rounded-b-lg"
+									>
+										<div class="flex place-items-center gap-2.5">
+											<input
+												checked={activeIds.includes(assignment.id)}
+												onchange={(e) => {
+													if (e.currentTarget.checked) {
+														activeIds = [...activeIds, assignment.id];
+													} else {
+														activeIds = activeIds.filter((id) => id !== assignment.id);
+													}
+												}}
+												type="checkbox"
+											/>
+											<div class="text-xs">
+												<p class="font-semibold">{assignment.role.name}</p>
+												<p class="text-muted-foreground">
+													{assignment.role.scope.kindName}
+												</p>
 											</div>
 										</div>
-									{/each}
-								</div>
+									</div>
+								{/each}
 							</div>
-						{/if}
+						</div>
 					{/if}
 					{#if decision === 'approved'}
 						<div class="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
