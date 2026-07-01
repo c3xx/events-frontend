@@ -61,11 +61,6 @@
 			.map((a) => a.id);
 		rolesVisible = false;
 	});
-
-	$effect(() => {
-		if (!activeIds) return;
-		console.log(activeIds);
-	});
 </script>
 
 {#if eventAssignments.state === 'success'}
@@ -163,8 +158,8 @@
 						<button
 							type="button"
 							onclick={respondToRequest}
-							disabled={loading}
-							class="flex items-center px-2 py-2 font-bold text-foreground"
+							disabled={loading || activeIds.length === 0}
+							class="flex items-center px-2 py-2 font-bold text-foreground disabled:opacity-50"
 							>{#if loading}<Loader size="15" class="animate-spin" />
 							{/if} Confirm</button
 						>

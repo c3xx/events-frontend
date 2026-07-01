@@ -41,80 +41,6 @@
 			try {
 				eventAssignments = {
 					state: 'success',
-					// data: {
-					// 	id: 1,
-					// 	title: 'string',
-					// 	expectedParticipants: 2,
-					// 	requestDetails: 'string',
-					// 	status: 'pending',
-					// 	parentEventId: null,
-					// 	startsAt: 'null',
-					// 	endsAt: 'null',
-					// 	type: {
-					// 		id: 2,
-					// 		name: ''
-					// 	},
-					// 	category: {
-					// 		id: 3,
-					// 		name: 'string'
-					// 	},
-					// 	parentEvent: null,
-					// 	createdAt: '',
-					// 	updatedAt: '',
-					// 	venueAllotments: [
-					// 		{
-					// 			id: 1,
-					// 			startsAt: 'string',
-					// 			endsAt: 'string',
-					// 			venue: {
-					// 				id: 2,
-					// 				name: 'string'
-					// 			}
-					// 		}
-					// 	],
-					// 	organizers: [
-					// 		{
-					// 			id: 1,
-					// 			role: 'host',
-					// 			organization: {
-					// 				id: 1,
-					// 				name: 'string',
-					// 				organizationTypeId: 'undefined',
-					// 				parentOrganizationId: '',
-					// 				isActive: true
-					// 			}
-					// 		}
-					// 	],
-					// 	assignments: [
-					// 		{
-					// 			state: 'approved',
-					// 			id: 1,
-					// 			status: 'pending',
-					// 			remarks: null,
-					// 			completedAt: null,
-					// 			step: {
-					// 				id: 1,
-					// 				name: 'string',
-					// 				status: 'active',
-					// 				instanceId: 4
-					// 			},
-					// 			role: {
-					// 				id: 2,
-					// 				name: 'string',
-					// 				scope: {
-					// 					type: 'organization',
-					// 					kindId: 3,
-					// 					kindName: 'string'
-					// 				}
-					// 			},
-					// 			scope: {
-					// 				type: 'organization',
-					// 				id: 2,
-					// 				name: 'string'
-					// 			}
-					// 		}
-					// 	]
-					// }
 					data: await loadEventAssignments(Number(eventId))
 				};
 			} catch (err: any) {
@@ -132,11 +58,7 @@
 	}
 
 	let popupOpen = $state(false);
-	let activeUserRole: string | null = $state(null);
-	let activeUserRoleScopeKindName: string | null = $state(null);
-	let activeKindName: string | null = $state(null);
 	let activeDecision: 'approved' | 'denied' = $state('approved');
-	let activeIds: number[] = $state([]);
 </script>
 
 {#if eventAssignments.state === 'pending' || eventAssignments.state === 'failed'}
