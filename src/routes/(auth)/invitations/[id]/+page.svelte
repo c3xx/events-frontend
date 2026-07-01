@@ -9,6 +9,7 @@
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { nav } from '../../header.svelte';
+	import { loadPendingInvitation } from '$lib/api/me/invitations';
 
 	let invitationId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -26,35 +27,7 @@
 			try {
 				invitationEvent = {
 					state: 'success',
-					data: {
-						id: 20,
-						intendedRole: 'co_host',
-						invitedAt: '2026-06-24 00:17:56.38514+00',
-						event: {
-							id: 9,
-							title: 'Test Event',
-							requestDetails: 'test',
-							expectedParticipants: 5,
-							startsAt: '2026-06-19 00:00:00+00',
-							endsAt: '2026-06-20 00:00:00+00',
-							parentEvent: null,
-							type: { id: 4, name: 'Ideathon' },
-							category: { id: 2, name: 'Educational' },
-							organizers: [{ id: 10, role: 'host', organization: { id: 1, name: 'Coding Club' } }]
-						},
-						sender: {
-							id: 13,
-							fullName: 'Farhaan Nizam',
-							role: { id: 5, name: 'Chairman' },
-							organization: { id: 1, name: 'Coding Club', type: { id: 3, name: 'Technical Club' } }
-						},
-						recipientOrganization: {
-							id: 52,
-							name: 'CSI TKMCE',
-							type: { id: 3, name: 'Technical Club' }
-						}
-					}
-					// data: await loadPendingInvitation(Number(invitationId))
+					data: await loadPendingInvitation(Number(invitationId))
 				};
 			} catch (err: any) {
 				invitationEvent = {
@@ -104,73 +77,6 @@
 				</div>
 			</div>
 		</div>
-
-		<!-- <div class="flex flex-col gap-8 p-r-pad">
-			{#if invitationEvent.data.event.parentEvent}
-				<div class="flex flex-col">
-					<p class="text-xs text-muted-foreground">Parent Event</p>
-					<p class="text-sm font-bold">{invitationEvent.data.event.parentEvent}</p>
-				</div>
-			{/if}
-			<div class="flex flex-col gap-6">
-				<div class="flex w-full flex-col">
-					<p class="leading-tight text-muted-foreground">
-						{invitationEvent.data.event.requestDetails.slice(0, descLength).trim()}
-						{#if invitationEvent.data.event.requestDetails.length > descLength}
-							<span
-								><Button onclick={onMoreClick} variant="link" class="h-min p-0 text-xs"
-									>Show more</Button
-								></span
-							>
-						{/if}
-					</p>
-				</div>
-				<div class="flex gap-sm max-sm:flex-col">
-					<div class="flex w-full flex-col">
-						<p class="text-xs text-muted-foreground">Expected Participants</p>
-						<p class="text-lg leading-tight">{invitationEvent.data.event.expectedParticipants}</p>
-					</div>
-					<div class="flex w-full items-center justify-between">
-						<div class="flex w-full flex-col">
-							<p class="text-xs text-muted-foreground">Starts At</p>
-							<p class="text-left text-lg leading-tight">
-								{formatDateDayAndMonthAndYear(invitationEvent.data.event.startsAt)}
-							</p>
-							<p class="text-lg leading-tight">
-								{formatDateOnlyTime(invitationEvent.data.event.startsAt)}
-							</p>
-						</div>
-						<Ellipsis />
-						<div class="flex w-full flex-col items-end">
-							<p class="text-xs text-muted-foreground">Ends At</p>
-							<p class="text-right text-lg leading-tight">
-								{formatDateDayAndMonthAndYear(invitationEvent.data.event.endsAt)}
-							</p>
-							<p class="text-lg leading-tight">
-								{formatDateOnlyTime(invitationEvent.data.event.endsAt)}
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="flex flex-col gap-sm">
-				<div class="flex items-center justify-between">
-					<p class="text-base font-semibold uppercase">Organizers</p>
-				</div>
-				<div class="flex grid-cols-2 flex-col gap-xs text-sm sm:grid sm:gap-sm">
-					{#each invitationEvent.data.event.organizers as o}
-						<div class="flex items-center gap-xs bg-background sm:border sm:p-xs">
-							<ShapeAvatarSvg size={25} seed={o.organization.name} />
-							<div class="flex w-full items-center gap-x-xxs">
-								<p class="text-lg">{o.organization.name}</p>
-								<p class="text-muted-foreground capitalize">({o.role})</p>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div> -->
 		<div class="flex flex-col gap-8 p-r-pad">
 			<div class="flex flex-col gap-6">
 				{#if invitationEvent.data.event.parentEvent}
