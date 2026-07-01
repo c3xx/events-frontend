@@ -19,6 +19,7 @@
 	import { authInfo } from '$lib/global/auth.svelte';
 	import { goto } from '$app/navigation';
 	import SelectButton from '$lib/components/app/select-button.svelte';
+	import { nav } from '../../header.svelte';
 
 	let organizationId = $state<number | null>(null);
 	let title = $state('');
@@ -45,6 +46,11 @@
 	});
 
 	onMount(async () => {
+		nav.set([
+			{ title: 'Events', url: '/events' },
+			{ title: 'New event', url: '/events/new' }
+		]);
+
 		try {
 			eventTypes = {
 				state: 'success',
@@ -158,7 +164,7 @@
 	}
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="sticky top-12 flex flex-col gap-y-sm bg-background p-r-pad">
 		<h1 class="text-2xl leading-none">New Event</h1>
 		{#if errorText}

@@ -8,6 +8,7 @@
 	import { Ban, Calendar, Check, CheckCircle, Ellipsis, X, XCircle } from '@lucide/svelte';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { nav } from '../../header.svelte';
 
 	let invitationId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -18,6 +19,8 @@
 	let decisionMade: 'accepted' | 'rejected' | null = $state(null);
 
 	onMount(() => {
+		nav.set([{ title: 'Invitations', url: '/invitations' }]);
+
 		(async () => {
 			if (!invitationId) return null;
 			try {
@@ -74,7 +77,7 @@
 {#if invitationEvent.state === 'pending' || invitationEvent.state === 'failed'}
 	<CenterLoader state={invitationEvent.state} message={invitationEvent.message} />
 {:else}
-	<div class="flex w-full max-w-200 flex-col">
+	<div class="mx-auto flex w-full max-w-prose flex-col">
 		<div class="flex items-center gap-x-xs border-b p-r-pad">
 			<ShapeAvatarSvg styleName={'thumb'} seed={invitationEvent.data.sender.fullName} />
 			<div class="flex flex-col">

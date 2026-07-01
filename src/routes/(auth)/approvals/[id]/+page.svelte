@@ -12,6 +12,7 @@
 	import { onMount } from 'svelte';
 	import Popup from './popup.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { nav } from '../../header.svelte';
 
 	let eventId: number | null = $derived(Number(page.params.id) ?? null);
 
@@ -21,6 +22,8 @@
 	});
 
 	onMount(() => {
+		nav.set([{ title: 'Approvals', url: '/approvals' }]);
+
 		(async () => {
 			if (!eventId) return null;
 			try {
@@ -122,7 +125,7 @@
 {#if eventAssignments.state === 'pending' || eventAssignments.state === 'failed'}
 	<CenterLoader state={eventAssignments.state} message={eventAssignments.message} />
 {:else}
-	<div class="flex w-full max-w-200 flex-col">
+	<div class="mx-auto flex w-full max-w-prose flex-col">
 		<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
 			<div class="flex w-full items-center justify-between">
 				<h1 class="text-2xl leading-none">

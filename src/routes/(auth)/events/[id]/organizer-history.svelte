@@ -54,8 +54,10 @@
 							class="cursor-pointer"
 							onclick={() => {
 								searchText = '';
-							}}><X size="15" /></button
+							}}
 						>
+							<X size="15" />
+						</button>
 					{/if}
 				</div>
 				<div class="h-50 w-full overflow-auto rounded bg-muted">

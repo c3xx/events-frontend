@@ -11,6 +11,7 @@
 	import type { LoadedData, WorkflowTemplate } from '$lib/types';
 	import { Loader, Network, PlusIcon } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let workflows: LoadedData<WorkflowTemplate[]> = $state({
 		state: 'pending',
@@ -50,6 +51,8 @@
 	}
 
 	onMount(async () => {
+		nav.set([{ title: 'Workflow Templates', url: '/workflow-templates' }]);
+
 		try {
 			const workflowList = await loadWorkflowTemplates();
 
@@ -79,10 +82,7 @@
 	});
 </script>
 
-<div class="flex w-full max-w-200 flex-col px-r-pad">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
-		<h1 class="px-2 text-xl">Workflow Templates</h1>
-	</div>
+<div class="mx-auto flex w-full max-w-prose flex-col px-r-pad">
 	<div class="flex max-w-200 flex-col gap-y-xs border border-muted-foreground p-r-pad">
 		<p>Create Template</p>
 		<div class="flex rounded bg-muted py-r-pad">

@@ -9,6 +9,7 @@
 	import { goto } from '$app/navigation';
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../header.svelte';
 
 	let venues = $state<LoadedData<Venue[]>>({
 		state: 'pending',
@@ -37,7 +38,11 @@
 		}
 	}
 
-	onMount(refreshVenues);
+	onMount(async () => {
+		nav.set([{ title: 'Venues', url: '/venues' }]);
+
+		await refreshVenues();
+	});
 
 	let columns: TableProps<Venue>['columns'] = [
 		{
@@ -79,10 +84,7 @@
 	let canCreateVenue = $derived(permissionGrantedSomewhere('venue:create'));
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
-		<h1 class="px-2 text-xl">Venues</h1>
-	</div>
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	{#if canCreateVenue}
 		<div class="border-muted-background flex w-full items-center justify-end border-b p-xxs">
 			<Button

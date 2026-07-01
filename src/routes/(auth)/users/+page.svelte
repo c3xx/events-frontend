@@ -8,6 +8,7 @@
 	import DataTable from '$lib/components/app/data-table.svelte';
 	import { loadOrgs } from '$lib/api/organizations';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../header.svelte';
 
 	let users = $state<LoadedData<User[]>>({
 		state: 'pending',
@@ -45,6 +46,8 @@
 	let sheetOpen = $state(false);
 
 	onMount(async () => {
+		nav.set([{ title: 'Users', url: '/users' }]);
+
 		try {
 			users = {
 				state: 'success',
@@ -72,10 +75,7 @@
 	let addUser = $derived(permissionGrantedSomewhere('user:create'));
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
-	<div class="border-muted-background flex w-full items-center justify-between border-b py-xs">
-		<h1 class="px-2 text-xl">Users</h1>
-	</div>
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	{#if addUser}
 		<div class="border-muted-background flex w-full justify-end border-b p-xxs">
 			<Button

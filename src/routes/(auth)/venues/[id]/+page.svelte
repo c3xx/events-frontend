@@ -8,6 +8,7 @@
 	import { loadRolesVenueType } from '$lib/api/venues';
 	import AddMember from './add-member.svelte';
 	import { permissionGrantedSomewhere } from '$lib/helpers';
+	import { nav } from '../../header.svelte';
 
 	let addSheetOpen = $state(false);
 
@@ -79,12 +80,18 @@
 	let venueId = $derived(Number(page.params.id));
 
 	$effect(() => {
+		nav.set([{ title: 'Venues', url: '/venues' }]);
+
 		(async () => {
 			try {
 				venue = {
 					state: 'success',
 					data: await getVenueById(venueId)
 				};
+				nav.set([
+					{ title: 'Venues', url: '/venues' },
+					{ title: venue.data.name, url: `/venues/${venue.data.id}` }
+				]);
 				title = venue.data.name;
 				console.log(venue.data);
 			} catch (err) {
@@ -125,7 +132,7 @@
 	let canAddMember = $derived(permissionGrantedSomewhere('venue:add_member'));
 </script>
 
-<div class="relative flex max-w-200">
+<div class="relative mx-auto flex max-w-prose">
 	<div class="flex w-full flex-col gap-y-xs p-r-pad">
 		<div class="flex items-center">
 			<h2 class="text-lg">{title}</h2>

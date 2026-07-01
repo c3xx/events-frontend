@@ -108,7 +108,7 @@
 	const sidebar = Sidebar.useSidebar();
 </script>
 
-<Sidebar.Root collapsible="icon">
+<Sidebar.Root collapsible="icon" variant="sidebar">
 	<Sidebar.Content>
 		<Sidebar.Group>
 			<Sidebar.GroupContent>
@@ -116,18 +116,18 @@
 					{#each items as item (item.title)}
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton isActive={item.url.split('/')[1] == activeUrl}>
-								<a
-									href={item.url}
-									onclick={() => {
-										if (sidebar.isMobile) {
-											sidebar.toggle();
-										}
-									}}
-									class="flex w-full items-center gap-x-xxs"
-								>
-									<item.icon size="15" />
-									<p>{item.title}</p>
-								</a>
+								{#snippet child({ props })}
+									<a
+										href={item.url}
+										{...props}
+										onclick={() => {
+											if (sidebar.isMobile) sidebar.toggle();
+										}}
+									>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								{/snippet}
 							</Sidebar.MenuButton>
 						</Sidebar.MenuItem>
 					{/each}
@@ -136,22 +136,24 @@
 		</Sidebar.Group>
 	</Sidebar.Content>
 	<Sidebar.Footer>
-		<Sidebar.MenuItem class="bg-red-100 max-sm:hidden">
-			<Sidebar.MenuButton>
-				<a
-					href={'/login'}
-					onclick={async () => {
-						if (sidebar.isMobile) {
-							sidebar.toggle();
-						}
-						await logout();
-					}}
-					class="flex w-full items-center gap-x-xxs text-red-600"
-				>
-					<LogOut size="15" />
-					<p>Logout</p>
-				</a>
-			</Sidebar.MenuButton>
-		</Sidebar.MenuItem>
+		<Sidebar.Menu>
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton>
+					{#snippet child({ props })}
+						<a
+							href="/login"
+							{...props}
+							onclick={async () => {
+								if (sidebar.isMobile) sidebar.toggle();
+								await logout();
+							}}
+						>
+							<LogOut />
+							<span>Logout</span>
+						</a>
+					{/snippet}
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+		</Sidebar.Menu>
 	</Sidebar.Footer>
 </Sidebar.Root>

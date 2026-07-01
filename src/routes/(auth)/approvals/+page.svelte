@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
-	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
+	import { formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
-	import { Calendar } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { nav } from '../header.svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
 		state: 'pending',
@@ -12,6 +12,8 @@
 	});
 
 	onMount(async () => {
+		nav.set([{ title: 'Approvals', url: '/approvals' }]);
+
 		try {
 			approvalEvents = {
 				state: 'success',
@@ -26,13 +28,7 @@
 	});
 </script>
 
-<div class="flex w-full max-w-200 flex-col">
-	<div class="sticky top-12 z-40 flex flex-col gap-xs bg-background p-r-pad">
-		<div class="flex w-full items-center justify-between">
-			<h1 class="text-2xl leading-none">Pending Approvals</h1>
-		</div>
-	</div>
-
+<div class="mx-auto flex w-full max-w-prose flex-col">
 	<div class="flex flex-col gap-y-8 p-r-pad">
 		{#if approvalEvents.state === 'pending' || approvalEvents.state === 'failed'}
 			<p>{approvalEvents.message}</p>
@@ -45,9 +41,7 @@
 				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
-						<div
-							class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-background bg-muted p-xs"
-						>
+						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
 							<div class="flex items-start justify-between gap-x-0.5">
 								<p class="font-bold">
 									{event.title}
