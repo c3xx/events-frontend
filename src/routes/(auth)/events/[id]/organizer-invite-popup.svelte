@@ -102,10 +102,10 @@
 
 <Dialog.Root bind:open={isOpen}>
 	<form>
-		<Dialog.Content class="flex flex-col overflow-hidden sm:max-w-xl">
-			<p class="border-b bg-muted p-3 italic">Confirm Invite</p>
-			<div class="min-w-60 p-3">
-				<p class="leading-7">
+		<Dialog.Content class="flex flex-col overflow-hidden rounded sm:max-w-xl">
+			<p class="/bg-muted border-b px-3 py-4 text-sm">Confirm Invite</p>
+			<div class="flex min-w-60 flex-col gap-2.5 p-3">
+				<p class="text-sm leading-5">
 					I <span
 						>{#if roles.length === 1}
 							<span class="h-8 border border-muted-foreground bg-primary/10 p-0.5 px-xxs"
@@ -133,27 +133,27 @@
 					for the event
 					<span class="italic">{eventName}</span>
 				</p>
+				{#if errorText}
+					<p class="text-xs text-red-500">{errorText}</p>
+				{/if}
+				<div class="flex w-full justify-end gap-2.5 text-sm">
+					<button
+						type="button"
+						onclick={() => {
+							isOpen = false;
+						}}
+						class="px-2 py-2 text-muted-foreground">Go Back</button
+					>
+					<button
+						type="button"
+						onclick={sendInvitation}
+						disabled={loading}
+						class="flex items-center px-2 py-2 font-bold text-foreground"
+						>{#if loading}<Loader size="15" class="animate-spin" />
+						{/if} Confirm</button
+					>
+				</div>
 			</div>
-			{#if errorText}
-				<p class="px-3 text-xs text-red-500">{errorText}</p>
-			{/if}
-			<div class="flex w-full justify-end gap-x-sm p-3 text-sm">
-				<button
-					type="button"
-					onclick={() => {
-						isOpen = false;
-					}}
-					class="px-2 py-2 text-muted-foreground">Go Back</button
-				>
-				<button
-					type="button"
-					onclick={sendInvitation}
-					disabled={loading}
-					class="flex items-center bg-muted px-2 py-2 font-bold text-foreground"
-					>{#if loading}<Loader size="15" class="animate-spin" />
-					{/if} Confirm</button
-				>
-			</div></Dialog.Content
-		>
+		</Dialog.Content>
 	</form>
 </Dialog.Root>

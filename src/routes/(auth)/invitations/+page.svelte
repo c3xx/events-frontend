@@ -42,7 +42,9 @@
 				{/if}
 				{#each pendingInvitations.data as invitation}
 					<a href={`/invitations/${invitation.id}`} class="no-underline">
-						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
+						<div
+							class="flex min-w-56 flex-col gap-0.5 rounded border bg-background p-xs hover:bg-muted"
+						>
 							<div class="flex items-start justify-between gap-x-0.5">
 								<div class="flex items-center gap-x-1">
 									<p class={`text-xs`}>
@@ -54,7 +56,11 @@
 								</p>
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<ShapeAvatarSvg size={30} seed={invitation.sender.organization.name} />
+								<ShapeAvatarSvg
+									class="rounded-sm"
+									size={30}
+									seed={invitation.sender.organization.name}
+								/>
 								<div class="flex flex-col">
 									<p class="text-sm font-bold text-foreground">
 										{invitation.event.title}

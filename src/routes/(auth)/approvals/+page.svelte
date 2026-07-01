@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
-	import { formatDateDayAndMonth } from '$lib/helpers';
+	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { nav } from '../header.svelte';
+	import { Calendar } from '@lucide/svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
 		state: 'pending',
@@ -41,7 +42,9 @@
 				{/if}
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
-						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
+						<div
+							class="flex min-w-56 flex-col gap-0.5 rounded border bg-background p-xs hover:bg-muted"
+						>
 							<div class="flex items-start justify-between gap-x-0.5">
 								<p class="font-bold">
 									{event.title}
@@ -49,28 +52,22 @@
 										<span class="italic">({event.parentEvent.title})</span>
 									{/if}
 								</p>
-								<p class="text-xs text-muted-foreground">{formatDateDayAndMonth(event.startsAt)}</p>
-								<!-- change this to createdAt -->
-							</div>
-							<div class="flex items-center gap-x-xxs text-xs text-muted-foreground">
-								<p>
-									{formatDateDayAndMonth(event.startsAt)}
+								<p class="text-xs text-muted-foreground">
+									{formatDateDayAndMonth(event.createdAt)}
 								</p>
-								{#if formatDateDayAndMonth(event.startsAt) === formatDateDayAndMonth(event.endsAt)}
-									<p>-</p>
-									<p>
-										{formatDateDayAndMonth(event.endsAt)}
-									</p>
-								{/if}
 							</div>
-							<div class="mt-xxs flex items-center gap-x-xxs">
+							<div class="mt-3 flex items-center gap-xxs text-muted-foreground">
 								<ShapeAvatarSvg
-									size={20}
+									size={15}
 									seed={event.organizers.find((o) => o.role === 'host')?.organization.name!}
 								/>
-								<p class={`text-xs`}>
-									{event.organizers.find((o) => o.role === 'host')?.organization.name!}
+								<p class={`w-fit text-start text-xs font-semibold text-muted-foreground`}>
+									{event.organizers.find((o) => o.role === 'host')?.organization.name}
 								</p>
+							</div>
+							<div class="mt-xxs flex items-center gap-xxs text-muted-foreground">
+								<Calendar size="15" />
+								<p class="text-xs">{formatDate(event.startsAt)}</p>
 							</div>
 						</div>
 					</a>

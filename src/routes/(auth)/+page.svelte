@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { loadApprovalEvents, loadEventAssignments } from '$lib/api/me/approval-assignments';
+	import { loadApprovalEvents } from '$lib/api/me/approval-assignments';
 	import { loadPendingInvitations } from '$lib/api/me/invitations';
 	import ShapeAvatarSvg from '$lib/components/app/shape-avatar-svg.svelte';
 	import { eventStatusColors, eventStatusTextColors } from '$lib/constants';
 	import { formatDate, formatDateDayAndMonth } from '$lib/helpers';
 	import type { LoadedData, PendingApprovalEvent, PendingInvitation } from '$lib/types';
-	import { Inbox } from '@lucide/svelte';
+	import { Calendar, Inbox } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { nav } from './header.svelte';
+	// import EventCalendar from '$lib/components/app/event-calendar.svelte';
 
 	let approvalEvents = $state<LoadedData<PendingApprovalEvent[]>>({
 		state: 'pending',
@@ -70,7 +71,9 @@
 				<p class="text-xs text-muted-foreground uppercase">Pending Approvals</p>
 				{#each approvalEvents.data as event}
 					<a href={`/approvals/${event.id}`} class="no-underline">
-						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
+						<div
+							class="flex min-w-56 flex-col gap-0.5 rounded border bg-background p-xs hover:bg-muted"
+						>
 							<div class="flex items-start justify-between gap-x-0.5">
 								<p class="font-bold">
 									{event.title}
@@ -81,27 +84,19 @@
 								<p class="text-xs text-muted-foreground">
 									{formatDateDayAndMonth(event.createdAt)}
 								</p>
-								<!-- change this to createdAt -->
 							</div>
-							<div class="flex items-center gap-x-xxs text-xs text-muted-foreground">
-								<p>
-									{formatDateDayAndMonth(event.startsAt)}
-								</p>
-								{#if formatDateDayAndMonth(event.startsAt) === formatDateDayAndMonth(event.endsAt)}
-									<p>-</p>
-									<p>
-										{formatDateDayAndMonth(event.endsAt)}
-									</p>
-								{/if}
-							</div>
-							<div class="mt-xxs flex items-center gap-x-xxs">
+							<div class="mt-3 flex items-center gap-xxs text-muted-foreground">
 								<ShapeAvatarSvg
-									size={20}
+									size={15}
 									seed={event.organizers.find((o) => o.role === 'host')?.organization.name!}
 								/>
-								<p class={`text-xs`}>
-									{event.organizers.find((o) => o.role === 'host')?.organization.name!}
+								<p class={`w-fit text-start text-xs font-semibold text-muted-foreground`}>
+									{event.organizers.find((o) => o.role === 'host')?.organization.name}
 								</p>
+							</div>
+							<div class="mt-xxs flex items-center gap-xxs text-muted-foreground">
+								<Calendar size="15" />
+								<p class="text-xs">{formatDate(event.startsAt)}</p>
 							</div>
 						</div>
 					</a>
@@ -115,7 +110,9 @@
 				<p class="text-xs text-muted-foreground uppercase">Invitations</p>
 				{#each pendingInvitations.data as invitation}
 					<a href={`/invitations/${invitation.id}`} class="no-underline">
-						<div class="flex min-w-56 flex-col gap-0.5 border border-neutral-400 bg-muted p-xs">
+						<div
+							class="flex min-w-56 flex-col gap-0.5 rounded border bg-background p-xs hover:bg-muted"
+						>
 							<div class="flex items-start justify-between gap-x-0.5">
 								<div class="flex items-center gap-x-1">
 									<p class={`text-xs`}>
@@ -127,7 +124,7 @@
 								</p>
 							</div>
 							<div class="mt-xxs flex items-center gap-x-xxs">
-								<ShapeAvatarSvg seed={invitation.sender.organization.name} />
+								<ShapeAvatarSvg class="rounded-sm" seed={invitation.sender.organization.name} />
 								<div class="flex flex-col">
 									<p class="text-sm font-bold text-foreground">
 										{invitation.event.title}
@@ -143,4 +140,5 @@
 			</div>
 		{/if}
 	</div>
+	<!-- <EventCalendar /> -->
 </div>

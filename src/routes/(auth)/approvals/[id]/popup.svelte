@@ -2,35 +2,29 @@
 	import { respondEventAssignments } from '$lib/api/me/approval-assignments';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import type { EventAssignmentsAndDetails, LoadedData } from '$lib/types';
-	import { Loader } from '@lucide/svelte';
+	import { ChevronDown, ChevronUp, Loader } from '@lucide/svelte';
+	import { onMount } from 'svelte';
+	import { slide } from 'svelte/transition';
 
 	let {
 		isOpen = $bindable(false),
 		eventId,
-		ids,
-		userRoleName,
-		userScopeKindName,
 		decision,
-		kindName,
-		eventName,
 		eventAssignments = $bindable()
 	}: {
 		isOpen: boolean;
 		eventId: number;
-		ids: number[];
-		userRoleName: string;
-		userScopeKindName: string;
 		decision: 'approved' | 'denied';
-		kindName: string;
-		eventName: string;
 		eventAssignments: LoadedData<EventAssignmentsAndDetails>;
 	} = $props();
 
 	let remarks: string = $state('');
 	let errorText = $state('');
 	let loading = $state(false);
+	let remarksStateWhenApproved = $state(false);
 
-	async function respondToRequest(ids: number[], decision: 'approved' | 'denied') {
+	async function respondToRequest() {
+		if (eventAssignments.state !== 'success') return;
 		if (decision === 'denied' && remarks.trim().length === 0) {
 			errorText = 'Remarks required';
 			return;
@@ -38,18 +32,16 @@
 		errorText = '';
 		try {
 			loading = true;
-			await respondEventAssignments(eventId!, ids, decision, remarks);
-			if (eventAssignments.state === 'success') {
-				eventAssignments = {
-					...eventAssignments,
-					data: {
-						...eventAssignments.data,
-						assignments: eventAssignments.data.assignments.map((a) =>
-							ids.includes(a.id) ? { ...a, status: decision, remarks: remarks.trim() } : a
-						)
-					}
-				};
-			}
+			await respondEventAssignments(eventId!, activeIds, decision, remarks);
+			eventAssignments = {
+				...eventAssignments,
+				data: {
+					...eventAssignments.data,
+					assignments: eventAssignments.data.assignments.map((a) =>
+						activeIds.includes(a.id) ? { ...a, status: decision, remarks: remarks.trim() } : a
+					)
+				}
+			};
 			isOpen = false;
 		} catch (err: any) {
 			errorText = err.message ?? 'Something went wrong';
@@ -58,56 +50,129 @@
 			loading = false;
 		}
 	}
+	let activeIds: number[] = $state([]);
+	let rolesVisible = $state(false);
+
+	$effect(() => {
+		if (!isOpen) return;
+		if (eventAssignments.state !== 'success') return;
+		activeIds = eventAssignments.data.assignments
+			.filter((a) => a.status === 'pending')
+			.map((a) => a.id);
+		rolesVisible = false;
+	});
+
+	$effect(() => {
+		if (!activeIds) return;
+		console.log(activeIds);
+	});
 </script>
 
-<Dialog.Root bind:open={isOpen}>
-	<form>
-		<Dialog.Content class="flex flex-col overflow-hidden sm:max-w-xl">
-			<p class="border-b bg-muted p-3 italic">Confirm Approval</p>
-			<div class="min-w-60 p-3">
-				<p class="leading-7">
-					I <span class="border border-muted-foreground p-0.5 px-xxs"
-						><span class="font-bold">{userRoleName}</span>(<span class="italic"
-							>{userScopeKindName}</span
-						>)</span
-					>
-					,
-					<span class={`${decision === 'approved' ? 'text-green-600' : 'text-red-600'}`}
-						>{decision === 'approved' ? 'approve' : 'deny'}</span
-					>
-					the request to conduct event "<span class="bg-muted p-px font-bold">{eventName}</span>" by
-					<span class="border border-muted-foreground p-0.5 px-xxs font-bold">{kindName}</span>
-				</p>
-			</div>
-			{#if errorText}
-				<p class="px-3 text-xs text-red-500">{errorText}</p>
-			{/if}
-			<div class="w-full p-3">
-				<p class={`text-xs text-muted-foreground `}>Remarks</p>
-				<textarea
-					bind:value={remarks}
-					class={`min-h-20 w-full bg-muted p-xxs ${errorText ? 'border border-red-400' : ''}}`}
-				></textarea>
-			</div>
-			<div class="flex w-full justify-end gap-x-sm p-3 text-sm">
-				<button
-					type="button"
-					onclick={() => {
-						isOpen = false;
-					}}
-					class="px-2 py-2 text-muted-foreground">Go Back</button
-				>
-				<button
-					type="button"
-					onclick={() => {
-						respondToRequest(ids, decision);
-					}}
-					disabled={loading}
-					class="flex items-center bg-muted px-2 py-2 font-bold text-foreground"
-					>{#if loading}<Loader size="15" class="animate-spin" />
-					{/if} Confirm</button
-				>
-			</div>
-		</Dialog.Content>
-	</form>
-</Dialog.Root>
+{#if eventAssignments.state === 'success'}
+	<Dialog.Root bind:open={isOpen}>
+		<form>
+			<Dialog.Content class="overflow-hidden rounded sm:max-w-lg">
+				<p class="border-b px-3 py-4 text-sm">Confirm Approval</p>
+				<div class="flex min-w-60 flex-col gap-2.5 p-3">
+					<p class="text-sm leading-6">
+						I <span class={`${decision === 'approved' ? 'text-green-600' : 'text-red-600'}`}
+							>{decision === 'approved' ? 'approve' : 'deny'}</span
+						>
+						the request to conduct the event "<span class="font-semibold"
+							>{eventAssignments.data.title}</span
+						>" by
+						<span class="font-semibold"
+							>{eventAssignments.data.organizers.find((o) => o.role === 'host')?.organization
+								.name}</span
+						>
+					</p>
+					{#if decision === 'approved'}
+						<button
+							onclick={() => {
+								rolesVisible = !rolesVisible;
+							}}
+							class="flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:underline"
+							>Select roles to approve {#if rolesVisible}
+								<ChevronUp size="10" />
+							{:else}
+								<ChevronDown size="10" />
+							{/if}</button
+						>
+						{#if rolesVisible}
+							<div transition:slide class="h-min max-h-50 w-full overflow-auto">
+								<div class="flex flex-col divide-y rounded-lg border">
+									{#each eventAssignments.data.assignments.filter((a) => a.status === 'pending') as assignment}
+										<div
+											class="flex place-items-center justify-between gap-4 py-2 pr-2 pl-3 first:rounded-t-lg last:rounded-b-lg"
+										>
+											<div class="flex place-items-center gap-2.5">
+												<input
+													checked={activeIds.includes(assignment.id)}
+													onchange={(e) => {
+														if (e.currentTarget.checked) {
+															activeIds = [...activeIds, assignment.id];
+														} else {
+															activeIds = activeIds.filter((id) => id !== assignment.id);
+														}
+													}}
+													type="checkbox"
+												/>
+												<div class="text-xs">
+													<p class="font-semibold">{assignment.role.name}</p>
+													<p class="text-muted-foreground">
+														{assignment.role.scope.kindName}
+													</p>
+												</div>
+											</div>
+										</div>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					{/if}
+					{#if decision === 'approved'}
+						<div class="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+							<input
+								bind:checked={remarksStateWhenApproved}
+								onclick={(e) => {
+									remarksStateWhenApproved = Boolean(e.currentTarget.checked);
+								}}
+								type="checkbox"
+							/>
+							<p>Add Remarks</p>
+						</div>
+					{/if}
+					{#if (remarksStateWhenApproved && decision === 'approved') || decision === 'denied'}
+						{#if errorText}
+							<p class="text-xs text-red-500">{errorText}</p>
+						{/if}
+						<div transition:slide class="w-full">
+							<p class={`text-xs text-muted-foreground `}>Remarks</p>
+							<textarea
+								bind:value={remarks}
+								class={`min-h-20 w-full overflow-hidden rounded-sm bg-muted p-xxs ${errorText ? 'border border-red-400' : ''}}`}
+							></textarea>
+						</div>
+					{/if}
+					<div class="flex w-full justify-end gap-2.5 text-sm">
+						<button
+							type="button"
+							onclick={() => {
+								isOpen = false;
+							}}
+							class="px-2 py-2 text-muted-foreground">Go Back</button
+						>
+						<button
+							type="button"
+							onclick={respondToRequest}
+							disabled={loading}
+							class="flex items-center px-2 py-2 font-bold text-foreground"
+							>{#if loading}<Loader size="15" class="animate-spin" />
+							{/if} Confirm</button
+						>
+					</div>
+				</div>
+			</Dialog.Content>
+		</form>
+	</Dialog.Root>
+{/if}

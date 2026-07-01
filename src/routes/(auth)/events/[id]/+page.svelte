@@ -180,17 +180,6 @@
 						<h1>{event.data.title}</h1>
 						<Button variant="link">Edit <Edit /></Button>
 					</div>
-					<!-- <Button class="max-sm:hidden sm:flex" disabled={submitLoading} onclick={onSubmitEvent}
-						>{#if submitLoading}<Loader size="15" class="animate-spin" />
-						{/if} Submit</Button
-					>
-					<button disabled={submitLoading} onclick={onSubmitEvent} class="text-primary sm:hidden"
-						>{#if submitLoading}
-							<Loader class="animate-spin" />
-						{:else}
-							<Send />
-						{/if}</button
-					> -->
 				</div>
 				{#if errorText || successText}
 					<p
@@ -214,7 +203,7 @@
 				<WorkflowsSection eventId={event.data.id} activeWorkflow={latestWorkflow} />
 
 				<div class="flex w-full gap-xs max-sm:flex-col-reverse">
-					<Button class="bg-red-600 text-white sm:flex-1">
+					<Button class="bg-red-600 text-white hover:bg-red-800 sm:flex-1">
 						<XCircle size="15" /> Cancel Event
 					</Button>
 					{#if event.data.status !== 'pending'}
@@ -227,7 +216,7 @@
 							Submit Event
 						</Button>
 					{:else}
-						<Button class="bg-red-300 text-foreground sm:flex-1">
+						<Button class="bg-red-300 text-foreground hover:bg-red-500 sm:flex-1">
 							<Ban size="15" /> Abort Workflow
 						</Button>
 					{/if}

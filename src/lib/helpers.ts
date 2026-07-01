@@ -31,6 +31,10 @@ export function formatDateOnlyTime(dateStr: string) {
 	});
 }
 
+export function getDaysInMonth(year: number, month: number) {
+	return new Date(year, month, 0).getDate();
+}
+
 export function canAccessRoute(route: string): boolean {
 	if (UNPROTECTED_ROUTES.includes(route)) return true;
 	const user = authInfo.get();
